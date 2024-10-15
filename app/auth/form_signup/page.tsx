@@ -50,10 +50,10 @@ export default function SignupPage() {
           })
           .catch(error => {
             console.error('Error compressing image', error);
-            toast.error('Error compressing image');
+            toast.error('เกิดข้อผิดพลาดในการบีบอัดรูปภาพ');
           });
       } else {
-        toast.error('Invalid file type');
+        toast.error('ประเภทไฟล์ไม่ถูกต้อง');
       }
     } else {
       setFormData({ ...formData, [name]: value });
@@ -76,19 +76,19 @@ export default function SignupPage() {
       const data = await response.json();
 
       if (response.status === 200) {
-        toast.success('ลงทะเบียนสำเร็จ...', {
+        toast.success('ลงทะเบียนสำเร็จ กำลังนำคุณไปยังหน้าเข้าสู่ระบบ...', {
           duration: 4000,
           style: { background: '#4ade80', color: '#ffffff' },
         });
-        setTimeout(() => router.push('/auth/signin'), 1000);
+        setTimeout(() => router.push('/auth/signin'), 2000);
       } else {
-        toast.error(data.error || 'มีบางอย่างผิดปกติ', {
+        toast.error(data.error || 'เกิดข้อผิดพลาด โปรดลองอีกครั้ง', {
           style: { background: '#f87171', color: '#ffffff' },
         });
       }
     } catch (error) {
       console.error('Error:', error);
-      toast.error('มีบางอย่างผิดปกติ', {
+      toast.error('เกิดข้อผิดพลาดในการเชื่อมต่อ โปรดลองอีกครั้ง', {
         style: { background: '#f87171', color: '#ffffff' },
       });
     } finally {

@@ -11,7 +11,7 @@ export async function middleware(request: NextRequest) {
 
   if (
     pathname.startsWith('/dashboard') &&
-    (!user || user.role !== 'admin')
+    (!user || user.role !== 'ADMIN')
   ) {
     return NextResponse.redirect(new URL('/auth/signin', request.url));
   }

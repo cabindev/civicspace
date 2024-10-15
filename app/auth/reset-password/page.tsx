@@ -18,7 +18,7 @@ export default function ResetPassword() {
   }, []);
 
   const validatePassword = (password: string) => {
-    return password.length >= 8;
+    return password.length >= 5;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -27,7 +27,7 @@ export default function ResetPassword() {
     setMessage('');
 
     if (!validatePassword(password)) {
-      setMessage('รหัสผ่านต้องมีความยาวอย่างน้อย 8 ตัวอักษร');
+      setMessage('รหัสผ่านต้องมีความยาวอย่างน้อย 5 ตัวอักษร');
       setIsLoading(false);
       return;
     }

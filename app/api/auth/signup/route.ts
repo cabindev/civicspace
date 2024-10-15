@@ -3,8 +3,27 @@ import bcrypt from 'bcryptjs';
 import { NextRequest, NextResponse } from 'next/server';
 import path from 'path';
 import fs from 'fs/promises';
+import axios from 'axios';
 
 const prisma = new PrismaClient();
+
+const LINE_NOTIFY_TOKEN = 'Q6Xpu58PHvUT3nzkn2WwL9E42in8il7gmmLJZllCBsm';
+
+async function sendLineNotify(message: string) {
+  try {
+    await axios.post('https://notify-api.line.me/api/notify', 
+      `message=${encodeURIComponent(message)}`,
+      {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Authorization': `Bearer ${LINE_NOTIFY_TOKEN}`
+        }
+      }
+    );
+  } catch (error) {
+    console.error('Error sending Line notification:', error);
+  }
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -18,7 +37,12 @@ export async function POST(request: NextRequest) {
     // Check if user with the same email already exists
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
-      return new NextResponse(JSON.stringify({ error: 'มีอีเมลนี้แล้ว ในระบบ' }), { status: 400 });
+      return new NextResponse(JSON.stringify({ error: 'มีอีเมลนี้แล้วในระบบ' }), { status: 400 });
+    }
+
+    // Validate password strength
+    if (password.length < 5) {
+      return new NextResponse(JSON.stringify({ error: 'รหัสผ่านต้องมีความยาวอย่างน้อย 5 ตัวอักษร' }), { status: 400 });
     }
 
     // Hash the password
@@ -37,7 +61,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create the new user
-    await prisma.user.create({
+    const newUser = await prisma.user.create({
       data: {
         firstName,
         lastName,
@@ -47,20 +71,23 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    // Send Line Notify
+    await sendLineNotify(`มีผู้ใช้ใหม่ลงทะเบียน: ${firstName} ${lastName} (${email})`);
+
     // Return success response
-    return new NextResponse(JSON.stringify({ message: 'User created successfully' }), { status: 200 });
+    return new NextResponse(JSON.stringify({ message: 'ลงทะเบียนสำเร็จ', userId: newUser.id }), { status: 200 });
   } catch (error) {
     console.error('Error creating user:', error);
-    return new NextResponse(JSON.stringify({ error: 'User could not be created' }), { status: 500 });
+    return new NextResponse(JSON.stringify({ error: 'ไม่สามารถสร้างบัญชีผู้ใช้ได้ โปรดลองอีกครั้ง' }), { status: 500 });
   }
 }
+
 export async function GET(request: NextRequest) {
   try {
     const userCount = await prisma.user.count();
-
     return new NextResponse(JSON.stringify({ userCount }), { status: 200 });
   } catch (error) {
     console.error('Error fetching user count:', error);
-    return new NextResponse(JSON.stringify({ error: 'Could not fetch user count' }), { status: 500 });
+    return new NextResponse(JSON.stringify({ error: 'ไม่สามารถดึงจำนวนผู้ใช้ได้' }), { status: 500 });
   }
 }

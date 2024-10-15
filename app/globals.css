@@ -3,34 +3,34 @@
 @tailwind utilities;
 
 :root {
-  --background: #fffbeb;
-  --foreground: #78350f;
-  --primary: #d97706;
-  --primary-foreground: #fef3c7;
-  --secondary: #92400e;
-  --secondary-foreground: #fef3c7;
-  --accent: #fbbf24;
-  --accent-foreground: #78350f;
-  --muted: #fde68a;
-  --muted-foreground: #92400e;
-  --hover-bg: #f59e0b; /* เพิ่มสีพื้นหลังสำหรับ hover */
-  --hover-text: #ffffff; /* เพิ่มสีตัวอักษรสำหรับ hover */
+  --background: #f8fafc;
+  --foreground: #1e293b;
+  --primary: #10b981;
+  --primary-foreground: #ffffff;
+  --secondary: #64748b;
+  --secondary-foreground: #ffffff;
+  --accent: #14b8a6;
+  --accent-foreground: #0f172a;
+  --muted: #e2e8f0;
+  --muted-foreground: #64748b;
+  --hover-bg: #34d399;
+  --hover-text: #ffffff;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #292524;
-    --foreground: #fef3c7;
-    --primary: #fbbf24;
-    --primary-foreground: #78350f;
-    --secondary: #f59e0b;
-    --secondary-foreground: #78350f;
-    --accent: #d97706;
-    --accent-foreground: #fef3c7;
-    --muted: #78350f;
-    --muted-foreground: #fde68a;
-    --hover-bg: #fef3c7; /* สีพื้นหลังสำหรับ hover ในโหมดมืด */
-    --hover-text: #292524; /* สีตัวอักษรสำหรับ hover ในโหมดมืด */
+    --background: #0f172a;
+    --foreground: #e2e8f0;
+    --primary: #34d399;
+    --primary-foreground: #0f172a;
+    --secondary: #94a3b8;
+    --secondary-foreground: #0f172a;
+    --accent: #2dd4bf;
+    --accent-foreground: #0f172a;
+    --muted: #1e293b;
+    --muted-foreground: #94a3b8;
+    --hover-bg: #10b981;
+    --hover-text: #ffffff;
   }
 }
 
@@ -46,53 +46,43 @@ body {
   }
 }
 
-/* เพิ่มสไตล์สำหรับปุ่มและลิงก์ */
 .btn-primary {
-  background-color: var(--primary);
-  color: var(--primary-foreground);
-}
-
-.btn-primary:hover {
-  background-color: var(--hover-bg);
-  color: var(--hover-text);
+  @apply bg-primary text-primary-foreground hover:bg-[var(--hover-bg)] transition-colors duration-200;
 }
 
 .link-primary {
-  color: var(--primary);
-}
-
-.link-primary:hover {
-  color: var(--hover-bg);
-  text-decoration: underline;
+  @apply text-primary hover:text-[var(--hover-bg)] hover:underline transition-colors duration-200;
 }
 
 .alert {
-  padding: 1rem;
-  border-radius: 0.5rem;
-  margin-top: 1rem;
+  @apply p-4 rounded-lg mt-4;
 }
 
 .alert-success {
-  background-color: var(--accent);
-  color: var(--accent-foreground);
+  @apply bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100;
 }
 
 .alert-error {
-  background-color: #fee2e2;
-  color: #991b1b;
+  @apply bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100;
 }
 
 .loading {
-  display: inline-block;
-  width: 1rem;
-  height: 1rem;
-  border: 2px solid var(--primary-foreground);
-  border-radius: 50%;
-  border-top: 2px solid var(--primary);
-  animation: spin 1s linear infinite;
+  @apply inline-block w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin;
 }
 
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+.dark {
+  color-scheme: dark;
 }
+
+
+
+
+.ant-pagination-item-active {
+  border-color: #10b981 !important;
+}
+
+.ant-pagination-item-active a {
+  color: #10b981 !important;
+}
+
+

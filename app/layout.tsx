@@ -4,8 +4,9 @@ import "./globals.css";
 import SessionProvider from "./components/SessionProvider";
 import { getServerSession } from "next-auth";
 import authOptions from "./lib/configs/auth/authOptions";
-import Navbar from "./dashboard/components/navbar";
-
+import ConditionalNavbar from "./components/ConditionalNavbar";
+import AntdProvider from "./components/AntdProvider";
+import 'antd/dist/reset.css';
 
 const seppuriSemibold = localFont({
   src: "./fonts/seppuri-semibold-webfont.woff2",
@@ -38,8 +39,10 @@ export default async function RootLayout({
         className={`${seppuriSemibold.variable} ${seppuriThin.variable} antialiased`}
       >
         <SessionProvider session={session}>
-          <Navbar/>
-        {children}
+          <AntdProvider>
+            <ConditionalNavbar />
+            {children}
+          </AntdProvider>
         </SessionProvider>
       </body>
     </html>

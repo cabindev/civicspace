@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE `Tradition` ADD COLUMN `viewCount` INTEGER NOT NULL DEFAULT 0;

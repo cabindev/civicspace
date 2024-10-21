@@ -13,7 +13,7 @@ export default function RecentActivities({ data }: RecentActivitiesProps) {
       <div className="card-body">
         <h2 className="card-title flex items-center mb-4">
           <FaClockRotateLeft className="mr-2 text-2xl text-green-600" />
-          กิจกรรมล่าสุด
+          Activity / กิจกรรมล่าสุด
         </h2>
         <ul className="timeline timeline-vertical">
           {data.map((activity, index) => (

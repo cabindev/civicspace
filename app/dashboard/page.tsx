@@ -95,7 +95,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="p-4">
+    <div className="ิbg-amber-500 ">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <OverviewCards data={data.overview} />
       </div>

@@ -27,7 +27,7 @@ export default function RecentPolicies({ data }: RecentPoliciesProps) {
       <div className="card-body">
         <h2 className="card-title flex items-center mb-4">
           <FaFileSignature className="mr-2 text-2xl text-green-600" />
-          นโยบายสาธารณะล่าสุด
+          Public-Policy / นโยบายสาธารณะล่าสุด
         </h2>
         <ul className="timeline timeline-vertical">
           {data.map((policy, index) => (

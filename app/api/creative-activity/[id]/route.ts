@@ -27,71 +27,121 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   }
 }
 
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
-    const formData = await request.formData();
+    let body;
+    const contentType = request.headers.get('content-type');
+    if (contentType?.includes('application/json')) {
+      body = await request.json();
+    } else if (contentType?.includes('multipart/form-data')) {
+      const formData = await request.formData();
+      body = Object.fromEntries(formData);
+    } else {
+      return NextResponse.json({ error: 'Unsupported content type' }, { status: 400 });
+    }
 
-    const updateData: any = {
-      name: formData.get('name') as string,
-      district: formData.get('district') as string,
-      amphoe: formData.get('amphoe') as string,
-      province: formData.get('province') as string,
-      zipcode: formData.get('zipcode') ? parseInt(formData.get('zipcode') as string) : null,
-      district_code: formData.get('district_code') ? parseInt(formData.get('district_code') as string) : null,
-      amphoe_code: formData.get('amphoe_code') ? parseInt(formData.get('amphoe_code') as string) : null,
-      province_code: formData.get('province_code') ? parseInt(formData.get('province_code') as string) : null,
-      type: formData.get('type') as string,
-      village: formData.get('village') as string | null,
-      coordinatorName: formData.get('coordinatorName') as string,
-      phone: formData.get('phone') as string | null,
-      description: formData.get('description') as string,
-      summary: formData.get('summary') as string,
-      results: formData.get('results') as string | null,
-      startYear: parseInt(formData.get('startYear') as string),
-      videoLink: formData.get('videoLink') as string | null,
-      category: { connect: { id: formData.get('categoryId') as string } },
-      subCategory: { connect: { id: formData.get('subCategoryId') as string } },
+    if (body.action === 'incrementViewCount') {
+      const updatedActivity = await prisma.creativeActivity.update({
+        where: { id: params.id },
+        data: { viewCount: { increment: 1 } },
+        select: { viewCount: true }
+      });
+      return NextResponse.json(updatedActivity);
+    }
+
+    const activityData: any = {
+      name: body.name,
+      categoryId: body.categoryId,
+      subCategoryId: body.subCategoryId,
+      district: body.district,
+      amphoe: body.amphoe,
+      province: body.province,
+      type: body.type,
+      village: body.village || null,
+      coordinatorName: body.coordinatorName,
+      phone: body.phone || null,
+      description: body.description,
+      summary: body.summary,
+      results: body.results || null,
+      startYear: parseInt(body.startYear as string),
+      videoLink: body.videoLink || null,
     };
 
-    const activity = await prisma.creativeActivity.update({
-      where: { id: params.id },
-      data: updateData,
+    ['zipcode', 'district_code', 'amphoe_code', 'province_code'].forEach(field => {
+      activityData[field] = body[field] && !isNaN(Number(body[field])) ? Number(body[field]) : null;
     });
 
-    // Handle image uploads
-    const images = formData.getAll('images') as File[];
-    for (const image of images) {
-      if (image instanceof File) {
-        const buffer = Buffer.from(await image.arrayBuffer());
-        const filename = Date.now() + '-' + image.name;
-        const filepath = path.join(process.cwd(), 'public/uploads/creative-activity-images', filename);
-        await writeFile(filepath, buffer);
-        await prisma.image.create({
-          data: {
-            url: `/uploads/creative-activity-images/${filename}`,
-            creativeActivityId: activity.id,
-          },
-        });
+    const updatedActivity = await prisma.creativeActivity.update({
+      where: { id: params.id },
+      data: activityData,
+    });
+
+    const existingImages = JSON.parse(body.existingImages || '[]');
+    await prisma.image.deleteMany({
+      where: {
+        creativeActivityId: params.id,
+        url: { notIn: existingImages }
+      }
+    });
+
+    // จัดการรูปภาพใหม่
+    if (body.newImages) {
+      const newImages = Array.isArray(body.newImages) ? body.newImages : [body.newImages];
+      for (const image of newImages) {
+        if (image instanceof Blob) {
+          const buffer = await image.arrayBuffer();
+          const filename = Date.now() + '-' + (image as File).name.replace(/\s+/g, '-');
+          const filepath = path.join(process.cwd(), 'public/uploads/creative-activity-images', filename);
+          await writeFile(filepath, Buffer.from(buffer));
+          await prisma.image.create({
+            data: {
+              url: `/uploads/creative-activity-images/${filename}`,
+              creativeActivityId: params.id,
+            },
+          });
+        }
       }
     }
 
-    // Handle report file upload
-    const reportFile = formData.get('reportFile') as File | null;
-    if (reportFile instanceof File) {
-      const buffer = Buffer.from(await reportFile.arrayBuffer());
-      const filename = Date.now() + '-' + reportFile.name;
-      const filepath = path.join(process.cwd(), 'public/uploads/creative-activity-files', filename);
-      await writeFile(filepath, buffer);
-      await prisma.creativeActivity.update({
-        where: { id: activity.id },
-        data: { reportFileUrl: `/uploads/creative-activity-files/${filename}` },
-      });
-    }
+    // Handle report file
+    await handleReportFile(body, params.id);
 
-    return NextResponse.json(activity, { status: 200 });
+    return NextResponse.json(updatedActivity);
   } catch (error) {
     console.error('Error updating creative activity:', error);
-    return NextResponse.json({ error: 'Internal Server Error', details: error }, { status: 500 });
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  }
+}
+
+async function handleReportFile(body: any, activityId: string) {
+  const existingActivity = await prisma.creativeActivity.findUnique({
+    where: { id: activityId },
+    select: { reportFileUrl: true }
+  });
+
+  if (existingActivity?.reportFileUrl) {
+    const oldFilePath = path.join(process.cwd(), 'public', existingActivity.reportFileUrl);
+    await unlink(oldFilePath).catch(error => console.error('Error deleting old report file:', error));
+  }
+
+  if (body.reportFile instanceof Blob) {
+    const buffer = await body.reportFile.arrayBuffer();
+    const filename = Date.now() + '-' + body.reportFile.name.replace(/\s+/g, '-');
+    const filepath = path.join(process.cwd(), 'public/uploads/creative-activity-files', filename);
+    await writeFile(filepath, Buffer.from(buffer));
+    
+    await prisma.creativeActivity.update({
+      where: { id: activityId },
+      data: { reportFileUrl: `/uploads/creative-activity-files/${filename}` },
+    });
+  } else if (body.removeReportFile === 'true') {
+    await prisma.creativeActivity.update({
+      where: { id: activityId },
+      data: { reportFileUrl: null },
+    });
   }
 }
 

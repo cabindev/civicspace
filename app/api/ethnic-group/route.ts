@@ -2,15 +2,30 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/app/lib/prisma';
 import { writeFile } from 'fs/promises';
 import path from 'path';
+import { getServerSession } from 'next-auth/next';
+import authOptions from '@/app/lib/configs/auth/authOptions';
+import { revalidatePath} from 'next/cache';
 
 export async function POST(request: NextRequest) {
   console.log('Ethnic Group API route hit');
 
   try {
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user?.email) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email },
+    });
+
+    if (!user) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
     const formData = await request.formData();
 
     const ethnicGroupData: any = {
-      categoryId: formData.get('categoryId') as string,
       name: formData.get('name') as string,
       history: formData.get('history') as string,
       activityName: formData.get('activityName') as string,
@@ -19,16 +34,18 @@ export async function POST(request: NextRequest) {
       amphoe: formData.get('amphoe') as string,
       district: formData.get('district') as string,
       village: formData.get('village') as string || null,
-      zipcode: formData.get('zipcode') ? parseInt(formData.get('zipcode') as string) : null,
-      district_code: formData.get('district_code') ? parseInt(formData.get('district_code') as string) : null,
-      amphoe_code: formData.get('amphoe_code') ? parseInt(formData.get('amphoe_code') as string) : null,
-      province_code: formData.get('province_code') ? parseInt(formData.get('province_code') as string) : null,
       type: formData.get('type') as string,
       activityDetails: formData.get('activityDetails') as string,
       alcoholFreeApproach: formData.get('alcoholFreeApproach') as string,
       startYear: parseInt(formData.get('startYear') as string),
       results: formData.get('results') as string || null,
       videoLink: formData.get('videoLink') as string || null,
+      category: {
+        connect: { id: formData.get('categoryId') as string }
+      },
+      user: {
+        connect: { id: user.id }
+      }
     };
 
     // Handle numeric fields
@@ -65,7 +82,7 @@ export async function POST(request: NextRequest) {
     const file = formData.get('fileUrl') as File;
     if (file) {
       const buffer = Buffer.from(await file.arrayBuffer());
-      const filename = Date.now() + '-' + file.name.replace(/\s+/g, '-');
+      const filename = Date.now() + '-' + file.name.replace(/\s+/g,'-');
       const filepath = path.join(process.cwd(), 'public/uploads/ethnic-group-files', filename);
       await writeFile(filepath, buffer);
       await prisma.ethnicGroup.update({
@@ -73,6 +90,7 @@ export async function POST(request: NextRequest) {
         data: { fileUrl: `/uploads/ethnic-group-files/${filename}` },
       });
     }
+    revalidatePath ('/api/ethnic-group');
 
     return NextResponse.json(ethnicGroup, { status: 201 });
   } catch (error) {
@@ -82,7 +100,6 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET() {
-
   try {
     const ethnicGroups = await prisma.ethnicGroup.findMany({
       include: { images: true, category: true },

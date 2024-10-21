@@ -9,6 +9,7 @@ import { useRouter } from 'next/navigation';
 import { data } from '@/app/data/regions';
 import { UploadFile } from 'antd/es/upload';
 import imageCompression from 'browser-image-compression';
+import { useSession } from 'next-auth/react';
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -57,6 +58,7 @@ interface FormValues {
 export default function CreateEthnicGroup() {
   const [form] = Form.useForm<FormValues>();
   const router = useRouter();
+  const { data: session } = useSession();
   const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState<EthnicCategory[]>([]);
   const [fileList, setFileList] = useState<UploadFile[]>([]);
@@ -134,6 +136,11 @@ export default function CreateEthnicGroup() {
   const onFinish = async (values: FormValues) => {
     setLoading(true);
     try {
+      if (!session?.user?.email) {
+        message.error('ไม่พบข้อมูลผู้ใช้ กรุณาเข้าสู่ระบบใหม่');
+        return;
+      }
+
       const formData = new FormData();
       Object.entries(values).forEach(([key, value]) => {
         if (key === 'images') {
@@ -161,6 +168,7 @@ export default function CreateEthnicGroup() {
       setLoading(false);
     }
   };
+
 
 
   const renderFormItem = (name: string, label: string, component: React.ReactNode, rules?: any[], hidden: boolean = false) => (

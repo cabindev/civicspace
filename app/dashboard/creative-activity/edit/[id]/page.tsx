@@ -1,12 +1,12 @@
 'use client'
 
-import { useState, useEffect } from 'react';
-import { Form, Input, Select, InputNumber, Upload, Button, message, Card, Col, Row, Modal } from 'antd';
+import { useState, useEffect, useCallback } from 'react';
+import { Form, Input, Select, InputNumber, Upload, Button, message, Card, Col, Row } from 'antd';
 import { UploadOutlined, LinkOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import { data } from '@/app/data/regions';
-import { UploadFile } from 'antd/es/upload';
+import type { UploadFile } from 'antd/es/upload/interface';
 import imageCompression from 'browser-image-compression';
 
 const { Option } = Select;
@@ -21,17 +21,6 @@ interface CreativeCategory {
 interface CreativeSubCategory {
   id: string;
   name: string;
-}
-
-interface RegionData {
-  district: string;
-  amphoe: string;
-  province: string;
-  zipcode: number;
-  district_code: number;
-  amphoe_code: number;
-  province_code: number;
-  type: string;
 }
 
 interface FormValues {
@@ -68,25 +57,17 @@ export default function EditCreativeActivity({ params }: { params: { id: string 
   const [fileList, setFileList] = useState<UploadFile[]>([]);
   const [reportFile, setReportFile] = useState<UploadFile[]>([]);
   const [districts, setDistricts] = useState<string[]>([]);
-  const [autoFilledFields, setAutoFilledFields] = useState<Set<string>>(new Set());
 
-  useEffect(() => {
-    fetchCategories();
-    fetchActivityData();
-    const uniqueDistricts = Array.from(new Set(data.map(item => `${item.district}, ${item.amphoe}, ${item.province}`)));
-    setDistricts(uniqueDistricts);
-  }, []);
-
-  const fetchCategories = async () => {
+  const fetchCategories = useCallback(async () => {
     try {
       const response = await axios.get<CreativeCategory[]>('/api/creative-category');
       setCategories(response.data);
     } catch (error) {
       message.error('ไม่สามารถโหลดประเภทกิจกรรมสร้างสรรค์ได้');
     }
-  };
+  }, []);
 
-  const fetchActivityData = async () => {
+  const fetchActivityData = useCallback(async () => {
     try {
       const response = await axios.get(`/api/creative-activity/${params.id}`);
       const activityData = response.data;
@@ -110,11 +91,27 @@ export default function EditCreativeActivity({ params }: { params: { id: string 
           url: activityData.reportFileUrl,
         }]);
       }
-      setSubCategories(categories.find(c => c.id === activityData.categoryId)?.subCategories || []);
+      const category = categories.find(c => c.id === activityData.categoryId);
+      if (category) {
+        setSubCategories(category.subCategories);
+      }
     } catch (error) {
+      console.error('Error fetching activity data:', error);
       message.error('ไม่สามารถโหลดข้อมูลกิจกรรมสร้างสรรค์ได้');
     }
-  };
+  }, [params.id, form, categories]);
+
+  useEffect(() => {
+    fetchCategories();
+    const uniqueDistricts = Array.from(new Set(data.map(item => `${item.district}, ${item.amphoe}, ${item.province}`)));
+    setDistricts(uniqueDistricts);
+  }, [fetchCategories]);
+
+  useEffect(() => {
+    if (categories.length > 0) {
+      fetchActivityData();
+    }
+  }, [categories, fetchActivityData]);
 
   const handleCategoryChange = (categoryId: string) => {
     const category = categories.find(c => c.id === categoryId);
@@ -126,81 +123,57 @@ export default function EditCreativeActivity({ params }: { params: { id: string 
 
   const handleDistrictChange = (value: string) => {
     const [district, amphoe, province] = value.split(', ');
-    const regionData = data.find(d => d.district === district && d.amphoe === amphoe && d.province === province) as RegionData | undefined;
+    const regionData = data.find(d => d.district === district && d.amphoe === amphoe && d.province === province);
     if (regionData) {
-      const formValues: any = {
-        location: value,
+      form.setFieldsValue({
         district: regionData.district,
         amphoe: regionData.amphoe,
         province: regionData.province,
         type: regionData.type,
-        zipcode: regionData.zipcode,
-        district_code: regionData.district_code,
-        amphoe_code: regionData.amphoe_code,
-        province_code: regionData.province_code,
-      };
-      form.setFieldsValue(formValues);
-      setAutoFilledFields(new Set(['district', 'amphoe', 'province', 'type', 'zipcode', 'district_code', 'amphoe_code', 'province_code']));
+        zipcode: regionData.zipcode || form.getFieldValue('zipcode'),
+        district_code: regionData.district_code || form.getFieldValue('district_code'),
+        amphoe_code: regionData.amphoe_code || form.getFieldValue('amphoe_code'),
+        province_code: regionData.province_code || form.getFieldValue('province_code'),
+      });
     }
   };
 
   const handleImageChange = async (info: any) => {
-    const { fileList } = info;
-    try {
-      const compressedFileList = await Promise.all(
-        fileList.map(async (file: UploadFile) => {
-          if (file.originFileObj && !file.url) {
-            const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
-            if (!isJpgOrPng) {
-              message.error('คุณสามารถอัปโหลดไฟล์ JPG/PNG เท่านั้น!');
-              return null;
-            }
-            const options = {
-              maxSizeMB: 0.2,
-              maxWidthOrHeight: 1024,
-              useWebWorker: true,
-              fileType: 'image/webp',
-            };
+    let newFileList = [...info.fileList];
+    newFileList = newFileList.slice(-8);
+  
+    const processedFileList = await Promise.all(
+      newFileList.map(async (file) => {
+        if (file.originFileObj && !file.url) {
+          const options = {
+            maxSizeMB: 0.2,
+            maxWidthOrHeight: 1024,
+            useWebWorker: true,
+            fileType: 'image/webp' as const,
+          };
+          try {
             const compressedFile = await imageCompression(file.originFileObj, options);
-            const webpFile = new File([compressedFile], `${file.name.split('.')[0]}.webp`, { type: 'image/webp' });
+            const newFileName = `${file.name.split('.')[0]}.webp`;
             return {
               ...file,
-              originFileObj: webpFile,
-              name: webpFile.name,
-              type: 'image/webp',
+              originFileObj: new File([compressedFile], newFileName, { type: 'image/webp' }),
+              name: newFileName,
             };
+          } catch (error) {
+            console.error('Error compressing image:', error);
+            message.error(`ไม่สามารถบีบอัดรูปภาพ ${file.name} ได้`);
+            return null;
           }
-          return file;
-        })
-      );
-      setFileList(compressedFileList.filter(file => file !== null));
-    } catch (error) {
-      console.error('Error handling image change:', error);
-      message.error('เกิดข้อผิดพลาดในการจัดการรูปภาพ');
-    }
+        }
+        return file;
+      })
+    );
+  
+    setFileList(processedFileList.filter((file): file is UploadFile => file !== null));
   };
 
   const handleRemoveImage = (file: UploadFile) => {
-    Modal.confirm({
-      title: 'ยืนยันการลบรูปภาพ',
-      content: 'คุณแน่ใจหรือไม่ว่าต้องการลบรูปภาพนี้?',
-      onOk: async () => {
-        try {
-          await axios.delete(`/api/creative-activity/${params.id}/image/${file.uid}`);
-          setFileList(fileList.filter(item => item.uid !== file.uid));
-          message.success('ลบรูปภาพสำเร็จ');
-        } catch (error) {
-          console.error('Error deleting image:', error);
-          message.error('ไม่สามารถลบรูปภาพได้');
-        }
-      },
-    });
-    return false; // Prevent default remove behavior
-  };
-
-  const handleReportFileChange = (info: any) => {
-    const { fileList } = info;
-    setReportFile(fileList);
+    setFileList((prev) => prev.filter((item) => item.uid !== file.uid));
   };
 
   const onFinish = async (values: FormValues) => {
@@ -208,19 +181,32 @@ export default function EditCreativeActivity({ params }: { params: { id: string 
     try {
       const formData = new FormData();
       Object.entries(values).forEach(([key, value]) => {
-        if (key === 'images') {
-          fileList.forEach((file) => {
-            if (file.originFileObj) {
-              formData.append('images', file.originFileObj);
-            }
-          });
-        } else if (key === 'reportFile' && reportFile.length > 0) {
-          formData.append('reportFile', reportFile[0].originFileObj as File);
-        } else if (value !== undefined && value !== null) {
+        if (key !== 'images' && key !== 'reportFile' && value !== undefined && value !== null) {
           formData.append(key, value.toString());
         }
       });
-
+  
+      // จัดการรูปภาพ
+      const existingImages = fileList.filter(file => file.url).map(file => file.url);
+      formData.append('existingImages', JSON.stringify(existingImages));
+  
+      fileList.forEach((file) => {
+        if (file.originFileObj) {
+          formData.append('newImages', file.originFileObj);
+        }
+      });
+  
+      // จัดการไฟล์รายงาน
+      if (reportFile.length > 0) {
+        if (reportFile[0].originFileObj) {
+          formData.append('reportFile', reportFile[0].originFileObj);
+        } else if (reportFile[0].url) {
+          formData.append('existingReportFile', reportFile[0].url);
+        }
+      } else {
+        formData.append('removeReportFile', 'true');
+      }
+  
       await axios.put(`/api/creative-activity/${params.id}`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
@@ -234,145 +220,141 @@ export default function EditCreativeActivity({ params }: { params: { id: string 
     }
   };
 
-  const renderFormItem = (name: string, label: string, component: React.ReactNode, rules?: any[], hidden: boolean = false) => (
-    <Form.Item 
-      name={name} 
-      label={hidden ? undefined : label} 
-      rules={rules}
-      className={autoFilledFields.has(name) ? 'auto-filled' : ''}
-      hidden={hidden}
-    >
-      {component}
-    </Form.Item>
-  );
-
   return (
     <div className="container mx-auto p-4">
-      <style jsx global>{`
-        .auto-filled .ant-input,
-        .auto-filled .ant-input-number-input,
-        .auto-filled .ant-select-selector {
-          background-color: #e6f7e6 !important;
-        }
-      `}</style>
       <h1 className="text-2xl font-bold mb-4">แก้ไขกิจกรรมสร้างสรรค์</h1>
-      <Form<FormValues> form={form} layout="vertical" onFinish={onFinish}>
+      <Form form={form} layout="vertical" onFinish={onFinish}>
         <Row gutter={[16, 16]}>
           <Col xs={24} lg={12}>
             <Card title="ข้อมูลทั่วไป" className="mb-4">
-              {renderFormItem("categoryId", "ประเภทกิจกรรมสร้างสรรค์", 
+              <Form.Item name="categoryId" label="ประเภทกิจกรรมสร้างสรรค์" rules={[{ required: true, message: "กรุณาเลือกประเภทกิจกรรมสร้างสรรค์" }]}>
                 <Select placeholder="เลือกประเภทกิจกรรมสร้างสรรค์" onChange={handleCategoryChange}>
                   {categories.map((category) => (
                     <Option key={category.id} value={category.id}>{category.name}</Option>
                   ))}
-                </Select>,
-                [{ required: true, message: "กรุณาเลือกประเภทกิจกรรมสร้างสรรค์" }]
-              )}
+                </Select>
+              </Form.Item>
 
-              {renderFormItem("subCategoryId", "หมวดหมู่ย่อย", 
+              <Form.Item name="subCategoryId" label="หมวดหมู่ย่อย" rules={[{ required: true, message: "กรุณาเลือกหมวดหมู่ย่อย" }]}>
                 <Select placeholder="เลือกหมวดหมู่ย่อย">
                   {subCategories.map((subCategory) => (
                     <Option key={subCategory.id} value={subCategory.id}>{subCategory.name}</Option>
                   ))}
-                </Select>,
-                [{ required: true, message: "กรุณาเลือกหมวดหมู่ย่อย" }]
-              )}
+                </Select>
+              </Form.Item>
 
-              {renderFormItem("name", "ชื่อกิจกรรมสร้างสรรค์", 
-                <Input />,
-                [{ required: true, message: "กรุณากรอกชื่อกิจกรรมสร้างสรรค์" }]
-              )}
+              <Form.Item name="name" label="ชื่อกิจกรรมสร้างสรรค์" rules={[{ required: true, message: "กรุณากรอกชื่อกิจกรรมสร้างสรรค์" }]}>
+                <Input />
+              </Form.Item>
 
-              {renderFormItem("location", "ตำบล > อำเภอ > จังหวัด", 
+              <Form.Item name="location" label="พื้นที่" rules={[{ required: true, message: "กรุณาเลือกพื้นที่" }]}>
                 <Select
                   showSearch
                   placeholder="เลือกตำบล > อำเภอ > จังหวัด"
                   optionFilterProp="children"
                   onChange={handleDistrictChange}
                   filterOption={(input, option) =>
-                    option?.children?.toString().toLowerCase().includes(input.toLowerCase()) ?? false
+                    (option?.children as unknown as string).toLowerCase().includes(input.toLowerCase())
                   }
                 >
                   {districts.map((district) => (
                     <Option key={district} value={district}>{district}</Option>
                   ))}
-                </Select>,
-                [{ required: true, message: "กรุณาเลือกตำบล" }]
-              )}
+                </Select>
+              </Form.Item>
 
-              {renderFormItem("district", "ตำบล", <Input readOnly />, [{ required: true }])}
-              {renderFormItem("amphoe", "อำเภอ", <Input readOnly />, [{ required: true }])}
-              {renderFormItem("province", "จังหวัด", <Input readOnly />, [{ required: true }])}
-              {renderFormItem("type", "ภาค", <Input readOnly />, [{ required: true }])}
+              <Form.Item name="district" label="ตำบล">
+                <Input readOnly className="bg-gray-100" />
+              </Form.Item>
+              <Form.Item name="amphoe" label="อำเภอ">
+                <Input readOnly className="bg-gray-100" />
+              </Form.Item>
+              <Form.Item name="province" label="จังหวัด">
+                <Input readOnly className="bg-gray-100" />
+              </Form.Item>
+              <Form.Item name="type" label="ภาค">
+                <Input readOnly className="bg-gray-100" />
+              </Form.Item>
 
-              {renderFormItem("zipcode", "รหัสไปรษณีย์", <InputNumber />, [], true)}
-              {renderFormItem("district_code", "รหัสตำบล", <InputNumber />, [], true)}
-              {renderFormItem("amphoe_code", "รหัสอำเภอ", <InputNumber />, [], true)}
-              {renderFormItem("province_code", "รหัสจังหวัด", <InputNumber />, [], true)}
+              <Form.Item name="village" label="หมู่บ้าน">
+                <Input />
+              </Form.Item>
 
-              {renderFormItem("village", "หมู่บ้าน", <Input />)}
-              {renderFormItem("coordinatorName", "ชื่อผู้ประสานงาน", 
-                <Input />,
-                [{ required: true, message: "กรุณากรอกชื่อผู้ประสานงาน" }]
-              )}
-              {renderFormItem("phone", "เบอร์ติดต่อ", <Input />)}
+              <Form.Item name="coordinatorName" label="ชื่อผู้ประสานงาน" rules={[{ required: true, message: "กรุณากรอกชื่อผู้ประสานงาน" }]}>
+                <Input />
+              </Form.Item>
+
+              <Form.Item name="phone" label="เบอร์ติดต่อ">
+                <Input />
+              </Form.Item>
+
             </Card>
           </Col>
 
           <Col xs={24} lg={12}>
             <Card title="รายละเอียด" className="mb-4">
-              {renderFormItem("description", "รายละเอียดกิจกรรม", 
-                <TextArea rows={4} />,
-                [{ required: true, message: "กรุณากรอกรายละเอียดกิจกรรม" }]
-              )}
-              {renderFormItem("summary", "สรุปเนื้อหาการดำเนินงาน", 
-                <TextArea rows={4} />,
-                [{ required: true, message: "กรุณากรอกสรุปเนื้อหาการดำเนินงาน" }]
-              )}
-            {renderFormItem("results", "ผลลัพธ์จากการดำเนินงาน", <TextArea rows={4} />)}
+              <Form.Item name="description" label="รายละเอียดกิจกรรม" rules={[{ required: true, message: "กรุณากรอกรายละเอียดกิจกรรม" }]}>
+                <TextArea rows={4} />
+              </Form.Item>
 
-            {renderFormItem("startYear", "ปีที่เริ่มดำเนินการ (พ.ศ.)", 
-            <InputNumber min={2400} max={2600} className="w-full" />,
-            [{ required: true, message: "กรุณากรอกปีที่เริ่มดำเนินการ" }]
-            )}
+              <Form.Item name="summary" label="สรุปเนื้อหาการดำเนินงาน" rules={[{ required: true, message: "กรุณากรอกสรุปเนื้อหาการดำเนินงาน" }]}>
+                <TextArea rows={4} />
+              </Form.Item>
 
-            {renderFormItem("images", "รูปภาพประกอบ", 
-            <Upload
+              <Form.Item name="results" label="ผลลัพธ์จากการดำเนินงาน">
+                <TextArea rows={4} />
+              </Form.Item>
+
+              <Form.Item name="startYear" label="ปีที่เริ่มดำเนินการ (พ.ศ.)" rules={[{ required: true, message: "กรุณากรอกปีที่เริ่มดำเนินการ" }]}>
+                <InputNumber min={2400} max={2600} className="w-full" />
+              </Form.Item>
+
+              <Form.Item name="images" label="รูปภาพประกอบ">
+              <Upload
                 listType="picture-card"
                 fileList={fileList}
                 onChange={handleImageChange}
                 onRemove={handleRemoveImage}
                 beforeUpload={() => false}
-            >
-                <Button icon={<UploadOutlined />}>อัพโหลดรูปภาพ</Button>
-            </Upload>
-            )}
-            <p>จำนวนรูปภาพที่เลือก: {fileList.length} (สามารถเลือกได้หลายรูป)</p>
-
-            {renderFormItem("videoLink", "ลิงก์วิดีโอประกอบ", 
-            <Input prefix={<LinkOutlined />} placeholder="https://www.example.com/video" />
-            )}
-
-            {renderFormItem("reportFile", "ไฟล์รายงานประกอบ", 
-            <Upload
-                fileList={reportFile}
-                onChange={handleReportFileChange}
-                beforeUpload={() => false}
-            >
-                <Button icon={<UploadOutlined />}>อัพโหลดไฟล์รายงาน</Button>
-            </Upload>
-            )}
-            {reportFile.length > 0 && <p>ไฟล์ที่เลือก: {reportFile[0].name}</p>}
-            </Card>
-            </Col>
-            </Row>
-
-            <Form.Item className="text-center">
-            <Button type="primary" htmlType="submit" loading={loading}>
-            แก้ไขข้อมูลกิจกรรมสร้างสรรค์
-            </Button>
+              >
+                {fileList.length >= 8 ? null : <Button icon={<UploadOutlined />}>อัพโหลดรูปภาพ</Button>}
+              </Upload>
             </Form.Item>
-            </Form>
-            </div>
-            );
-            }
+              <p className="mb-4">จำนวนรูปภาพที่เลือก: {fileList.length} (สามารถเลือกได้สูงสุด 8 รูป)</p>
+
+              <Form.Item name="videoLink" label="ลิงก์วิดีโอประกอบ">
+                <Input prefix={<LinkOutlined />} placeholder="https://www.example.com/video" />
+              </Form.Item>
+
+              <Form.Item name="reportFile" label="ไฟล์รายงานประกอบ">
+              <Upload
+                fileList={reportFile}
+                onChange={({ fileList }) => {
+                  // อัพเดท state เมื่อมีการเปลี่ยนแปลงไฟล์
+                  setReportFile(fileList);
+                }}
+                beforeUpload={() => false}
+                onRemove={() => {
+                  // เมื่อลบไฟล์ ให้เซ็ต reportFile เป็นอาเรย์ว่าง
+                  setReportFile([]);
+                }}
+              >
+                
+                {reportFile.length === 0 && <Button icon={<UploadOutlined />}>อัพโหลดไฟล์รายงาน</Button>}
+              </Upload>
+            </Form.Item>
+
+              {reportFile.length > 0 && <p>ไฟล์ที่เลือก: {reportFile[0].name}</p>}
+            </Card>
+          </Col>
+        </Row>
+
+        <Form.Item className="text-center">
+          <Button type="primary" htmlType="submit" loading={loading}>
+            บันทึกการแก้ไข
+          </Button>
+        </Form.Item>
+      </Form>
+    </div>
+  );
+}

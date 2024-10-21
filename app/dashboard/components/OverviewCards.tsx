@@ -1,4 +1,4 @@
-import { FaUser, FaPalette, FaLandmark, FaScroll, FaUsers } from 'react-icons/fa';
+import { FaUser, FaPalette, FaLandmark, FaScroll, FaUsers,FaLayerGroup } from 'react-icons/fa';
 import { OverviewData } from '@/app/types/types';
 import { ReactNode } from 'react';
 
@@ -27,7 +27,7 @@ const Card = ({ title, value, icon }: CardProps) => (
 export default function OverviewCards({ data }: OverviewCardsProps) {
   return (
     <>
-      <Card title="Users" value={data.userCount} icon={<FaUser className="text-4xl text-primary" />} />
+      <Card title="Users" value={data.userCount} icon={<FaUser className="text-4xl text-primary" />}/>
       <Card title="Creative Activities" value={data.creativeActivityCount} icon={<FaPalette className="text-4xl text-secondary" />} />
       <Card title="Traditions" value={data.traditionCount} icon={<FaLandmark className="text-4xl text-accent" />} />
       <Card title="Public Policies" value={data.publicPolicyCount} icon={<FaScroll className="text-4xl text-info" />} />

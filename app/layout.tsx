@@ -4,7 +4,6 @@ import "./globals.css";
 import SessionProvider from "./components/SessionProvider";
 import { getServerSession } from "next-auth";
 import authOptions from "./lib/configs/auth/authOptions";
-import ConditionalNavbar from "./components/ConditionalNavbar";
 import AntdProvider from "./components/AntdProvider";
 import 'antd/dist/reset.css';
 
@@ -33,6 +32,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const session = await getServerSession(authOptions);
+
   return (
     <html lang="th">
       <body
@@ -40,7 +40,6 @@ export default async function RootLayout({
       >
         <SessionProvider session={session}>
           <AntdProvider>
-            <ConditionalNavbar />
             {children}
           </AntdProvider>
         </SessionProvider>

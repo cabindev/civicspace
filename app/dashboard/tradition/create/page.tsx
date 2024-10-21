@@ -2,7 +2,7 @@
 'use client'
 
 import { useState, useEffect } from 'react';
-import { Form, Input, Select, InputNumber, Upload, Button, message, Card, Col, Row, Modal } from 'antd';
+import { Form, Input, Select, InputNumber, Upload, Button, message, Card, Col, Row } from 'antd';
 import { UploadOutlined, LinkOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
@@ -16,17 +16,6 @@ const { TextArea } = Input;
 interface TraditionCategory {
   id: string;
   name: string;
-}
-
-interface RegionData {
-  district: string;
-  amphoe: string;
-  province: string;
-  zipcode: number;
-  district_code: number;
-  amphoe_code: number;
-  province_code: number;
-  type: string;
 }
 
 interface FormValues {
@@ -80,7 +69,7 @@ export default function CreateTradition() {
 
   const handleDistrictChange = (value: string) => {
     const [district, amphoe, province] = value.split(', ');
-    const regionData = data.find(d => d.district === district && d.amphoe === amphoe && d.province === province) as RegionData | undefined;
+    const regionData = data.find(d => d.district === district && d.amphoe === amphoe && d.province === province);
     if (regionData) {
       const formValues: any = {
         location: value,
@@ -93,46 +82,53 @@ export default function CreateTradition() {
         amphoe_code: regionData.amphoe_code,
         province_code: regionData.province_code,
       };
-
       form.setFieldsValue(formValues);
       setAutoFilledFields(new Set(['district', 'amphoe', 'province', 'type', 'zipcode', 'district_code', 'amphoe_code', 'province_code']));
     }
   };
 
   const handleImageChange = async (info: any) => {
-    const { fileList } = info;
-    try {
-      const compressedFileList = await Promise.all(
-        fileList.map(async (file: UploadFile) => {
-          if (file.originFileObj) {
-            const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
-            if (!isJpgOrPng) {
-              message.error('คุณสามารถอัปโหลดไฟล์ JPG/PNG เท่านั้น!');
-              return null;
-            }
-            const options = {
-              maxSizeMB: 0.2,
-              maxWidthOrHeight: 1024,
-              useWebWorker: true,
-              fileType: 'image/webp',
-            };
+    let newFileList = [...info.fileList];
+    newFileList = newFileList.slice(-8);  // จำกัดจำนวนรูปภาพไม่เกิน 8 รูป
+  
+    const compressedFileList = await Promise.all(
+      newFileList.map(async (file: UploadFile) => {
+        if (file.originFileObj && !file.url) {
+          const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png' || file.type === 'image/webp';
+          if (!isJpgOrPng) {
+            message.error(`ไฟล์ ${file.name} ไม่ใช่ไฟล์ JPG, PNG หรือ WebP`);
+            return null;
+          }
+          if (file.size && file.size > 5 * 1024 * 1024) {
+            message.error(`ขนาดไฟล์ ${file.name} ต้องไม่เกิน 5MB`);
+            return null;
+          }
+          const options = {
+            maxSizeMB: 0.2,
+            maxWidthOrHeight: 1024,
+            useWebWorker: true,
+            fileType: 'image/webp' as const,
+          };
+          try {
             const compressedFile = await imageCompression(file.originFileObj, options);
-            const webpFile = new File([compressedFile], `${file.name.split('.')[0]}.webp`, { type: 'image/webp' });
+            const newFileName = `${file.name.split('.')[0]}.webp`;
             return {
               ...file,
-              originFileObj: webpFile,
-              name: webpFile.name,
-              type: 'image/webp',
+              originFileObj: new File([compressedFile], newFileName, { type: 'image/webp' }),
+              name: newFileName,
             };
+          } catch (error) {
+            console.error('Error compressing image:', error);
+            message.error(`ไม่สามารถบีบอัดรูปภาพ ${file.name} ได้`);
+            return null;
           }
-          return file;
-        })
-      );
-      setFileList(compressedFileList.filter(file => file !== null));
-    } catch (error) {
-      console.error('Error handling image change:', error);
-      message.error('เกิดข้อผิดพลาดในการจัดการรูปภาพ');
-    }
+        }
+        return file;
+      })
+    );
+  
+    newFileList = compressedFileList.filter(file => file !== null);
+    setFileList(newFileList);
   };
 
   const onFinish = async (values: FormValues) => {
@@ -141,9 +137,9 @@ export default function CreateTradition() {
       const formData = new FormData();
       Object.entries(values).forEach(([key, value]) => {
         if (key === 'images') {
-          fileList.forEach((file) => {
+          fileList.forEach((file, index) => {
             if (file.originFileObj) {
-              formData.append('images', file.originFileObj);
+              formData.append(`images`, file.originFileObj, `image_${index}.webp`);
             }
           });
         } else if (key === 'policyFile' && policyFile.length > 0) {
@@ -152,7 +148,7 @@ export default function CreateTradition() {
           formData.append(key, value.toString());
         }
       });
-
+  
       await axios.post('/api/tradition', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
@@ -213,7 +209,7 @@ export default function CreateTradition() {
                   optionFilterProp="children"
                   onChange={handleDistrictChange}
                   filterOption={(input, option) =>
-                    option?.children?.toString().toLowerCase().includes(input.toLowerCase()) ?? false
+                    (option?.children as unknown as string).toLowerCase().includes(input.toLowerCase())
                   }
                 >
                   {districts.map((district) => (
@@ -239,7 +235,6 @@ export default function CreateTradition() {
                 [{ required: true, message: "กรุณากรอกชื่อผู้ประสานงาน" }]
               )}
               {renderFormItem("phone", "เบอร์ติดต่อ", <Input />)}
-
             </Card>
           </Col>
 
@@ -252,7 +247,7 @@ export default function CreateTradition() {
 
               {renderFormItem("alcoholFreeApproach", "ประวัติแนวทางการจัดงานแบบปลอดเหล้า", 
                 <TextArea rows={4} />,
-                [{ required: true, message: "กรุณากรอกประวัติแนวทางการจัดงานแบบปลอดเหล้า" }]
+                [{ required: true, message: "กรุณากรอกแนวทางการจัดงานแบบปลอดเหล้า" }]
               )}
 
               {renderFormItem("results", "ผลลัพธ์จากการดำเนินงาน", <TextArea rows={4} />)}
@@ -261,6 +256,7 @@ export default function CreateTradition() {
                 <InputNumber min={2400} max={2600} className="w-full" />,
                 [{ required: true, message: "กรุณากรอกปีที่เริ่มดำเนินการ" }]
               )}
+
               {renderFormItem("images", "รูปภาพประกอบ", 
                 <Upload
                   listType="picture-card"
@@ -268,10 +264,10 @@ export default function CreateTradition() {
                   onChange={handleImageChange}
                   beforeUpload={() => false}
                 >
-                  <Button icon={<UploadOutlined />}>อัพโหลดรูปภาพ</Button>
+                  {fileList.length >= 8 ? null : <Button icon={<UploadOutlined />}>อัพโหลดรูปภาพ</Button>}
                 </Upload>
               )}
-              <p>จำนวนรูปภาพที่เลือก: {fileList.length} (สามารถเลือกได้หลายรูป)</p>
+              <p className="mb-4">จำนวนรูปภาพที่เลือก: {fileList.length} (สามารถเลือกได้สูงสุด 8 รูป)</p>
 
               {renderFormItem("videoLink", "ลิงก์วิดีโอประกอบ", 
                 <Input prefix={<LinkOutlined />} placeholder="https://www.example.com/video" />

@@ -1,16 +1,30 @@
 //app/api/creative-activity/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/app/lib/prisma';
-import { writeFile } from 'fs/promises';
+import { writeFile, unlink } from 'fs/promises';
 import path from 'path';
+import { getServerSession } from 'next-auth/next';
+import authOptions from '@/app/lib/configs/auth/authOptions';
+import { revalidatePath } from 'next/cache';
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email },
+    });
+
+    if (!user) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
     const formData = await request.formData();
 
     const activityData: any = {
-      categoryId: formData.get('categoryId') as string,
-      subCategoryId: formData.get('subCategoryId') as string,
       name: formData.get('name') as string,
       district: formData.get('district') as string,
       amphoe: formData.get('amphoe') as string,
@@ -24,6 +38,15 @@ export async function POST(request: NextRequest) {
       results: formData.get('results') as string || null,
       startYear: parseInt(formData.get('startYear') as string),
       videoLink: formData.get('videoLink') as string || null,
+      category: {
+        connect: { id: formData.get('categoryId') as string }
+      },
+      subCategory: {
+        connect: { id: formData.get('subCategoryId') as string }
+      },
+      user: {
+        connect: { id: user.id }
+      }
     };
 
     // Handle numeric fields
@@ -34,9 +57,8 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    console.log('Creative Activity Data to be created:', activityData); // For debugging
+    console.log('Creative Activity Data to be created:', activityData);
 
-    // Create the creative activity
     const activity = await prisma.creativeActivity.create({
       data: activityData,
     });
@@ -69,6 +91,8 @@ export async function POST(request: NextRequest) {
       });
     }
 
+    revalidatePath ('/api/creative-activity');
+    
     return NextResponse.json(activity, { status: 201 });
   } catch (error) {
     console.error('Error creating creative activity:', error);

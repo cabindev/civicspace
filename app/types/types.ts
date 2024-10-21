@@ -57,9 +57,10 @@ export interface DashboardData {
   topViewed: TopViewedItem[];
   traditionChart: TraditionChartData[];
   publicPolicyChart: PublicPolicyChartData[];
-  creativeActivityChart: CreativeActivityChartData[];
   ethnicGroupChart: EthnicGroupChartData[];
   map: MapData[];
+  recentPolicies: PolicyData[];
+  creativeActivityChart: CreativeActivityData[]; 
 }
 
 export interface OverviewData {
@@ -97,6 +98,12 @@ export interface CreativeActivityChartData {
   subCategoryCounts: { [key: string]: number };
 }
 
+export interface CreativeActivityData {
+  category: string;
+  activityCount: number;
+  recentActivities: { name: string; date: Date }[];
+  
+}
 export interface EthnicGroupChartData {
   category: string;
   count: number;
@@ -108,3 +115,93 @@ export interface MapData {
   lat: number;
   lng: number;
 }
+
+export interface PolicyData {
+  name: string;
+  signingDate: string;
+  level: 'NATIONAL' | 'PROVINCIAL' | 'DISTRICT' | 'SUB_DISTRICT' | 'VILLAGE';
+  district: string;
+  amphoe: string;
+  province: string;
+  type: string;
+  
+}
+
+export interface UserData {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  image: string | null;
+  role: string;
+  publicPoliciesCount: number;
+  ethnicGroupsCount: number;
+  traditionsCount: number;
+  creativeActivitiesCount: number;
+}
+
+// app/types/types.ts
+
+
+export type TraditionData = {
+  id: string;
+  name: string;
+  category: { name: string };
+  district: string;
+  amphoe: string;
+  province: string;
+  type: string;
+};
+
+export type PublicPolicyData = {
+  id: string;
+  name: string;
+  signingDate: string;
+  level: 'NATIONAL' | 'PROVINCIAL' | 'DISTRICT' | 'SUB_DISTRICT' | 'VILLAGE';
+  district: string;
+  amphoe: string;
+  province: string;
+  type: string;
+};
+
+export type EthnicGroupData = {
+  id: string;
+  name: string;
+  category: { name: string };
+  province: string;
+  amphoe: string;
+  district: string;
+  type: string;
+};
+
+export type HomeCreativeActivityData = {
+  id: string;
+  name: string;
+  category: { name: string };
+  subCategory: { name: string };
+  district: string;
+  amphoe: string;
+  province: string;
+  type: string;
+};
+
+// เพิ่ม type สำหรับข้อมูลที่จะใช้ในหน้าแรก
+export type HomePageData = {
+  traditions: TraditionData[];
+  publicPolicies: PublicPolicyData[];
+  ethnicGroups: EthnicGroupData[];
+  creativeActivities: CreativeActivityData[];
+};
+
+// เพิ่ม type สำหรับ response ของ API
+export type APIResponse<T> = {
+  data: T;
+  error?: string;
+};
+
+// เพิ่ม type สำหรับ search params
+export type SearchParams = {
+  query: string;
+  page?: number;
+  limit?: number;
+};

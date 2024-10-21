@@ -7,6 +7,8 @@ export async function POST(request: NextRequest) {
     const category = await prisma.creativeCategory.create({
       data: { name: body.name },
     });
+
+    
     return NextResponse.json(category, { status: 201 });
   } catch (error) {
     console.error('Error creating creative category:', error);

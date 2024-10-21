@@ -1,12 +1,12 @@
 'use client'
 
-import { useState, useEffect } from 'react';
-import { Form, Input, Select, InputNumber, Upload, Button, message, Card, Col, Row, Modal } from 'antd';
-import { UploadOutlined, LinkOutlined, DeleteOutlined } from '@ant-design/icons';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Form, Input, Select, InputNumber, Upload, Button, message, Card, Col, Row } from 'antd';
+import { UploadOutlined, LinkOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import { data } from '@/app/data/regions';
-import { UploadFile } from 'antd/es/upload';
+import type { UploadFile } from 'antd/es/upload/interface';
 import imageCompression from 'browser-image-compression';
 
 const { Option } = Select;
@@ -50,25 +50,17 @@ export default function EditEthnicGroup({ params }: { params: { id: string } }) 
   const [fileList, setFileList] = useState<UploadFile[]>([]);
   const [file, setFile] = useState<UploadFile[]>([]);
   const [districts, setDistricts] = useState<string[]>([]);
-  const [autoFilledFields, setAutoFilledFields] = useState<Set<string>>(new Set());
 
-  useEffect(() => {
-    fetchCategories();
-    fetchEthnicGroupData();
-    const uniqueDistricts = Array.from(new Set(data.map(item => `${item.district}, ${item.amphoe}, ${item.province}`)));
-    setDistricts(uniqueDistricts);
-  }, []);
-
-  const fetchCategories = async () => {
+  const fetchCategories = useCallback(async () => {
     try {
       const response = await axios.get<EthnicCategory[]>('/api/ethnic-category');
       setCategories(response.data);
     } catch (error) {
       message.error('ไม่สามารถโหลดประเภทกลุ่มชาติพันธุ์ได้');
     }
-  };
+  }, []);
 
-  const fetchEthnicGroupData = async () => {
+  const fetchEthnicGroupData = useCallback(async () => {
     try {
       const response = await axios.get(`/api/ethnic-group/${params.id}`);
       const ethnicGroupData = response.data;
@@ -95,76 +87,68 @@ export default function EditEthnicGroup({ params }: { params: { id: string } }) 
     } catch (error) {
       message.error('ไม่สามารถโหลดข้อมูลกลุ่มชาติพันธุ์ได้');
     }
-  };
+  }, [params.id, form]);
+
+  useEffect(() => {
+    fetchCategories();
+    fetchEthnicGroupData();
+    const uniqueDistricts = Array.from(new Set(data.map(item => `${item.district}, ${item.amphoe}, ${item.province}`)));
+    setDistricts(uniqueDistricts);
+  }, [fetchCategories, fetchEthnicGroupData]);
 
   const handleDistrictChange = (value: string) => {
     const [district, amphoe, province] = value.split(', ');
     const regionData = data.find(d => d.district === district && d.amphoe === amphoe && d.province === province);
     if (regionData) {
-      const formValues: any = {
-        location: value,
+      form.setFieldsValue({
         district: regionData.district,
         amphoe: regionData.amphoe,
         province: regionData.province,
         type: regionData.type,
-        zipcode: regionData.zipcode,
-        district_code: regionData.district_code,
-        amphoe_code: regionData.amphoe_code,
-        province_code: regionData.province_code,
-      };
-      form.setFieldsValue(formValues);
-      setAutoFilledFields(new Set(['district', 'amphoe', 'province', 'type', 'zipcode', 'district_code', 'amphoe_code', 'province_code']));
+        zipcode: regionData.zipcode || form.getFieldValue('zipcode'),
+        district_code: regionData.district_code || form.getFieldValue('district_code'),
+        amphoe_code: regionData.amphoe_code || form.getFieldValue('amphoe_code'),
+        province_code: regionData.province_code || form.getFieldValue('province_code'),
+      });
     }
   };
 
   const handleImageChange = async (info: any) => {
-    const { fileList } = info;
-    const compressedFileList = await Promise.all(
-      fileList.map(async (file: UploadFile) => {
+    let newFileList = [...info.fileList];
+    newFileList = newFileList.slice(-8);
+  
+    const processedFileList = await Promise.all(
+      newFileList.map(async (file) => {
         if (file.originFileObj && !file.url) {
           const options = {
             maxSizeMB: 0.2,
             maxWidthOrHeight: 1024,
             useWebWorker: true,
-            fileType: 'image/webp',
+            fileType: 'image/webp' as const,
           };
           try {
             const compressedFile = await imageCompression(file.originFileObj, options);
-            const webpFile = new File([compressedFile], `${file.name.split('.')[0]}.webp`, { type: 'image/webp' });
+            const newFileName = `${file.name.split('.')[0]}.webp`;
             return {
               ...file,
-              originFileObj: webpFile,
-              name: webpFile.name,
-              type: 'image/webp',
+              originFileObj: new File([compressedFile], newFileName, { type: 'image/webp' }),
+              name: newFileName,
             };
           } catch (error) {
             console.error('Error compressing image:', error);
             message.error(`ไม่สามารถบีบอัดรูปภาพ ${file.name} ได้`);
-            return file;
+            return null;
           }
         }
         return file;
       })
     );
-    setFileList(compressedFileList);
+  
+    setFileList(processedFileList.filter((file): file is UploadFile => file !== null));
   };
 
   const handleRemoveImage = (file: UploadFile) => {
-    Modal.confirm({
-      title: 'ยืนยันการลบรูปภาพ',
-      content: 'คุณแน่ใจหรือไม่ว่าต้องการลบรูปภาพนี้?',
-      onOk: async () => {
-        try {
-          await axios.delete(`/api/ethnic-group/${params.id}/image/${file.uid}`);
-          setFileList(fileList.filter(item => item.uid !== file.uid));
-          message.success('ลบรูปภาพสำเร็จ');
-        } catch (error) {
-          console.error('Error deleting image:', error);
-          message.error('ไม่สามารถลบรูปภาพได้');
-        }
-      },
-    });
-    return false; // Prevent default remove behavior
+    setFileList((prev) => prev.filter((item) => item.uid !== file.uid));
   };
 
   const onFinish = async (values: FormValues) => {
@@ -172,19 +156,32 @@ export default function EditEthnicGroup({ params }: { params: { id: string } }) 
     try {
       const formData = new FormData();
       Object.entries(values).forEach(([key, value]) => {
-        if (key === 'images') {
-          fileList.forEach((file) => {
-            if (file.originFileObj) {
-              formData.append('images', file.originFileObj);
-            }
-          });
-        } else if (key === 'fileUrl' && file.length > 0) {
-          formData.append('fileUrl', file[0].originFileObj as File);
-        } else if (value !== undefined && value !== null) {
+        if (key !== 'images' && key !== 'fileUrl' && value !== undefined && value !== null) {
           formData.append(key, value.toString());
         }
       });
-
+  
+      // Handle images
+      const existingImages = fileList.filter(file => file.url).map(file => file.url);
+      formData.append('existingImages', JSON.stringify(existingImages));
+  
+      fileList.forEach((file) => {
+        if (file.originFileObj) {
+          formData.append('newImages', file.originFileObj);
+        }
+      });
+  
+      // Handle file upload
+      if (file.length > 0) {
+        if (file[0].originFileObj) {
+          formData.append('fileUrl', file[0].originFileObj);
+        } else if (file[0].url) {
+          formData.append('existingFile', file[0].url);
+        }
+      } else {
+        formData.append('removeFile', 'true');
+      }
+  
       await axios.put(`/api/ethnic-group/${params.id}`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
@@ -198,132 +195,104 @@ export default function EditEthnicGroup({ params }: { params: { id: string } }) 
     }
   };
 
-  const renderFormItem = (name: string, label: string, component: React.ReactNode, rules?: any[], hidden: boolean = false) => (
-    <Form.Item 
-      name={name} 
-      label={hidden ? undefined : label} 
-      rules={rules}
-      className={autoFilledFields.has(name) ? 'auto-filled' : ''}
-      hidden={hidden}
-    >
-      {component}
-    </Form.Item>
-  );
-
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">แก้ไขข้อมูลกลุ่มชาติพันธุ์</h1>
-
-      <Form<FormValues> form={form} layout="vertical" onFinish={onFinish}>
+      <Form form={form} layout="vertical" onFinish={onFinish}>
         <Row gutter={[16, 16]}>
           <Col xs={24} lg={12}>
-          <Card title="ข้อมูลทั่วไป" className="mb-4">
-              {renderFormItem("categoryId", "ประเภทกลุ่มชาติพันธุ์", 
+            <Card title="ข้อมูลทั่วไป" className="mb-4">
+              <Form.Item name="categoryId" label="ประเภทกลุ่มชาติพันธุ์" rules={[{ required: true, message: "กรุณาเลือกประเภทกลุ่มชาติพันธุ์" }]}>
                 <Select placeholder="เลือกประเภทกลุ่มชาติพันธุ์">
                   {categories.map((category) => (
                     <Option key={category.id} value={category.id}>{category.name}</Option>
                   ))}
-                </Select>,
-                [{ required: true, message: "กรุณาเลือกประเภทกลุ่มชาติพันธุ์" }]
-              )}
+                </Select>
+              </Form.Item>
 
-              {renderFormItem("name", "ชื่อกลุ่มชาติพันธุ์", 
-                <Input />,
-                [{ required: true, message: "กรุณากรอกชื่อกลุ่มชาติพันธุ์" }]
-              )}
+              <Form.Item name="name" label="ชื่อกลุ่มชาติพันธุ์" rules={[{ required: true, message: "กรุณากรอกชื่อกลุ่มชาติพันธุ์" }]}>
+                <Input />
+              </Form.Item>
 
-              {renderFormItem("location", "ตำบล > อำเภอ > จังหวัด", 
+              <Form.Item name="location" label="พื้นที่" rules={[{ required: true, message: "กรุณาเลือกพื้นที่" }]}>
                 <Select
                   showSearch
                   placeholder="เลือกตำบล > อำเภอ > จังหวัด"
                   optionFilterProp="children"
                   onChange={handleDistrictChange}
                   filterOption={(input, option) =>
-                    option?.children?.toString().toLowerCase().includes(input.toLowerCase()) ?? false
+                    (option?.children as unknown as string).toLowerCase().includes(input.toLowerCase())
                   }
                 >
                   {districts.map((district) => (
                     <Option key={district} value={district}>{district}</Option>
                   ))}
-                </Select>,
-                [{ required: true, message: "กรุณาเลือกตำบล" }]
-              )}
+                </Select>
+              </Form.Item>
 
-              {renderFormItem("district", "ตำบล", <Input readOnly />, [{ required: true }])}
-              {renderFormItem("amphoe", "อำเภอ", <Input readOnly />, [{ required: true }])}
-              {renderFormItem("province", "จังหวัด", <Input readOnly />, [{ required: true }])}
-              {renderFormItem("type", "ภาค", <Input readOnly />, [{ required: true }])}
+              <Form.Item name="village" label="หมู่บ้าน">
+                <Input />
+              </Form.Item>
 
-              {renderFormItem("zipcode", "รหัสไปรษณีย์", <InputNumber />, [], true)}
-              {renderFormItem("district_code", "รหัสตำบล", <InputNumber />, [], true)}
-              {renderFormItem("amphoe_code", "รหัสอำเภอ", <InputNumber />, [], true)}
-              {renderFormItem("province_code", "รหัสจังหวัด", <InputNumber />, [], true)}
-              {renderFormItem("type", "ภาค", <Input readOnly />, [{ required: true }])}
-              {renderFormItem("village", "หมู่บ้าน", <Input />)}
-
-          
+              <Form.Item name="startYear" label="ปีที่เริ่มดำเนินการ" rules={[{ required: true, message: "กรุณากรอกปีที่เริ่มดำเนินการ" }]}>
+                <InputNumber style={{ width: '100%' }} />
+              </Form.Item>
             </Card>
           </Col>
 
           <Col xs={24} lg={12}>
-          <Card title="รายละเอียด" className="mb-4">
-              {renderFormItem("history", "ประวัติของกลุ่มชาติพันธุ์เบื้องต้น", 
-                <TextArea rows={4} />,
-                [{ required: true, message: "กรุณากรอกประวัติของกลุ่มชาติพันธุ์" }]
-              )}
+            <Card title="รายละเอียด" className="mb-4">
+              <Form.Item name="history" label="ประวัติของกลุ่มชาติพันธุ์" rules={[{ required: true, message: "กรุณากรอกประวัติของกลุ่มชาติพันธุ์" }]}>
+                <TextArea rows={4} />
+              </Form.Item>
 
-              {renderFormItem("activityName", "ชื่อกิจกรรม/งานชาติพันธุ์", 
-                <Input />,
-                [{ required: true, message: "กรุณากรอกชื่อกิจกรรม/งานชาติพันธุ์" }]
-              )}
+              <Form.Item name="activityName" label="ชื่อกิจกรรม/งานชาติพันธุ์" rules={[{ required: true, message: "กรุณากรอกชื่อกิจกรรม/งานชาติพันธุ์" }]}>
+                <Input />
+              </Form.Item>
 
-              {renderFormItem("activityOrigin", "ที่มาของกิจกรรม/งานชาติพันธุ์", 
-                <TextArea rows={4} />,
-                [{ required: true, message: "กรุณากรอกที่มาของกิจกรรม/งานชาติพันธุ์" }]
-              )}
+              <Form.Item name="activityOrigin" label="ที่มาของกิจกรรม/งานชาติพันธุ์" rules={[{ required: true, message: "กรุณากรอกที่มาของกิจกรรม/งานชาติพันธุ์" }]}>
+                <TextArea rows={4} />
+              </Form.Item>
 
-              {renderFormItem("activityDetails", "รายละเอียดการดำเนินกิจกรรม", 
-                <TextArea rows={4} />,
-                [{ required: true, message: "กรุณากรอกรายละเอียดการดำเนินกิจกรรม" }]
-              )}
+              <Form.Item name="activityDetails" label="รายละเอียดการดำเนินกิจกรรม" rules={[{ required: true, message: "กรุณากรอกรายละเอียดการดำเนินกิจกรรม" }]}>
+                <TextArea rows={4} />
+              </Form.Item>
 
-              {renderFormItem("alcoholFreeApproach", "แนวทางการจัดงานแบบปลอดเหล้า", 
-                <TextArea rows={4} />,
-                [{ required: true, message: "กรุณากรอกแนวทางการจัดงานแบบปลอดเหล้า" }]
-              )}
+              <Form.Item name="alcoholFreeApproach" label="แนวทางการจัดงานแบบปลอดเหล้า" rules={[{ required: true, message: "กรุณากรอกแนวทางการจัดงานแบบปลอดเหล้า" }]}>
+                <TextArea rows={4} />
+              </Form.Item>
 
-              {renderFormItem("startYear", "ปีที่เริ่มดำเนินการให้ปลอดเหล้า (พ.ศ.)", 
-                <InputNumber min={2400} max={2600} className="w-full" />,
-                [{ required: true, message: "กรุณากรอกปีที่เริ่มดำเนินการ" }]
-              )}
+              <Form.Item name="results" label="ผลลัพธ์จากการดำเนินงาน">
+                <TextArea rows={4} />
+              </Form.Item>
 
-              {renderFormItem("results", "ผลลัพธ์จากการดำเนินงาน", <TextArea rows={4} />)}
-
-              {renderFormItem("images", "รูปภาพประกอบ", 
+              <Form.Item name="images" label="รูปภาพประกอบ">
                 <Upload
                   listType="picture-card"
                   fileList={fileList}
                   onChange={handleImageChange}
+                  onRemove={handleRemoveImage}
                   beforeUpload={() => false}
                 >
-                  <Button icon={<UploadOutlined />}>อัพโหลดรูปภาพ</Button>
+                  {fileList.length >= 8 ? null : <Button icon={<UploadOutlined />}>อัพโหลดรูปภาพ</Button>}
                 </Upload>
-              )}
-              <p>จำนวนรูปภาพที่เลือก: {fileList.length} (สามารถเลือกได้หลายรูป)</p>
+              </Form.Item>
+              <p className="mb-4">จำนวนรูปภาพที่เลือก: {fileList.length} (สามารถเลือกได้สูงสุด 8 รูป)</p>
 
-              {renderFormItem("videoLink", "ลิงก์วิดีโอประกอบ", 
+              <Form.Item name="videoLink" label="ลิงก์วิดีโอประกอบ">
                 <Input prefix={<LinkOutlined />} placeholder="https://www.example.com/video" />
-              )}
+              </Form.Item>
 
-              {renderFormItem("fileUrl", "ไฟล์ประกอบ", 
+              <Form.Item name="fileUrl" label="ไฟล์ประกอบ">
                 <Upload
                   fileList={file}
                   onChange={({ fileList }) => setFile(fileList)}
                   beforeUpload={() => false}
+                  onRemove={() => setFile([])}
                 >
-                  <Button icon={<UploadOutlined />}>อัพโหลดไฟล์</Button>
+                  {file.length === 0 && <Button icon={<UploadOutlined />}>อัพโหลดไฟล์</Button>}
                 </Upload>
-              )}
+              </Form.Item>
               {file.length > 0 && <p>ไฟล์ที่เลือก: {file[0].name}</p>}
             </Card>
           </Col>
@@ -331,7 +300,7 @@ export default function EditEthnicGroup({ params }: { params: { id: string } }) 
 
         <Form.Item className="text-center">
           <Button type="primary" htmlType="submit" loading={loading}>
-            แก้ไขข้อมูลกลุ่มชาติพันธุ์
+            บันทึกการแก้ไข
           </Button>
         </Form.Item>
       </Form>

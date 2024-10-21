@@ -4,7 +4,7 @@ import { Spin } from 'antd';
 import { DashboardData } from '../types/types';
 import OverviewCards from './components/OverviewCards';
 import RecentActivities from './components/RecentActivities';
-import TopViewedItems from './components/TopViewedItems';
+import RecentPolicies from './components/RecentPolicies';
 import TraditionChart from './components/TraditionChart';
 import PublicPolicyChart from './components/PublicPolicyChart';
 import CreativeActivityChart from './components/CreativeActivityChart';
@@ -22,7 +22,7 @@ export default function DashboardPage() {
         const [
           overviewResponse,
           recentActivitiesResponse,
-          topViewedResponse,
+          recentPoliciesResponse,
           traditionChartResponse,
           publicPolicyChartResponse,
           creativeActivityChartResponse,
@@ -31,7 +31,7 @@ export default function DashboardPage() {
         ] = await Promise.all([
           fetch('/api/dashboard/overview'),
           fetch('/api/dashboard/recentActivities'),
-          fetch('/api/dashboard/topViewed'),
+          fetch('/api/dashboard/recentPolicies'),
           fetch('/api/dashboard/traditionChart'),
           fetch('/api/dashboard/publicPolicyChart'),
           fetch('/api/dashboard/creativeActivityChart'),
@@ -42,7 +42,7 @@ export default function DashboardPage() {
         const [
           overview,
           recentActivities,
-          topViewed,
+          recentPolicies,
           traditionChart,
           publicPolicyChart,
           creativeActivityChart,
@@ -51,7 +51,7 @@ export default function DashboardPage() {
         ] = await Promise.all([
           overviewResponse.json(),
           recentActivitiesResponse.json(),
-          topViewedResponse.json(),
+          recentPoliciesResponse.json(),
           traditionChartResponse.json(),
           publicPolicyChartResponse.json(),
           creativeActivityChartResponse.json(),
@@ -62,13 +62,15 @@ export default function DashboardPage() {
         setData({
           overview,
           recentActivities,
-          topViewed,
+          recentPolicies,
           traditionChart,
           publicPolicyChart,
           creativeActivityChart,
           ethnicGroupChart,
-          map
+          map,
+          topViewed: []
         });
+
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
         setError('Failed to load dashboard data. Please try again later.');
@@ -94,13 +96,12 @@ export default function DashboardPage() {
 
   return (
     <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <OverviewCards data={data.overview} />
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
         <RecentActivities data={data.recentActivities} />
-        <TopViewedItems data={data.topViewed} />
+        <RecentPolicies data={data.recentPolicies} />
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
         <TraditionChart data={data.traditionChart} />
@@ -109,7 +110,7 @@ export default function DashboardPage() {
         <EthnicGroupChart data={data.ethnicGroupChart} />
       </div>
       <div className="mt-4">
-        <ThailandMap data={data.map} />
+        {/* <ThailandMap data={data.map} /> */}
       </div>
     </div>
   );

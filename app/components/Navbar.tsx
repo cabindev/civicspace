@@ -1,5 +1,4 @@
 'use client'
-
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -23,7 +22,7 @@ const Navbar: React.FC = () => {
 
   const navItems = [
     { href: '/', label: 'Home' },
-    { href: '/support', label: 'Support' },
+    // { href: '/support', label: 'Support' },
     ...(isAdmin ? [{ href: '/dashboard', label: 'Dashboard' }] : []),
   ];
 
@@ -82,13 +81,13 @@ const Navbar: React.FC = () => {
                 </button>
                 {isMenuOpen && (
                   <div className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5">
-                    <Link
+                    {/* <Link
                       href="/profile"
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                       onClick={() => setIsMenuOpen(false)}
                     >
                       Profile
-                    </Link>
+                    </Link> */}
                     <button
                       onClick={() => {
                         setIsMenuOpen(false);
@@ -102,12 +101,14 @@ const Navbar: React.FC = () => {
                 )}
               </div>
             ) : (
-              <Link
-                href="/auth/signin"
-                className="ml-8 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-gray-900 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors duration-200 ease-in-out"
-              >
-                Sign in
+              <div className="flex items-center">
+              <Link href="/auth/form_signup" className="bg-green-500 text-white px-4 py-2 rounded-full hover:bg-green-700 mr-4">
+                Sign Up
               </Link>
+              <Link href="/auth/signin" className="bg-gray-800 text-white px-4 py-2 rounded-full hover:bg-gray-700">
+                Sign In
+              </Link>
+            </div>
             )}
           </div>
           <div className="-mr-2 flex items-center md:hidden">
@@ -176,13 +177,13 @@ const Navbar: React.FC = () => {
                 </div>
               </div>
               <div className="mt-3 space-y-1">
-                <Link
+                {/* <Link
                   href="/profile"
                   className="block px-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Profile
-                </Link>
+                </Link> */}
                 <button
                   onClick={() => {
                     setIsMobileMenuOpen(false);

@@ -1,29 +1,74 @@
+import React from 'react';
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
-import { CreativeActivityChartData } from '@/app/types/types';
+
+interface CreativeActivityData {
+  category: string;
+  activityCount: number;
+  recentActivities: { name: string; date: Date }[];
+}
 
 interface CreativeActivityChartProps {
-  data: CreativeActivityChartData[];
+  data: CreativeActivityData[];
 }
 
 export default function CreativeActivityChart({ data }: CreativeActivityChartProps) {
-  const options: Highcharts.Options = {
-    chart: { type: 'column' },
-    title: { text: 'Creative Activities by Category' },
-    xAxis: { categories: data.map(item => item.category) },
-    yAxis: { title: { text: 'Number of Activities' } },
-    plotOptions: { column: { stacking: 'normal' } },
-    series: data[0].subCategories.map(subCat => ({
+  const chartOptions: Highcharts.Options = {
+    chart: { 
       type: 'column',
-      name: subCat,
-      data: data.map(item => item.subCategoryCounts[subCat] || 0)
-    }))
+      height: '400px' // ปรับความสูงตามต้องการ
+    },
+    title: { 
+      text: 'Creative Activities by Category',
+      style: { fontSize: '20px' }
+    },
+    xAxis: { 
+      categories: data.map(item => item.category),
+      labels: { style: { fontSize: '14px' } }
+    },
+    yAxis: { 
+      title: { 
+        text: 'Number of Activities',
+        style: { fontSize: '14px' }
+      }
+    },
+    tooltip: {
+      formatter: function() {
+        const point = this.point as any;
+        const category = data.find(item => item.category === point.category);
+        let tooltipContent = `<b>${point.category}</b><br/>`;
+        tooltipContent += `Total Activities: ${point.y}<br/><br/>`;
+        tooltipContent += `Recent Activities:<br/>`;
+        category?.recentActivities.slice(0, 3).forEach(activity => {
+          tooltipContent += `${activity.name} - ${new Date(activity.date).toLocaleDateString()}<br/>`;
+        });
+        return tooltipContent;
+      }
+    },
+    plotOptions: {
+      column: {
+        dataLabels: {
+          enabled: true,
+          format: '{y}',
+          style: { fontSize: '12px' }
+        }
+      }
+    },
+    series: [{
+      type: 'column',
+      name: 'Activities',
+      data: data.map(item => ({
+        y: item.activityCount,
+        category: item.category,
+        color: Highcharts.getOptions().colors![data.indexOf(item) % 10] // เพื่อให้แต่ละแท่งมีสีต่างกัน
+      }))
+    }]
   };
 
   return (
     <div className="card bg-base-100 shadow-xl">
       <div className="card-body">
-        <HighchartsReact highcharts={Highcharts} options={options} />
+        <HighchartsReact highcharts={Highcharts} options={chartOptions} />
       </div>
     </div>
   );

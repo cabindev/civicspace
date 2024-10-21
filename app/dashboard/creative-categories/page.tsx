@@ -154,7 +154,7 @@ export default function CreativeCategories() {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">จัดการประเภทและหมวดหมู่ย่อยกิจกรรมสร้างสรรค์</h1>
+
       <Tabs activeKey={activeTab} onChange={setActiveTab}>
         <TabPane tab="ประเภทกิจกรรมสร้างสรรค์" key="1">
           <Card

@@ -1,6 +1,7 @@
+// app/dashboard/public-policy/edit/[id]/page.tsx
 'use client'
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Form, Input, Select, DatePicker, Upload, Button, message, Card, Col, Row, Radio } from 'antd';
 import { UploadOutlined, LinkOutlined } from '@ant-design/icons';
 import axios from 'axios';
@@ -9,6 +10,8 @@ import { data } from '@/app/data/regions';
 import type { UploadFile } from 'antd/es/upload/interface';
 import moment from 'moment';
 import 'moment/locale/th';
+import imageCompression from 'browser-image-compression';
+import type { UploadProps } from 'antd/es/upload/interface';
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -46,44 +49,43 @@ export default function EditPublicPolicy({ params }: { params: { id: string } })
   const [districts, setDistricts] = useState<string[]>([]);
   const [initialValues, setInitialValues] = useState<FormValues | null>(null);
 
-  useEffect(() => {
-    const fetchPolicy = async () => {
-      try {
-        const response = await axios.get(`/api/public-policy/${params.id}`);
-        const policy = response.data;
-        const formattedPolicy = {
-          ...policy,
-          signingDate: moment(policy.signingDate),
-          content: policy.content,
-          location: `${policy.district}, ${policy.amphoe}, ${policy.province}`,
-        };
-        setInitialValues(formattedPolicy);
-        form.setFieldsValue(formattedPolicy);
-        setFileList(policy.images?.map((image: any) => ({
-          uid: image.id,
-          name: image.url.split('/').pop(),
+  const fetchPolicy = useCallback(async () => {
+    try {
+      const response = await axios.get(`/api/public-policy/${params.id}`);
+      const policy = response.data;
+      const formattedPolicy = {
+        ...policy,
+        signingDate: moment(policy.signingDate),
+        content: Array.isArray(policy.content) ? policy.content : JSON.parse(policy.content),
+        location: `${policy.district}, ${policy.amphoe}, ${policy.province}`,
+      };
+      setInitialValues(formattedPolicy);
+      form.setFieldsValue(formattedPolicy);
+      setFileList(policy.images?.map((image: any) => ({
+        uid: image.id,
+        name: image.url.split('/').pop(),
+        status: 'done',
+        url: image.url,
+      })) || []);
+      if (policy.policyFileUrl) {
+        setPolicyFile([{
+          uid: '-1',
+          name: policy.policyFileUrl.split('/').pop(),
           status: 'done',
-          url: image.url,
-        })) || []);
-        if (policy.policyFileUrl) {
-          setPolicyFile([{
-            uid: '-1',
-            name: policy.policyFileUrl.split('/').pop(),
-            status: 'done',
-            url: policy.policyFileUrl,
-          }]);
-        }
-      } catch (error) {
-        console.error('Error fetching policy:', error);
-        message.error('ไม่สามารถโหลดข้อมูลนโยบายได้');
+          url: policy.policyFileUrl,
+        }]);
       }
-    };
+    } catch (error) {
+      console.error('Error fetching policy:', error);
+      message.error('ไม่สามารถโหลดข้อมูลนโยบายได้');
+    }
+  }, [params.id, form]);
 
+  useEffect(() => {
+    fetchPolicy();
     const uniqueDistricts = Array.from(new Set(data.map(item => `${item.district}, ${item.amphoe}, ${item.province}`)));
     setDistricts(uniqueDistricts);
-
-    fetchPolicy();
-  }, [params.id, form]);
+  }, [fetchPolicy]);
   
   const handleDistrictChange = (value: string) => {
     const [district, amphoe, province] = value.split(', ');
@@ -102,27 +104,86 @@ export default function EditPublicPolicy({ params }: { params: { id: string } })
     }
   };
 
+  const handleImageChange: UploadProps['onChange'] = async ({ fileList: newFileList }) => {
+    const processedFileList = await Promise.all(
+      newFileList.map(async (file) => {
+        if (file.originFileObj) {
+          const isJpgOrPngOrWebp = file.type === 'image/jpeg' || file.type === 'image/png' || file.type === 'image/webp';
+          if (!isJpgOrPngOrWebp) {
+            message.error(`ไฟล์ ${file.name} ไม่ใช่ไฟล์ JPG, PNG หรือ WebP`);
+            return null;
+          }
+  
+          const options = {
+            maxSizeMB: 0.2,
+            maxWidthOrHeight: 1024,
+            useWebWorker: true,
+            fileType: 'image/webp' as const,
+          };
+  
+          try {
+            let compressedFile = await imageCompression(file.originFileObj, options);
+            while (compressedFile.size > 200 * 1024) {
+              options.maxSizeMB *= 0.9;
+              compressedFile = await imageCompression(file.originFileObj, options);
+            }
+  
+            const newFileName = `${file.name.split('.')[0]}.webp`;
+            return {
+              ...file,
+              originFileObj: new File([compressedFile], newFileName, { type: 'image/webp' }),
+              name: newFileName,
+            };
+          } catch (error) {
+            console.error('Error compressing image:', error);
+            message.error(`ไม่สามารถบีบอัดรูปภาพ ${file.name} ได้`);
+            return null;
+          }
+        }
+        return file;
+      })
+    );
+  
+    const filteredFileList = processedFileList.filter((file): file is UploadFile => file !== null);
+    setFileList(filteredFileList.slice(-8));  // Limit to 8 images
+  };
+
+  const handleRemoveImage = (file: UploadFile) => {
+    setFileList((prev) => prev.filter((item) => item.uid !== file.uid));
+  };
+  
   const onFinish = async (values: FormValues) => {
     setLoading(true);
     try {
       const formData = new FormData();
       Object.entries(values).forEach(([key, value]) => {
-        if (key === 'images') {
-          fileList.forEach((file) => {
-            if (file.originFileObj) {
-              formData.append('images', file.originFileObj);
-            }
-          });
-        } else if (key === 'policyFile' && policyFile.length > 0) {
-          formData.append('policyFile', policyFile[0].originFileObj as File);
-        } else if (key === 'content') {
-          formData.append('content', JSON.stringify(value));
-        } else if (key === 'signingDate') {
-          formData.append('signingDate', value.toISOString());
-        } else if (value !== undefined && value !== null) {
+        if (key === 'content') {
+          formData.append(key, JSON.stringify(value));  // Stringify the content array
+        } else if (key !== 'images' && key !== 'policyFile' && value !== undefined && value !== null) {
           formData.append(key, value.toString());
         }
       });
+
+      // Handle images
+      const existingImages = fileList.filter(file => file.url).map(file => file.url);
+      formData.append('existingImages', JSON.stringify(existingImages));
+
+      fileList.forEach((file) => {
+        if (file.originFileObj) {
+          formData.append('newImages', file.originFileObj);
+        }
+      });
+
+      // Handle policy file
+      if (policyFile.length > 0) {
+        if (policyFile[0].originFileObj) {
+          formData.append('policyFile', policyFile[0].originFileObj);
+        } else if (policyFile[0].url) {
+          formData.append('existingPolicyFile', policyFile[0].url);
+        }
+      } else {
+        formData.append('removePolicyFile', 'true');
+      }
 
       await axios.put(`/api/public-policy/${params.id}`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
@@ -136,6 +197,7 @@ export default function EditPublicPolicy({ params }: { params: { id: string } })
       setLoading(false);
     }
   };
+  
 
   if (!initialValues) {
     return <div>Loading...</div>;
@@ -238,41 +300,42 @@ export default function EditPublicPolicy({ params }: { params: { id: string } })
               </Form.Item>
 
               <Form.Item name="images" label="รูปภาพประกอบ">
-                <Upload
-                  listType="picture-card"
-                  fileList={fileList}
-                  onChange={({ fileList }) => setFileList(fileList)}
-                  beforeUpload={() => false}
-                >
-                  <Button icon={<UploadOutlined />}>อัพโหลดรูปภาพ</Button>
-                </Upload>
-              </Form.Item>
-              <p className="mb-4">จำนวนรูปภาพที่เลือก: {fileList.length} (สามารถเลือกได้หลายรูป)</p>
+              <Upload
+                listType="picture-card"
+                fileList={fileList}
+                onChange={handleImageChange}
+                onRemove={handleRemoveImage}
+                beforeUpload={() => false}
+              >
+                {fileList.length >= 8 ? null :  <Button icon={<UploadOutlined />}>อัพโหลดรูปภาพ</Button>}
+</Upload>
+</Form.Item>
+<p className="mb-4">จำนวนรูปภาพที่เลือก: {fileList.length} (สามารถเลือกได้สูงสุด 8 รูป)</p>
+Copy          <Form.Item name="videoLink" label="แนบ Link VDO ประกอบ">
+            <Input prefix={<LinkOutlined />} placeholder="https://www.example.com/video" />
+          </Form.Item>
 
-              <Form.Item name="videoLink" label="แนบ Link VDO ประกอบ">
-                <Input prefix={<LinkOutlined />} placeholder="https://www.example.com/video" />
-              </Form.Item>
+          <Form.Item name="policyFile" label="แนบไฟล์นโยบายประกอบ">
+            <Upload
+              fileList={policyFile}
+              onChange={({ fileList }) => setPolicyFile(fileList)}
+              beforeUpload={() => false}
+              onRemove={() => setPolicyFile([])}
+            >
+              {policyFile.length === 0 && <Button icon={<UploadOutlined />}>อัพโหลดไฟล์นโยบาย</Button>}
+            </Upload>
+          </Form.Item>
+          {policyFile.length > 0 && <p>ไฟล์ที่เลือก: {policyFile[0].name}</p>}
+        </Card>
+      </Col>
+    </Row>
 
-              <Form.Item name="policyFile" label="แนบไฟล์นโยบายประกอบ">
-                <Upload
-                  fileList={policyFile}
-                  onChange={({ fileList }) => setPolicyFile(fileList)}
-                  beforeUpload={() => false}
-                >
-                  <Button icon={<UploadOutlined />}>อัพโหลดไฟล์นโยบาย</Button>
-                </Upload>
-              </Form.Item>
-              {policyFile.length > 0 && <p>ไฟล์ที่เลือก: {policyFile[0].name}</p>}
-            </Card>
-          </Col>
-        </Row>
-
-        <Form.Item className="text-center">
-          <Button type="primary" htmlType="submit" loading={loading}>
-            อัปเดตนโยบายสาธารณะ
-          </Button>
-        </Form.Item>
-      </Form>
-    </div>
-  );
+    <Form.Item className="text-center">
+      <Button type="primary" htmlType="submit" loading={loading}>
+        อัปเดตนโยบายสาธารณะ
+      </Button>
+    </Form.Item>
+  </Form>
+</div>
+);
 }

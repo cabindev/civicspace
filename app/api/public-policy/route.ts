@@ -1,12 +1,28 @@
 // app/api/public-policy/route.ts
-
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/app/lib/prisma';
 import { writeFile } from 'fs/promises';
 import path from 'path';
+import { getServerSession } from 'next-auth/next';
+import authOptions from '@/app/lib/configs/auth/authOptions';
+import { revalidatePath
 
+ } from 'next/cache';
 export async function POST(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email },
+    });
+
+    if (!user) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
     const formData = await request.formData();
 
     const policyData: any = {
@@ -22,6 +38,7 @@ export async function POST(request: NextRequest) {
       summary: formData.get('summary') as string || '',
       results: formData.get('results') as string || null,
       videoLink: formData.get('videoLink') as string || null,
+      userId: user.id  // Use the user's ID from the session
     };
 
     // Handle numeric fields
@@ -64,7 +81,7 @@ export async function POST(request: NextRequest) {
         data: { policyFileUrl: `/uploads/policy-files/${filename}` },
       });
     }
-
+    revalidatePath ('/api/public-policy');
     return NextResponse.json(policy, { status: 201 });
   } catch (error) {
     console.error('Error creating public policy:', error);

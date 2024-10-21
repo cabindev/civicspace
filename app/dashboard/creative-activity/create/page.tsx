@@ -116,39 +116,49 @@ export default function CreateCreativeActivity() {
   };
 
   const handleImageChange = async (info: any) => {
-    const { fileList } = info;
-    try {
-      const compressedFileList = await Promise.all(
-        fileList.map(async (file: UploadFile) => {
-          if (file.originFileObj) {
-            const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
-            if (!isJpgOrPng) {
-              message.error('คุณสามารถอัปโหลดไฟล์ JPG/PNG เท่านั้น!');
-              return null;
-            }
-            const options = {
-              maxSizeMB: 0.2,
-              maxWidthOrHeight: 1024,
-              useWebWorker: true,
-              fileType: 'image/webp',
-            };
+    let newFileList = [...info.fileList];
+  
+    // จำกัดจำนวนรูปภาพ
+    newFileList = newFileList.slice(-8);
+  
+    const compressedFileList = await Promise.all(
+      newFileList.map(async (file: UploadFile) => {
+        if (file.originFileObj && !file.url) {  // เช็คว่าเป็นไฟล์ใหม่
+          const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png' || file.type === 'image/webp';
+          if (!isJpgOrPng) {
+            message.error(`ไฟล์ ${file.name} ไม่ใช่ไฟล์ JPG หรือ PNG`);
+            return null;
+          }
+          if (file.size && file.size > 5 * 1024 * 1024) {  // 5MB
+            message.error(`ขนาดไฟล์ ${file.name} ต้องไม่เกิน 5MB`);
+            return null;
+          }
+          const options = {
+            maxSizeMB: 0.2,
+            maxWidthOrHeight: 1024,
+            useWebWorker: true,
+            fileType: 'image/jpeg',  // กำหนดให้ผลลัพธ์เป็น JPEG เสมอ
+          };
+          try {
             const compressedFile = await imageCompression(file.originFileObj, options);
-            const webpFile = new File([compressedFile], `${file.name.split('.')[0]}.webp`, { type: 'image/webp' });
+            const newFileName = `${file.name.split('.')[0]}.jpg`;  // เปลี่ยนนามสกุลไฟล์เป็น .jpg
             return {
               ...file,
-              originFileObj: webpFile,
-              name: webpFile.name,
-              type: 'image/webp',
+              originFileObj: new File([compressedFile], newFileName, { type: 'image/jpeg' }),
+              name: newFileName,
             };
+          } catch (error) {
+            console.error('Error compressing image:', error);
+            message.error(`ไม่สามารถบีบอัดรูปภาพ ${file.name} ได้`);
+            return null;
           }
-          return file;
-        })
-      );
-      setFileList(compressedFileList.filter(file => file !== null));
-    } catch (error) {
-      console.error('Error handling image change:', error);
-      message.error('เกิดข้อผิดพลาดในการจัดการรูปภาพ');
-    }
+        }
+        return file;
+      })
+    );
+  
+    newFileList = compressedFileList.filter(file => file !== null);
+    setFileList(newFileList);
   };
 
   const onFinish = async (values: FormValues) => {
@@ -157,9 +167,9 @@ export default function CreateCreativeActivity() {
       const formData = new FormData();
       Object.entries(values).forEach(([key, value]) => {
         if (key === 'images') {
-          fileList.forEach((file) => {
+          fileList.forEach((file, index) => {
             if (file.originFileObj) {
-              formData.append('images', file.originFileObj);
+              formData.append(`images`, file.originFileObj, `image_${index}.jpg`);
             }
           });
         } else if (key === 'reportFile' && reportFile.length > 0) {
@@ -168,7 +178,7 @@ export default function CreateCreativeActivity() {
           formData.append(key, value.toString());
         }
       });
-
+  
       await axios.post('/api/creative-activity', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
@@ -286,6 +296,7 @@ export default function CreateCreativeActivity() {
                 <InputNumber min={2400} max={2600} className="w-full" />,
                 [{ required: true, message: "กรุณากรอกปีที่เริ่มดำเนินการ" }]
               )}
+
               {renderFormItem("images", "รูปภาพประกอบ", 
                 <Upload
                   listType="picture-card"
@@ -297,6 +308,7 @@ export default function CreateCreativeActivity() {
                 </Upload>
               )}
               <p>จำนวนรูปภาพที่เลือก: {fileList.length} (สามารถเลือกได้หลายรูป)</p>
+
 
               {renderFormItem("videoLink", "ลิงก์วิดีโอประกอบ", 
                 <Input prefix={<LinkOutlined />} placeholder="https://www.example.com/video" />

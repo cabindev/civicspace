@@ -27,7 +27,7 @@ export default function CreateEthnicCategory() {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">สร้างประเภทกลุ่มชาติพันธุ์ใหม่</h1>
+
       <Form form={form} layout="vertical" onFinish={onFinish}>
         <Form.Item
           name="name"

@@ -5,25 +5,29 @@ export async function GET() {
   try {
     const categories = await prisma.creativeCategory.findMany({
       include: {
-        subCategories: {
-          include: {
-            _count: {
-              select: { activities: true },
-            },
+        _count: {
+          select: { activities: true },
+        },
+        activities: {
+          select: {
+            name: true,
+            createdAt: true,
           },
+          orderBy: {
+            createdAt: 'desc',
+          },
+          take: 5, // แสดงเฉพาะ 5 กิจกรรมล่าสุด
         },
       },
     });
 
     const chartData = categories.map(category => ({
       category: category.name,
-      subCategories: category.subCategories.map(sub => sub.name),
-      subCategoryCounts: Object.fromEntries(
-        category.subCategories.map(sub => [
-          sub.name,
-          sub._count.activities
-        ])
-      ),
+      activityCount: category._count.activities,
+      recentActivities: category.activities.map(activity => ({
+        name: activity.name,
+        date: activity.createdAt,
+      })),
     }));
 
     return NextResponse.json(chartData);

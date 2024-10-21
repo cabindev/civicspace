@@ -1,3 +1,4 @@
+//dashboard/layout.tsx
 'use client'
 
 import React, { useState, useEffect } from 'react';
@@ -9,17 +10,20 @@ import {
   UserOutlined,
   SettingOutlined,
   LogoutOutlined,
-  ShoppingCartOutlined,
+  HistoryOutlined,
   FileProtectOutlined,
   CloseOutlined,
   TeamOutlined,
   AppstoreOutlined,
   ExperimentOutlined
+
 } from '@ant-design/icons';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { signOut, useSession } from 'next-auth/react';
+import { HomeOutlined } from '@ant-design/icons';
+
 
 const { Header, Sider, Content } = Layout;
 
@@ -39,16 +43,17 @@ export default function DashboardLayout({
 
   
 const menuItems = [
+  { key: '/', icon: <HomeOutlined />, label: 'Home' },
   { key: '/dashboard', icon: <DashboardOutlined />, label: 'Dashboard' },
-  { key: '/dashboard/users', icon: <UserOutlined />, label: 'Users' },
-  { key: '/dashboard/settings', icon: <SettingOutlined />, label: 'Settings' },
+  // { key: '/dashboard/users', icon: <UserOutlined />, label: 'Users' },
+  // { key: '/dashboard/settings', icon: <SettingOutlined />, label: 'Settings' },
   {
     key: 'tradition',
-    icon: <ShoppingCartOutlined />,
+    icon: <HistoryOutlined />,
     label: 'Tradition',
     children: [
-      { key: '/dashboard/tradition', label: 'งานบุญประเพณีปลอดเหล้า' },
       { key: '/dashboard/tradition-category', label: 'ชื่องานบุญประเพณี' },
+      { key: '/dashboard/tradition', label: 'งานบุญประเพณีปลอดเหล้า' },
     ],
   },
   {
@@ -56,8 +61,8 @@ const menuItems = [
     icon: <ExperimentOutlined />,
     label: 'Creative Activity',
     children: [
-      { key: '/dashboard/creative-activity', label: 'กิจกรรมสร้างสรรค์' },
       { key: '/dashboard/creative-categories', label: 'หมวดหมู่กิจกรรมสร้างสรรค์' },
+      { key: '/dashboard/creative-activity', label: 'กิจกรรมสร้างสรรค์' },
     ],
   },
   {
@@ -65,8 +70,8 @@ const menuItems = [
     icon: <TeamOutlined />,
     label: 'Ethnic Group',
     children: [
-      { key: '/dashboard/ethnic-group', label: 'งานสุขภาวะในกลุ่มชาติพันธ์ุ' },
       { key: '/dashboard/ethnic-category', label: 'ประเภทกลุ่มชาติพันธุ์' },
+      { key: '/dashboard/ethnic-group', label: 'งานสุขภาวะในกลุ่มชาติพันธ์ุ' },
     ],
   },
   { key: '/dashboard/public-policy', icon: <FileProtectOutlined />, label: 'Public Policy' },
@@ -150,7 +155,7 @@ const menuItems = [
     <>
       <div className="logo p-4 flex justify-center items-center">
         <Link href="/" className="flex-shrink-0">
-          <Image src="/logo.png" alt="Logo" width={50} height={50} className="object-contain" />
+          <Image src="/power.png" alt="Logo" width={80} height={80} className="object-contain" />
         </Link>
       </div>
       <Menu
@@ -182,42 +187,42 @@ const menuItems = [
         </Sider>
       )}
       <Layout>
-        <Header className="bg-white p-0 flex justify-between items-center shadow-sm">
-          <div className="flex items-center">
-            {isMobile ? (
-              <Button
-                type="text"
-                icon={<MenuUnfoldOutlined />}
-                onClick={() => setDrawerVisible(true)}
-                className="text-xl w-16 h-16 custom-button"
-              />
-            ) : (
-              <Button
-                type="text"
-                icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-                onClick={() => setCollapsed(!collapsed)}
-                className="text-xl w-16 h-16 custom-button"
-              />
-            )}
-            <h1 className="text-lg font-semibold ml-4 text-foreground">Dashboard</h1>
-          </div>
-          <Dropdown menu={{ items: userMenuItems }} trigger={["click"]}>
-            <div className="flex items-center cursor-pointer mr-4">
-              {session.user?.image ? (
-                <Image
-                  src={session.user.image}
-                  alt="User Avatar"
-                  width={32}
-                  height={32}
-                  className="rounded-full object-cover"
-                />
-              ) : (
-                <Avatar icon={<UserOutlined />} />
-              )}
-              <span className="ml-2 hidden md:inline text-foreground">{session.user?.firstName}</span>
-            </div>
-          </Dropdown>
-        </Header>
+      <Header className="bg-white p-0 flex justify-between items-center shadow-sm">
+        <div className="flex items-center">
+          {isMobile ? (
+            <Button
+              type="text"
+              icon={<MenuUnfoldOutlined />}
+              onClick={() => setDrawerVisible(true)}
+              className="text-xl w-16 h-16 custom-button"
+            />
+          ) : (
+            <Button
+              type="text"
+              icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+              onClick={() => setCollapsed(!collapsed)}
+              className="text-xl w-16 h-16 custom-button"
+            />
+          )}
+      
+        </div>
+        <div className="flex items-center">
+        <Dropdown menu={{ items: userMenuItems }} trigger={["click"]}>
+              <div className="flex items-center cursor-pointer mr-4">
+                {session.user?.image ? (
+                  <img
+                    src={session.user.image}
+                    alt="User Avatar"
+                    className="w-10 h-10 rounded-full object-cover"
+                  />
+                ) : (
+                  <Avatar icon={<UserOutlined />} className="rounded-full" style={{ width: 32, height: 32 }} />
+                )}
+                {/* <span className="ml-2 hidden md:inline text-foreground">{session.user?.firstName}</span> */}
+              </div>
+            </Dropdown>
+        </div>
+      </Header>
         <Content className="m-6 p-6 bg-white rounded-lg shadow-sm">
           <div className="mb-4 text-2xl font-bold text-foreground">
             {menuItems.find(item => item.key === selectedKeys[0])?.label || 

@@ -9,6 +9,7 @@ import { data } from '@/app/data/regions';
 import type { UploadFile } from 'antd/es/upload/interface';
 import moment from 'moment';
 import 'moment/locale/th';
+import imageCompression from 'browser-image-compression';
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -94,6 +95,52 @@ export default function CreatePublicPolicy() {
       form.setFieldsValue(formValues);
       setAutoFilledFields(filledFields);
     }
+  };
+
+  const handleImageChange = async (info: any) => {
+    let newFileList = [...info.fileList];
+  
+    // จำกัดจำนวนรูปภาพ
+    newFileList = newFileList.slice(-8);
+  
+    const compressedFileList = await Promise.all(
+      newFileList.map(async (file: UploadFile) => {
+        if (file.originFileObj && !file.url) {  // เช็คว่าเป็นไฟล์ใหม่
+          const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png' || file.type === 'image/webp';
+          if (!isJpgOrPng) {
+            message.error(`ไฟล์ ${file.name} ไม่ใช่ไฟล์ JPG หรือ PNG`);
+            return null;
+          }
+          if (file.size && file.size > 5 * 1024 * 1024) {  // 5MB
+            message.error(`ขนาดไฟล์ ${file.name} ต้องไม่เกิน 5MB`);
+            return null;
+          }
+          const options = {
+            maxSizeMB: 0.2,
+            maxWidthOrHeight: 1024,
+            useWebWorker: true,
+            fileType: 'image/jpeg',  // กำหนดให้ผลลัพธ์เป็น JPEG เสมอ
+          };
+          try {
+            const compressedFile = await imageCompression(file.originFileObj, options);
+            const newFileName = `${file.name.split('.')[0]}.jpg`;  // เปลี่ยนนามสกุลไฟล์เป็น .jpg
+            return {
+              ...file,
+              originFileObj: new File([compressedFile], newFileName, { type: 'image/jpeg' }),
+              name: newFileName,
+            };
+          } catch (error) {
+            console.error('Error compressing image:', error);
+            message.error(`ไม่สามารถบีบอัดรูปภาพ ${file.name} ได้`);
+            return null;
+          }
+        }
+        return file;
+      })
+    );
+  
+    newFileList = compressedFileList.filter(file => file !== null);
+    setFileList(newFileList);
   };
 
   const onFinish = async (values: FormValues) => {
@@ -238,8 +285,9 @@ export default function CreatePublicPolicy() {
                 <Upload
                   listType="picture-card"
                   fileList={fileList}
-                  onChange={({ fileList }) => setFileList(fileList)}
+                  onChange={handleImageChange}
                   beforeUpload={() => false}
+         
                 >
                   <Button icon={<UploadOutlined />}>อัพโหลดรูปภาพ</Button>
                 </Upload>

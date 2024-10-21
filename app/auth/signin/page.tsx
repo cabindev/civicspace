@@ -5,6 +5,7 @@ import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
+
 export default function SignIn() {
   const { data: session } = useSession();
   const [email, setEmail] = useState<string>("");
@@ -14,7 +15,7 @@ export default function SignIn() {
 
   useEffect(() => {
     if (session) {
-      router.push("/"); // หรือหน้าหลักหลังจาก login
+      router.push("/dashboard"); // หรือหน้าหลักหลังจาก login
     }
   }, [session, router]);
 
@@ -32,7 +33,7 @@ export default function SignIn() {
       if (result?.error) {
         setError("อีเมลหรือรหัสผ่านไม่ถูกต้อง");
       } else {
-        router.replace("/"); // หรือหน้าหลักหลังจาก login
+        router.replace("/dashboard"); // หรือหน้าหลักหลังจาก login
       }
     } catch (error) {
       setError("เกิดข้อผิดพลาด โปรดลองอีกครั้ง");
@@ -40,6 +41,7 @@ export default function SignIn() {
   };
 
   return (
+     
     <div className="min-h-screen flex items-center justify-center bg-[var(--background)]">
       <div className="max-w-md w-full space-y-8 p-10 bg-[var(--primary-foreground)] rounded-xl shadow-lg">
         <div>

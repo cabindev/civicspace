@@ -14,12 +14,6 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
       return NextResponse.json({ error: 'Ethnic group not found' }, { status: 404 });
     }
 
-    // Increment view count
-    await prisma.ethnicGroup.update({
-      where: { id: params.id },
-      data: { viewCount: { increment: 1 } },
-    });
-
     return NextResponse.json(ethnicGroup);
   } catch (error) {
     console.error('Error fetching ethnic group:', error);
@@ -29,71 +23,111 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 
 export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const formData = await request.formData();
+    let body;
+    const contentType = request.headers.get('content-type');
+    if (contentType?.includes('application/json')) {
+      body = await request.json();
+    } else if (contentType?.includes('multipart/form-data')) {
+      const formData = await request.formData();
+      body = Object.fromEntries(formData);
+    } else {
+      return NextResponse.json({ error: 'Unsupported content type' }, { status: 400 });
+    }
 
-    const updateData: any = {
-      categoryId: formData.get('categoryId') as string,
-      name: formData.get('name') as string,
-      history: formData.get('history') as string,
-      activityName: formData.get('activityName') as string,
-      activityOrigin: formData.get('activityOrigin') as string,
-      province: formData.get('province') as string,
-      amphoe: formData.get('amphoe') as string,
-      district: formData.get('district') as string,
-      village: formData.get('village') as string | null,
-      activityDetails: formData.get('activityDetails') as string,
-      alcoholFreeApproach: formData.get('alcoholFreeApproach') as string,
-      startYear: parseInt(formData.get('startYear') as string),
-      results: formData.get('results') as string | null,
-      videoLink: formData.get('videoLink') as string | null,
+    if (body.action === 'incrementViewCount') {
+      const updatedEthnicGroup = await prisma.ethnicGroup.update({
+        where: { id: params.id },
+        data: { viewCount: { increment: 1 } },
+        select: { viewCount: true }
+      });
+      return NextResponse.json(updatedEthnicGroup);
+    }
+
+    const ethnicGroupData: any = {
+      categoryId: body.categoryId,
+      name: body.name,
+      district: body.district,
+      amphoe: body.amphoe,
+      province: body.province,
+      village: body.village || null,
+      history: body.history,
+      activityName: body.activityName,
+      activityOrigin: body.activityOrigin,
+      activityDetails: body.activityDetails,
+      alcoholFreeApproach: body.alcoholFreeApproach,
+      results: body.results || null,
+      startYear: parseInt(body.startYear as string),
+      videoLink: body.videoLink || null,
     };
 
     ['zipcode', 'district_code', 'amphoe_code', 'province_code'].forEach(field => {
-      const value = formData.get(field);
-      if (value && !isNaN(Number(value))) {
-        updateData[field] = Number(value);
-      }
+      ethnicGroupData[field] = body[field] && !isNaN(Number(body[field])) ? Number(body[field]) : null;
     });
 
-    const ethnicGroup = await prisma.ethnicGroup.update({
+    const updatedEthnicGroup = await prisma.ethnicGroup.update({
       where: { id: params.id },
-      data: updateData,
+      data: ethnicGroupData,
     });
 
-    // Handle image uploads
-    const images = formData.getAll('images') as File[];
-    for (const image of images) {
-      if (image instanceof File) {
-        const buffer = Buffer.from(await image.arrayBuffer());
-        const filename = Date.now() + '-' + image.name;
-        const filepath = path.join(process.cwd(), 'public/uploads/ethnic-group-images', filename);
-        await writeFile(filepath, buffer);
-        await prisma.image.create({
-          data: {
-            url: `/uploads/ethnic-group-images/${filename}`,
-            ethnicGroupId: ethnicGroup.id,
-          },
-        });
+    // Handle existing images
+    if (body.existingImages) {
+      const existingImages = JSON.parse(body.existingImages);
+      await prisma.image.deleteMany({
+        where: {
+          ethnicGroupId: params.id,
+          url: { notIn: existingImages }
+        }
+      });
+    }
+
+    // Handle new images
+    if (body.newImages) {
+      const newImages = Array.isArray(body.newImages) ? body.newImages : [body.newImages];
+      for (const image of newImages) {
+        if (image instanceof Blob) {
+          const buffer = await image.arrayBuffer();
+          const filename = Date.now() + '-' + (image as File).name.replace(/\s+/g, '-');
+          const filepath = path.join(process.cwd(), 'public/uploads/ethnic-group-images', filename);
+          await writeFile(filepath, Buffer.from(buffer));
+          await prisma.image.create({
+            data: {
+              url: `/uploads/ethnic-group-images/${filename}`,
+              ethnicGroupId: params.id,
+            },
+          });
+        }
       }
     }
 
     // Handle file upload
-    const file = formData.get('fileUrl') as File | null;
-    if (file instanceof File) {
-      const buffer = Buffer.from(await file.arrayBuffer());
-      const filename = Date.now() + '-' + file.name;
+    if (body.fileUrl instanceof Blob) {
+      const buffer = await body.fileUrl.arrayBuffer();
+      const filename = Date.now() + '-' + body.fileUrl.name.replace(/\s+/g, '-');
       const filepath = path.join(process.cwd(), 'public/uploads/ethnic-group-files', filename);
-      await writeFile(filepath, buffer);
+      await writeFile(filepath, Buffer.from(buffer));
+      ethnicGroupData.fileUrl = `/uploads/ethnic-group-files/${filename}`;
+    } else if (body.removeFile === 'true') {
+      ethnicGroupData.fileUrl = null;
+    }
+
+    // Update ethnic group with new file URL if necessary
+    if (ethnicGroupData.fileUrl !== undefined) {
       await prisma.ethnicGroup.update({
-        where: { id: ethnicGroup.id },
-        data: { fileUrl: `/uploads/ethnic-group-files/${filename}` },
+        where: { id: params.id },
+        data: { fileUrl: ethnicGroupData.fileUrl },
       });
     }
 
-    return NextResponse.json(ethnicGroup, { status: 200 });
+    // Fetch updated ethnic group with images
+    const finalUpdatedEthnicGroup = await prisma.ethnicGroup.findUnique({
+      where: { id: params.id },
+      include: { images: true, category: true },
+    });
+
+    return NextResponse.json(finalUpdatedEthnicGroup);
   } catch (error) {
     console.error('Error updating ethnic group:', error);
-    return NextResponse.json({ error: 'Internal Server Error', details: error }, { status: 500 });
+    return NextResponse.json({ error: 'Internal Server Error', details: String(error) }, { status: 500 });
   }
 }
 
@@ -108,17 +142,20 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       return NextResponse.json({ error: 'Ethnic group not found' }, { status: 404 });
     }
 
+    // Delete associated images
     for (const image of ethnicGroup.images) {
       const imagePath = path.join(process.cwd(), 'public', image.url);
       await unlink(imagePath).catch(error => console.error('Error deleting image file:', error));
       await prisma.image.delete({ where: { id: image.id } });
     }
 
+    // Delete associated file if exists
     if (ethnicGroup.fileUrl) {
       const filePath = path.join(process.cwd(), 'public', ethnicGroup.fileUrl);
       await unlink(filePath).catch(error => console.error('Error deleting file:', error));
     }
 
+    // Delete the ethnic group
     await prisma.ethnicGroup.delete({
       where: { id: params.id },
     });

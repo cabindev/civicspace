@@ -1,10 +1,12 @@
+// app/dashboard/public-policy/[id]/page.tsx
 'use client'
 
-import { useState, useEffect } from 'react';
-import { Card, Row, Col, Image, Button, message } from 'antd';
-import axios from 'axios';
-import { useRouter } from 'next/navigation';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import axios from 'axios';
+import { FaCalendar, FaEye, FaVideo, FaFilePdf, FaMapMarkerAlt, FaEdit } from 'react-icons/fa';
+import { Spin, message } from 'antd';
 
 interface PublicPolicy {
   id: string;
@@ -16,83 +18,211 @@ interface PublicPolicy {
   province: string;
   type: string;
   village?: string;
-  content: string[];
+  content: string[] | string | Record<string, any>;
   summary: string;
   results?: string;
   images: { id: string; url: string }[];
   videoLink?: string;
   policyFileUrl?: string;
+  viewCount: number;
 }
 
-export default function PublicPolicyDetail({ params }: { params: { id: string } }) {
+export default function PublicPolicyDetail() {
+  const { id } = useParams();
   const [policy, setPolicy] = useState<PublicPolicy | null>(null);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  useEffect(() => {
-    const fetchPolicy = async () => {
-      try {
-        const response = await axios.get(`/api/public-policy/${params.id}`);
-        setPolicy(response.data);
-      } catch (error) {
-        console.error('Error fetching policy:', error);
-        message.error('ไม่สามารถโหลดข้อมูลนโยบายได้');
-      }
-    };
-
-    fetchPolicy();
-  }, [params.id]);
-
-  const handleDelete = async () => {
+  const fetchPolicy = useCallback(async () => {
     try {
-      await axios.delete(`/api/public-policy/${params.id}`);
-      message.success('ลบนโยบายสาธารณะสำเร็จ');
-      router.push('/dashboard/public-policy');
+      const response = await axios.get(`/api/public-policy/${id}`);
+      setPolicy(response.data);
+      // Increment view count
+      await axios.put(`/api/public-policy/${id}`, { action: 'incrementViewCount' }, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
     } catch (error) {
-      console.error('Error deleting policy:', error);
-      message.error('ไม่สามารถลบนโยบายสาธารณะได้');
+      console.error('Error fetching policy:', error);
+      message.error('ไม่สามารถโหลดข้อมูลนโยบายได้');
+    } finally {
+      setLoading(false);
     }
-  };
+  }, [id]);
 
-  if (!policy) {
-    return <div>Loading...</div>;
+  useEffect(() => {
+    fetchPolicy();
+  }, [fetchPolicy]);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <Spin size="large" />
+      </div>
+    );
   }
 
+  if (!policy) {
+    return <div className="text-center text-2xl mt-10">ไม่พบข้อมูลนโยบายสาธารณะ</div>;
+  }
+
+  const getPolicyLevelText = (level: string) => {
+    const levels: Record<string, string> = {
+      NATIONAL: 'ระดับประเทศ',
+      PROVINCIAL: 'ระดับจังหวัด',
+      DISTRICT: 'ระดับอำเภอ',
+      SUB_DISTRICT: 'ระดับตำบล',
+      VILLAGE: 'ระดับหมู่บ้าน'
+    };
+    return levels[level] || level;
+  };
+
+  const getPolicyContentText = (content: string) => {
+    const contents: Record<string, string> = {
+      LAW_ENFORCEMENT: 'การบังคับใช้กฎหมาย',
+      ALCOHOL_FREE_TRADITION: 'บุญประเพณีปลอดเหล้า',
+      ALCOHOL_FREE_MERIT: 'งานบุญปลอดเหล้า',
+      CHILD_YOUTH_PROTECTION: 'การปกป้องเด็กและเยาวชน',
+      CREATIVE_SPACE: 'พื้นที่สร้างสรรค์'
+    };
+    return contents[content] || content;
+  };
+
+  const renderContent = () => {
+    if (Array.isArray(policy.content)) {
+      return (
+        <ul className="list-disc pl-5">
+          {policy.content.map((item, index) => (
+            <li key={index} className="text-gray-700">{getPolicyContentText(item)}</li>
+          ))}
+        </ul>
+      );
+    } else if (typeof policy.content === 'string') {
+      try {
+        const contentArray = JSON.parse(policy.content);
+        if (Array.isArray(contentArray)) {
+          return (
+            <ul className="list-disc pl-5">
+              {contentArray.map((item, index) => (
+                <li key={index} className="text-gray-700">{getPolicyContentText(item)}</li>
+              ))}
+            </ul>
+          );
+        }
+      } catch (e) {
+        // If parsing fails, just display the string
+        return <p className="text-gray-700">{getPolicyContentText(policy.content)}</p>;
+      }
+    }
+    return <p className="text-gray-700">ไม่มีข้อมูลเนื้อหา</p>;
+  };
+
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">{policy.name}</h1>
-      <Card>
-        <Row gutter={[16, 16]}>
-          <Col span={12}>
-            <p><strong>วันที่ลงนาม:</strong> {new Date(policy.signingDate).toLocaleDateString()}</p>
-            <p><strong>ระดับ:</strong> {policy.level}</p>
-            <p><strong>พื้นที่:</strong> {policy.village ? `${policy.village}, ` : ''}{policy.district}, {policy.amphoe}, {policy.province}</p>
-            <p><strong>ประเภท:</strong> {policy.type}</p>
-            <p><strong>เนื้อหา:</strong> {policy.content.join(', ')}</p>
-            <p><strong>สรุป:</strong> {policy.summary}</p>
-            {policy.results && <p><strong>ผลลัพธ์:</strong> {policy.results}</p>}
-          </Col>
-          <Col span={12}>
-            {policy.images.length > 0 && (
-              <Image.PreviewGroup>
-                {policy.images.map((image) => (
-                  <Image key={image.id} width={200} src={image.url} />
+    <div className="bg-gray-100 min-h-screen pt-24">
+      <div className="container mx-auto p-4 max-w-4xl">
+        {/* Hero Section */}
+        <div className="relative h-64 md:h-96 mb-8 rounded-lg overflow-hidden shadow-xl">
+          {policy.images && policy.images.length > 0 ? (
+            <img
+              src={policy.images[0].url}
+              alt={policy.name}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+              <p className="text-gray-500">ไม่มีรูปภาพ</p>
+            </div>
+          )}
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent flex items-end">
+            <h1 className="text-3xl md:text-4xl font-bold text-white p-6">{policy.name}</h1>
+          </div>
+        </div>
+
+        {/* Main Content */}
+        <div className="bg-white shadow-lg rounded-lg overflow-hidden">
+          <div className="p-6">
+            <h2 className="text-2xl font-semibold mb-4 text-green-600 border-b pb-2">ข้อมูลทั่วไป</h2>
+            <div className="grid md:grid-cols-2 gap-4">
+              <div>
+                <p className="mb-2"><span className="font-semibold">ระดับ:</span> {getPolicyLevelText(policy.level)}</p>
+                <p className="mb-2 flex items-center">
+                  <FaMapMarkerAlt className="mr-2 text-green-500" />
+                  <span className="font-semibold">พื้นที่:</span> {policy.village ? `${policy.village}, ` : ''}{policy.district}, {policy.amphoe}, {policy.province}
+                </p>
+                <p className="mb-2"><span className="font-semibold">ประเภท:</span> {policy.type}</p>
+              </div>
+              <div>
+                <div className="flex items-center mb-4">
+                  <FaCalendar className="mr-2 text-green-500" />
+                  <span className="font-semibold mr-2">วันที่ลงนาม:</span> {new Date(policy.signingDate).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' })}
+                </div>
+              </div>
+            </div>
+
+            <h2 className="text-2xl font-semibold my-4 text-green-600 border-b pb-2">รายละเอียดนโยบาย</h2>
+            <div className="mb-4">
+              <h3 className="font-semibold mb-2">เนื้อหา:</h3>
+              {renderContent()}
+            </div>
+            <div className="mb-4">
+              <h3 className="font-semibold mb-2">สรุป:</h3>
+              <p className="text-gray-700">{policy.summary}</p>
+            </div>
+            {policy.results && (
+              <div className="mb-4">
+                <h3 className="font-semibold mb-2">ผลลัพธ์:</h3>
+                <p className="text-gray-700">{policy.results}</p>
+              </div>
+            )}
+          </div>
+          
+          {policy.images && policy.images.length > 1 && (
+            <div className="p-6 bg-gray-50">
+              <h2 className="text-2xl font-semibold mb-4 text-green-600 border-b pb-2">รูปภาพประกอบเพิ่มเติม</h2>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {policy.images.slice(1).map((img) => (
+                  <img 
+                    key={img.id} 
+                    src={img.url} 
+                    alt="รูปภาพประกอบ" 
+                    className="w-full h-48 object-cover rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300"
+                  />
                 ))}
-              </Image.PreviewGroup>
-            )}
-            {policy.videoLink && (
-              <p><strong>วิดีโอ:</strong> <a href={policy.videoLink} target="_blank" rel="noopener noreferrer">ดูวิดีโอ</a></p>
-            )}
-            {policy.policyFileUrl && (
-              <p><strong>ไฟล์นโยบาย:</strong> <a href={policy.policyFileUrl} target="_blank" rel="noopener noreferrer">ดาวน์โหลด</a></p>
-            )}
-          </Col>
-        </Row>
-      </Card>
-      <div className="mt-4">
-        <Link href={`/dashboard/public-policy/edit/${policy.id}`}>
-          <Button type="primary" className="mr-2">แก้ไข</Button>
-        </Link>
-        <Button danger onClick={handleDelete}>ลบ</Button>
+              </div>
+            </div>
+          )}
+          
+          {(policy.videoLink || policy.policyFileUrl) && (
+            <div className="p-6">
+              <h2 className="text-2xl font-semibold mb-4 text-green-600 border-b pb-2">ไฟล์และลิงก์ที่เกี่ยวข้อง</h2>
+              <div className="flex flex-col md:flex-row md:space-x-4">
+                {policy.videoLink && (
+                  <a href={policy.videoLink} target="_blank" rel="noopener noreferrer" className="flex items-center bg-green-100 text-green-700 px-4 py-2 rounded-full hover:bg-green-200 transition duration-300 mb-2 md:mb-0">
+                    <FaVideo className="mr-2" />
+                    ดูวิดีโอประกอบ
+                  </a>
+                )}
+                {policy.policyFileUrl && (
+                  <a href={policy.policyFileUrl} download className="flex items-center bg-green-100 text-green-700 px-4 py-2 rounded-full hover:bg-green-200 transition duration-300">
+                    <FaFilePdf className="mr-2" />
+                    ดาวน์โหลดไฟล์นโยบาย
+                  </a>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+        <div className="mt-6 flex justify-between items-center text-gray-600">
+          <Link href={`/dashboard/public-policy/edit/${policy.id}`} className="flex items-center bg-blue-500 text-white px-4 py-2 rounded-full hover:bg-blue-600 transition duration-300">
+            <FaEdit className="mr-2" />
+            แก้ไขนโยบาย
+          </Link>
+          <div className="flex items-center">
+            <FaEye className="mr-2" />
+            <p>เข้าชมทั้งหมด {policy.viewCount} ครั้ง</p>
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -30,23 +30,18 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
-    const formData = await request.formData();
-    const traditionData: any = {};
-
-    for (const [key, value] of Object.entries(Object.fromEntries(formData))) {
-      if (key !== 'newImages' && key !== 'policyFile' && key !== 'existingImages') {
-        traditionData[key] = value;
-      }
+    let body;
+    const contentType = request.headers.get('content-type');
+    if (contentType?.includes('application/json')) {
+      body = await request.json();
+    } else if (contentType?.includes('multipart/form-data')) {
+      const formData = await request.formData();
+      body = Object.fromEntries(formData);
+    } else {
+      return NextResponse.json({ error: 'Unsupported content type' }, { status: 400 });
     }
 
-    // Parse numeric fields
-    ['startYear', 'zipcode', 'district_code', 'amphoe_code', 'province_code'].forEach(field => {
-      if (traditionData[field]) {
-        traditionData[field] = parseInt(traditionData[field], 10);
-      }
-    });
-
-    if (formData.get('action') === 'incrementViewCount') {
+    if (body.action === 'incrementViewCount') {
       const updatedTradition = await prisma.tradition.update({
         where: { id: params.id },
         data: { viewCount: { increment: 1 } },
@@ -55,9 +50,30 @@ export async function PUT(
       return NextResponse.json(updatedTradition);
     }
 
+    const traditionData: any = {
+      name: body.name,
+      categoryId: body.categoryId,
+      district: body.district,
+      amphoe: body.amphoe,
+      province: body.province,
+      type: body.type,
+      village: body.village || null,
+      coordinatorName: body.coordinatorName,
+      phone: body.phone || null,
+      history: body.history,
+      alcoholFreeApproach: body.alcoholFreeApproach,
+      results: body.results || null,
+      startYear: parseInt(body.startYear as string),
+      videoLink: body.videoLink || null,
+    };
+
+    ['zipcode', 'district_code', 'amphoe_code', 'province_code'].forEach(field => {
+      traditionData[field] = body[field] && !isNaN(Number(body[field])) ? Number(body[field]) : null;
+    });
+
     // Handle existing images
-    if (formData.get('existingImages')) {
-      const existingImages = JSON.parse(formData.get('existingImages') as string);
+    if (body.existingImages) {
+      const existingImages = JSON.parse(body.existingImages);
       await prisma.image.deleteMany({
         where: {
           traditionId: params.id,
@@ -66,50 +82,66 @@ export async function PUT(
       });
     }
 
-    // Handle new images
-    const newImages = formData.getAll('newImages');
-    for (const image of newImages) {
-      if (image instanceof Blob) {
-        const buffer = await image.arrayBuffer();
-        const filename = Date.now() + '-' + (image as File).name.replace(/\s+/g, '-');
-        const filepath = path.join(process.cwd(), 'public/uploads/tradition-images', filename);
-        await writeFile(filepath, Buffer.from(buffer));
-        await prisma.image.create({
-          data: {
-            url: `/uploads/tradition-images/${filename}`,
-            traditionId: params.id,
-          },
-        });
+    // Handle new images (if present)
+    if (body.newImages) {
+      const newImages = Array.isArray(body.newImages) ? body.newImages : [body.newImages];
+      for (const image of newImages) {
+        if (image instanceof Blob) {
+          const buffer = await image.arrayBuffer();
+          const filename = Date.now() + '-' + (image as File).name.replace(/\s+/g, '-');
+          const filepath = path.join(process.cwd(), 'public/uploads/tradition-images', filename);
+          await writeFile(filepath, Buffer.from(buffer));
+          await prisma.image.create({
+            data: {
+              url: `/uploads/tradition-images/${filename}`,
+              traditionId: params.id,
+            },
+          });
+        }
       }
     }
 
     // Handle policy file
-    const policyFile = formData.get('policyFile');
-    if (policyFile instanceof Blob) {
-      const buffer = await policyFile.arrayBuffer();
-      const filename = Date.now() + '-' + policyFile.name.replace(/\s+/g, '-');
-      const filepath = path.join(process.cwd(), 'public/uploads/policy-files', filename);
-      await writeFile(filepath, Buffer.from(buffer));
-      traditionData.policyFileUrl = `/uploads/policy-files/${filename}`;
-    } else if (formData.get('removePolicyFile') === 'true') {
-      traditionData.policyFileUrl = null;
-    }
+    await handlePolicyFile(body, params.id);
 
     const updatedTradition = await prisma.tradition.update({
       where: { id: params.id },
       data: traditionData,
     });
 
-    // Fetch updated tradition with images
-    const finalUpdatedTradition = await prisma.tradition.findUnique({
-      where: { id: params.id },
-      include: { images: true, category: true },
-    });
-
-    return NextResponse.json(finalUpdatedTradition);
+    return NextResponse.json(updatedTradition);
   } catch (error) {
     console.error('Error updating tradition:', error);
     return NextResponse.json({ error: 'Internal Server Error', details: String(error) }, { status: 500 });
+  }
+}
+
+async function handlePolicyFile(body: any, traditionId: string) {
+  const existingTradition = await prisma.tradition.findUnique({
+    where: { id: traditionId },
+    select: { policyFileUrl: true }
+  });
+
+  if (existingTradition?.policyFileUrl) {
+    const oldFilePath = path.join(process.cwd(), 'public', existingTradition.policyFileUrl);
+    await unlink(oldFilePath).catch(error => console.error('Error deleting old policy file:', error));
+  }
+
+  if (body.policyFile instanceof Blob) {
+    const buffer = await body.policyFile.arrayBuffer();
+    const filename = Date.now() + '-' + body.policyFile.name.replace(/\s+/g, '-');
+    const filepath = path.join(process.cwd(), 'public/uploads/policy-files', filename);
+    await writeFile(filepath, Buffer.from(buffer));
+    
+    await prisma.tradition.update({
+      where: { id: traditionId },
+      data: { policyFileUrl: `/uploads/policy-files/${filename}` },
+    });
+  } else if (body.removePolicyFile === 'true') {
+    await prisma.tradition.update({
+      where: { id: traditionId },
+      data: { policyFileUrl: null },
+    });
   }
 }
 

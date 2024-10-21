@@ -7,18 +7,41 @@ import authOptions from "./lib/configs/auth/authOptions";
 import AntdProvider from "./components/AntdProvider";
 import 'antd/dist/reset.css';
 
-const seppuriSemibold = localFont({
-  src: "./fonts/seppuri-semibold-webfont.woff2",
-  variable: "--font-seppuri-semibold",
-  weight: "600",
-  display: "swap",
-});
-
-const seppuriThin = localFont({
-  src: "./fonts/seppuri-thin-webfont.woff",
-  variable: "--font-seppuri-thin",
-  weight: "100",
-  display: "swap",
+const seppuri = localFont({
+  src: [
+    {
+      path: './fonts/seppuri-thin-webfont.woff2',
+      weight: '100',
+      style: 'normal',
+    },
+    {
+      path: './fonts/seppuri-extralight-webfont.woff2',
+      weight: '200',
+      style: 'normal',
+    },
+    {
+      path: './fonts/seppuri-regular-webfont.woff2',
+      weight: '400',
+      style: 'normal',
+    },
+    {
+      path: './fonts/seppuri-medium-webfont.woff2',
+      weight: '500',
+      style: 'normal',
+    },
+    {
+      path: './fonts/seppuri-semibold-webfont.woff2',
+      weight: '600',
+      style: 'normal',
+    },
+    {
+      path: './fonts/seppuri-bold-webfont.woff2',
+      weight: '700',
+      style: 'normal',
+    },
+  ],
+  variable: '--font-seppuri',
+  display: 'swap',
 });
 
 export const metadata: Metadata = {
@@ -35,9 +58,7 @@ export default async function RootLayout({
 
   return (
     <html lang="th">
-      <body
-        className={`${seppuriSemibold.variable} ${seppuriThin.variable} antialiased`}
-      >
+      <body className={`${seppuri.variable} font-sans antialiased`}>
         <SessionProvider session={session}>
           <AntdProvider>
             {children}

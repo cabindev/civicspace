@@ -102,6 +102,7 @@ export async function GET(request: NextRequest) {
   try {
     const traditions = await prisma.tradition.findMany({
       include: { images: true, category: true },
+      orderBy: { createdAt: 'desc' } // เรียงลำดับจากใหม่ไปเก่า
     });
     return NextResponse.json(traditions);
   } catch (error) {

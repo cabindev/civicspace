@@ -104,6 +104,7 @@ export async function GET(request: NextRequest) {
   try {
     const activities = await prisma.creativeActivity.findMany({
       include: { images: true, category: true, subCategory: true },
+      orderBy: { createdAt: 'desc' }
     });
     return NextResponse.json(activities);
   } catch (error) {

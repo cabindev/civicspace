@@ -7,6 +7,7 @@ import Link from 'next/link';
 import axios from 'axios';
 import Image from 'next/image';
 import { FaCalendar, FaMapMarkerAlt, FaUser, FaPhone } from 'react-icons/fa';
+import Navbar from '../Navbar';
 
 const { Meta } = Card;
 
@@ -50,9 +51,10 @@ export default function CreativeActivityList() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-50">
+      <Navbar/>
       <div className="container mx-auto p-4 pt-24">
-        <h1 className="text-3xl font-bold mb-6 text-center text-green-700">กิจกรรมสร้างสรรค์ทั้งหมด</h1>
+        <h1 className="text-3xl font-bold mb-6 text-center text-green-700">CREATIVE ACTIVITY</h1>
         <Row gutter={[16, 16]}>
           {activities.map((activity) => (
             <Col xs={24} sm={12} md={8} lg={6} key={activity.id}>

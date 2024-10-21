@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
+
 :root {
   --background: #f8fafc;
   --foreground: #1e293b;
@@ -37,7 +38,7 @@
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: var(--font-seppuri-semibold), var(--font-seppuri-thin), sans-serif;
+  font-family: var(--font-seppuri), sans-serif;
 }
 
 @layer utilities {

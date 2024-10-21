@@ -5,8 +5,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import axios from 'axios';
-import { FaCalendar, FaEye, FaVideo, FaFilePdf, FaMapMarkerAlt, FaEdit } from 'react-icons/fa';
-import { Spin, message } from 'antd';
+import { FaCalendar, FaEye, FaVideo, FaFilePdf, FaMapMarkerAlt, FaEdit, FaHome } from 'react-icons/fa';
+import { Spin, message, Modal } from 'antd';
 
 interface PublicPolicy {
   id: string;
@@ -31,17 +31,15 @@ export default function PublicPolicyDetail() {
   const { id } = useParams();
   const [policy, setPolicy] = useState<PublicPolicy | null>(null);
   const [loading, setLoading] = useState(true);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const router = useRouter();
 
   const fetchPolicy = useCallback(async () => {
     try {
       const response = await axios.get(`/api/public-policy/${id}`);
       setPolicy(response.data);
-      // Increment view count
       await axios.put(`/api/public-policy/${id}`, { action: 'incrementViewCount' }, {
-        headers: {
-          'Content-Type': 'application/json'
-        }
+        headers: { 'Content-Type': 'application/json' }
       });
     } catch (error) {
       console.error('Error fetching policy:', error);
@@ -118,11 +116,22 @@ export default function PublicPolicyDetail() {
     return <p className="text-gray-700">ไม่มีข้อมูลเนื้อหา</p>;
   };
 
+  const handleImageClick = (url: string) => {
+    setSelectedImage(url);
+  };
+
   return (
-    <div className="bg-gray-100 min-h-screen pt-24">
-      <div className="container mx-auto p-4 max-w-4xl">
+    <div className="bg-gray-50 min-h-screen pt-24">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <Link href="/dashboard/public-policy" className="inline-block mb-8">
+          <div className="text-green-600 hover:text-green-700 transition-colors duration-300">
+            <FaHome className="inline mr-2" />
+            กลับสู่หน้ารวมนโยบายสาธารณะ
+          </div>
+        </Link>
+        
         {/* Hero Section */}
-        <div className="relative h-64 md:h-96 mb-8 rounded-lg overflow-hidden shadow-xl">
+        <div className="relative aspect-video mb-12 rounded-lg overflow-hidden shadow-xl">
           {policy.images && policy.images.length > 0 ? (
             <img
               src={policy.images[0].url}
@@ -135,58 +144,73 @@ export default function PublicPolicyDetail() {
             </div>
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent flex items-end">
-            <h1 className="text-3xl md:text-4xl font-bold text-white p-6">{policy.name}</h1>
+            <h1 className="text-4xl md:text-5xl font-bold text-white p-8">{policy.name}</h1>
           </div>
         </div>
 
         {/* Main Content */}
         <div className="bg-white shadow-lg rounded-lg overflow-hidden">
-          <div className="p-6">
-            <h2 className="text-2xl font-semibold mb-4 text-green-600 border-b pb-2">ข้อมูลทั่วไป</h2>
-            <div className="grid md:grid-cols-2 gap-4">
+          <div className="p-8">
+            <h2 className="text-3xl font-medium mb-6 text-green-600 border-b pb-2">ข้อมูลทั่วไป</h2>
+            <div className="grid md:grid-cols-2 gap-6 mb-8">
               <div>
-                <p className="mb-2"><span className="font-semibold">ระดับ:</span> {getPolicyLevelText(policy.level)}</p>
-                <p className="mb-2 flex items-center">
-                  <FaMapMarkerAlt className="mr-2 text-green-500" />
-                  <span className="font-semibold">พื้นที่:</span> {policy.village ? `${policy.village}, ` : ''}{policy.district}, {policy.amphoe}, {policy.province}
+                <p className="mb-4 text-gray-700">
+                  <span className="font-medium">ระดับ:</span> 
+                  <span className="font-extralight ml-2">{getPolicyLevelText(policy.level)}</span>
                 </p>
-                <p className="mb-2"><span className="font-semibold">ประเภท:</span> {policy.type}</p>
+                <p className="mb-4 flex items-start">
+                  <FaMapMarkerAlt className="mr-2 text-green-500 mt-1 flex-shrink-0" />
+                  <span>
+                    <span className="font-medium">พื้นที่:</span> 
+                    <span className="font-extralight ml-2">{policy.village ? `${policy.village}, ` : ''}{policy.district}, {policy.amphoe}, {policy.province}</span>
+                  </span>
+                </p>
+                <p className="mb-4 text-gray-700">
+                  <span className="font-medium">ประเภท:</span> 
+                  <span className="font-extralight ml-2">{policy.type}</span>
+                </p>
               </div>
               <div>
-                <div className="flex items-center mb-4">
+                <p className="mb-4 flex items-center">
                   <FaCalendar className="mr-2 text-green-500" />
-                  <span className="font-semibold mr-2">วันที่ลงนาม:</span> {new Date(policy.signingDate).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' })}
-                </div>
+                  <span className="font-medium">วันที่ลงนาม:</span> 
+                  <span className="font-extralight ml-2">
+                    {new Date(policy.signingDate).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' })}
+                  </span>
+                </p>
               </div>
             </div>
 
-            <h2 className="text-2xl font-semibold my-4 text-green-600 border-b pb-2">รายละเอียดนโยบาย</h2>
-            <div className="mb-4">
-              <h3 className="font-semibold mb-2">เนื้อหา:</h3>
-              {renderContent()}
+            <h2 className="text-3xl font-medium my-6 text-green-600 border-b pb-2">รายละเอียดนโยบาย</h2>
+            <div className="mb-8">
+              <h3 className="text-xl font-medium mb-4 text-gray-700">เนื้อหา</h3>
+              <div className="text-gray-600 leading-relaxed font-extralight">
+                {renderContent()}
+              </div>
             </div>
-            <div className="mb-4">
-              <h3 className="font-semibold mb-2">สรุป:</h3>
-              <p className="text-gray-700">{policy.summary}</p>
+            <div className="mb-8">
+              <h3 className="text-xl font-medium mb-4 text-gray-700">สรุป</h3>
+              <p className="text-gray-600 leading-relaxed font-extralight">{policy.summary}</p>
             </div>
             {policy.results && (
-              <div className="mb-4">
-                <h3 className="font-semibold mb-2">ผลลัพธ์:</h3>
-                <p className="text-gray-700">{policy.results}</p>
+              <div className="mb-8">
+                <h3 className="text-xl font-medium mb-4 text-gray-700">ผลลัพธ์</h3>
+                <p className="text-gray-600 leading-relaxed font-extralight">{policy.results}</p>
               </div>
             )}
           </div>
           
           {policy.images && policy.images.length > 1 && (
-            <div className="p-6 bg-gray-50">
-              <h2 className="text-2xl font-semibold mb-4 text-green-600 border-b pb-2">รูปภาพประกอบเพิ่มเติม</h2>
+            <div className="p-8 bg-gray-50">
+              <h2 className="text-3xl font-medium mb-6 text-green-600 border-b pb-2">รูปภาพประกอบเพิ่มเติม</h2>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 {policy.images.slice(1).map((img) => (
                   <img 
                     key={img.id} 
                     src={img.url} 
                     alt="รูปภาพประกอบ" 
-                    className="w-full h-48 object-cover rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300"
+                    className="w-full h-48 object-cover rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 cursor-pointer"
+                    onClick={() => handleImageClick(img.url)}
                   />
                 ))}
               </div>
@@ -194,17 +218,17 @@ export default function PublicPolicyDetail() {
           )}
           
           {(policy.videoLink || policy.policyFileUrl) && (
-            <div className="p-6">
-              <h2 className="text-2xl font-semibold mb-4 text-green-600 border-b pb-2">ไฟล์และลิงก์ที่เกี่ยวข้อง</h2>
-              <div className="flex flex-col md:flex-row md:space-x-4">
+            <div className="p-8">
+              <h2 className="text-3xl font-medium mb-6 text-green-600 border-b pb-2">ไฟล์และลิงก์ที่เกี่ยวข้อง</h2>
+              <div className="flex flex-col sm:flex-row sm:space-x-4">
                 {policy.videoLink && (
-                  <a href={policy.videoLink} target="_blank" rel="noopener noreferrer" className="flex items-center bg-green-100 text-green-700 px-4 py-2 rounded-full hover:bg-green-200 transition duration-300 mb-2 md:mb-0">
+                  <a href={policy.videoLink} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center bg-green-100 text-green-700 px-6 py-3 rounded-full hover:bg-green-200 transition duration-300 mb-4 sm:mb-0 font-medium">
                     <FaVideo className="mr-2" />
                     ดูวิดีโอประกอบ
                   </a>
                 )}
                 {policy.policyFileUrl && (
-                  <a href={policy.policyFileUrl} download className="flex items-center bg-green-100 text-green-700 px-4 py-2 rounded-full hover:bg-green-200 transition duration-300">
+                  <a href={policy.policyFileUrl} download className="flex items-center justify-center bg-blue-100 text-blue-700 px-6 py-3 rounded-full hover:bg-blue-200 transition duration-300 font-medium">
                     <FaFilePdf className="mr-2" />
                     ดาวน์โหลดไฟล์นโยบาย
                   </a>
@@ -213,17 +237,30 @@ export default function PublicPolicyDetail() {
             </div>
           )}
         </div>
-        <div className="mt-6 flex justify-between items-center text-gray-600">
-          <Link href={`/dashboard/public-policy/edit/${policy.id}`} className="flex items-center bg-blue-500 text-white px-4 py-2 rounded-full hover:bg-blue-600 transition duration-300">
+        <div className="mt-8 flex justify-between items-center text-gray-600">
+          <Link href={`/dashboard/public-policy/edit/${policy.id}`} className="flex items-center bg-blue-500 text-white px-6 py-3 rounded-full hover:bg-blue-600 transition duration-300">
             <FaEdit className="mr-2" />
             แก้ไขนโยบาย
           </Link>
           <div className="flex items-center">
             <FaEye className="mr-2" />
-            <p>เข้าชมทั้งหมด {policy.viewCount} ครั้ง</p>
+            <p className="font-extralight">เข้าชมทั้งหมด {policy.viewCount} ครั้ง</p>
           </div>
         </div>
       </div>
+
+      {/* Image Modal */}
+      <Modal
+        visible={!!selectedImage}
+        footer={null}
+        onCancel={() => setSelectedImage(null)}
+        width="50%"
+        bodyStyle={{ padding: 0 }}
+      >
+        {selectedImage && (
+          <img src={selectedImage} alt="รูปภาพขยาย" className="w-full h-auto" />
+        )}
+      </Modal>
     </div>
   );
 }

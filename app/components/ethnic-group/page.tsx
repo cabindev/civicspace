@@ -53,7 +53,7 @@ export default function EthnicGroupList() {
     <div className="min-h-screen bg-gray-100">
       <Navbar/>
       <div className="container mx-auto p-4 pt-24">
-        <h1 className="text-3xl font-bold mb-6 text-center text-green-700">กลุ่มชาติพันธุ์ทั้งหมด</h1>
+        <h1 className="text-3xl font-bold mb-6 text-center text-green-700">ETHNIC-GROUP</h1>
         <Row gutter={[16, 16]}>
           {ethnicGroups.map((group) => (
             <Col xs={24} sm={12} md={8} lg={6} key={group.id}>

@@ -93,6 +93,7 @@ export async function GET(request: NextRequest) {
   try {
     const policies = await prisma.publicPolicy.findMany({
       include: { images: true },
+      orderBy: { createdAt: 'desc' }
     });
     return NextResponse.json(policies);
   } catch (error) {

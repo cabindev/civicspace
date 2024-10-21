@@ -38,10 +38,6 @@ export default function PublicPolicyList() {
 
   useEffect(() => {
     fetchPolicies();
-    // Set up an interval to fetch policies every 5 seconds
-    const intervalId = setInterval(fetchPolicies, 5000);
-    // Clean up the interval on component unmount
-    return () => clearInterval(intervalId);
   }, [fetchPolicies]);
 
   if (loading) {

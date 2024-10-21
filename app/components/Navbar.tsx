@@ -48,7 +48,7 @@ const Navbar: React.FC = () => {
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <Link href="/" className="flex-shrink-0">
-              <Image src="/logo.png" alt="Logo" width={50} height={50} />
+              <Image src="/power.png" alt="Logo" width={60} height={60} />
             </Link>
             <div className="hidden md:ml-6 md:flex md:space-x-8">
               {navItems.map((item) => (

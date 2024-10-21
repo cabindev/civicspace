@@ -103,6 +103,7 @@ export async function GET() {
   try {
     const ethnicGroups = await prisma.ethnicGroup.findMany({
       include: { images: true, category: true },
+      orderBy: { createdAt: 'desc' }
     });
     return NextResponse.json(ethnicGroups);
   } catch (error) {

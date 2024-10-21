@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { Spin, Card, Row, Col } from 'antd';
 import Link from 'next/link';
 import axios from 'axios';
-import Image from 'next/image';
+import Navbar from '../Navbar';
 
 const { Meta } = Card;
 
@@ -48,47 +48,36 @@ export default function TraditionList() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <div className="container mx-auto p-4 pt-24">  {/* เพิ่ม pt-24 เพื่อให้ห่างจาก Navbar */}
-        <h1 className="text-3xl font-bold mb-6 text-center text-green-500">งานบุญประเพณีทั้งหมด</h1>
-        <Row gutter={[16, 16]}>
+    <div className="min-h-screen bg-gray-50">
+      <Navbar/>
+      <div className="container mx-auto p-4 pt-24">
+        <h1 className="text-3xl font-bold mb-6 text-center text-green-500">TREADITIONS</h1>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {traditions.map((tradition) => (
-            <Col xs={24} sm={12} md={8} lg={6} key={tradition.id}>
-              <Link href={`/components/traditions/${tradition.id}`}>
-                <Card
-                  hoverable
-                  className="h-full"
-                  cover={
-                    tradition.images && tradition.images.length > 0 ? (
-                      <div style={{ height: '200px', position: 'relative' }}>
-                        <Image
-                          src={tradition.images[0].url}
-                          alt={tradition.name}
-                          layout="fill"
-                          objectFit="cover"
-                        />
-                      </div>
-                    ) : (
-                      <div style={{ height: '200px', backgroundColor: '#f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <p>ไม่มีรูปภาพ</p>
-                      </div>
-                    )
-                  }
-                >
-                  <Meta
-                    title={<span className="text-lg font-semibold text-green-600">{tradition.name}</span>}
-                    description={
-                      <div>
-                        <p><span className="font-medium">จังหวัด:</span> {tradition.province}</p>
-                        <p><span className="font-medium">ภาค:</span> {tradition.type}</p>
-                      </div>
-                    }
-                  />
-                </Card>
-              </Link>
-            </Col>
+            <Link href={`/components/traditions/${tradition.id}`} key={tradition.id} className="block">
+              <div className="bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-300 hover:scale-105">
+                <div className="h-48 overflow-hidden">
+                  {tradition.images && tradition.images.length > 0 ? (
+                    <img
+                      src={tradition.images[0].url}
+                      alt={tradition.name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                      <p className="text-gray-500">ไม่มีรูปภาพ</p>
+                    </div>
+                  )}
+                </div>
+                <div className="p-4">
+                  <h2 className="text-lg font-semibold text-green-600 mb-2">{tradition.name}</h2>
+                  <p className="text-sm text-gray-600"><span className="font-medium">จังหวัด:</span> {tradition.province}</p>
+                  <p className="text-sm text-gray-600"><span className="font-medium">ภาค:</span> {tradition.type}</p>
+                </div>
+              </div>
+            </Link>
           ))}
-        </Row>
+        </div>
       </div>
     </div>
   );

@@ -223,7 +223,7 @@ const menuItems = [
             </Dropdown>
         </div>
       </Header>
-        <Content className="m-6 p-6 bg-white rounded-lg shadow-sm">
+      <Content className="m-0 p-2 bg-white border-l-2 border-r-2">
           <div className="mb-4 text-2xl font-bold text-foreground">
             {menuItems.find(item => item.key === selectedKeys[0])?.label || 
              menuItems.find(item => item.children?.some(child => child.key === selectedKeys[0]))?.children?.find(child => child.key === selectedKeys[0])?.label}

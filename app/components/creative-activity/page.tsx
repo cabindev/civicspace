@@ -59,23 +59,20 @@ export default function CreativeActivityList() {
           {activities.map((activity) => (
             <Col xs={24} sm={12} md={8} lg={6} key={activity.id}>
               <Link href={`/components/creative-activity/${activity.id}`}>
-                <Card
+              <Card
                   hoverable
                   className="h-full"
                   cover={
                     activity.images && activity.images.length > 0 ? (
-                     
+                      <div className="h-48 relative">
                         <img
-                            src={activity.images[0].url}
-                            alt={activity.name}
-                            className="w-full h-48 object-cover"
-                            onError={(e) => {
-                              e.currentTarget.src = '/placeholder.jpg';
-                            }}
-                          />
-               
+                          src={activity.images[0].url}
+                          alt={activity.name}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
                     ) : (
-                      <div style={{ height: '200px', backgroundColor: '#f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <div className="h-48 bg-gray-200 flex items-center justify-center">
                         <p>ไม่มีรูปภาพ</p>
                       </div>
                     )

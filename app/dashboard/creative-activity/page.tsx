@@ -191,7 +191,7 @@ export default function CreativeActivityList() {
   return (
     <div className="max-w-7xl mx-auto p-6">
       <div className="flex justify-between items-center mb-6">
-   
+      <h1 className="text-2xl font-bold hidden sm:block">Creative Activity</h1>
         <Link href="/dashboard/creative-activity/create">
           <Button type="primary" icon={<PlusOutlined />}>
             เพิ่มกิจกรรมสร้างสรรค์

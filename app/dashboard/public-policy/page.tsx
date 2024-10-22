@@ -171,7 +171,7 @@ export default function PublicPolicyList() {
   return (
     <div className="max-w-7xl mx-auto p-6">
       <div className="flex justify-between items-center mb-6">
-        <Title level={2}>นโยบายสาธารณะ</Title>
+        <Title className="hidden sm:block" level={2}>Public Policy</Title>
         <Link href="/dashboard/public-policy/create">
           <Button type="primary" icon={<PlusOutlined />}>
             เพิ่มนโยบายสาธารณะ

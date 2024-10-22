@@ -251,11 +251,13 @@ export default function PublicPolicyDetail() {
 
       {/* Image Modal */}
       <Modal
-        visible={!!selectedImage}
+        open={!!selectedImage}
         footer={null}
         onCancel={() => setSelectedImage(null)}
-        width="50%"
-        bodyStyle={{ padding: 0 }}
+        width="60%"
+        styles={{
+          body: { padding: 0 }
+        }}
       >
         {selectedImage && (
           <img src={selectedImage} alt="รูปภาพขยาย" className="w-full h-auto" />

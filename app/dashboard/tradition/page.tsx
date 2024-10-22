@@ -183,7 +183,7 @@ export default function TraditionList() {
   return (
     <div className="max-w-7xl mx-auto p-6">
       <div className="flex justify-between items-center mb-6">
-        <Title level={2}>งานบุญประเพณี</Title>
+        <Title className="hidden sm:block" level={2}>Traditions</Title>
         <Link href="/dashboard/tradition/create">
           <Button type="primary" icon={<PlusOutlined />}>
             เพิ่มงานบุญประเพณี

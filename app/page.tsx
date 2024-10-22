@@ -9,6 +9,7 @@ import Link from 'next/link';
 import { Footer } from './components/Footer';
 import { useSession, signOut } from 'next-auth/react';
 import { FaBars, FaTimes } from 'react-icons/fa';
+import { HiMenuAlt3 } from "react-icons/hi";
 interface AutocompleteResult {
   id: string;
   name: string;
@@ -106,7 +107,7 @@ export default function Home() {
           onClick={toggleMenu}
           className="text-white focus:outline-none"
         >
-          {isMenuOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
+          {isMenuOpen ? <HiMenuAlt3 size={24} /> : <HiMenuAlt3 size={24} />}
         </button>
         {isMenuOpen && (
           <div className="absolute right-0 mt-12 w-48 bg-white rounded-md shadow-xl z-20">
@@ -197,11 +198,11 @@ export default function Home() {
               </button>
             </form>
             {showSuggestions && suggestions.length > 0 && (
-              <ul className="absolute z-10 w-full bg-white bg-opacity-90 mt-1 rounded-md shadow-lg max-h-60 overflow-auto">
+              <ul className="absolute z-10 w-full mt-1 rounded-md  max-h-60 overflow-auto">
                 {suggestions.map((suggestion, index) => (
                   <li
                     key={index}
-                    className="px-4 py-2 hover:bg-green-100 cursor-pointer"
+                    className="px-4 py-2  cursor-pointer"
                     onClick={() => handleSuggestionClick(suggestion)}
                   >
                     <div className="font-semibold">{suggestion.name}</div>
@@ -216,7 +217,7 @@ export default function Home() {
         </div>
       </main>
 
-      <div className="hidden sm:block">
+      <div >
     <Footer />
   </div>
     </div>

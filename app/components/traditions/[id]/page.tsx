@@ -206,16 +206,30 @@ export default function TraditionDetails() {
 
       {/* Image Modal */}
       <Modal
-        visible={!!selectedImage}
-        footer={null}
-        onCancel={() => setSelectedImage(null)}
-        width="50%"
-        bodyStyle={{ padding: 0 }}
-      >
-        {selectedImage && (
-          <img src={selectedImage} alt="รูปภาพขยาย" className="w-full h-auto" />
-        )}
-      </Modal>
+          open={!!selectedImage}
+          footer={null}
+          onCancel={() => setSelectedImage(null)}
+          width="auto"
+          className="max-w-[95%] md:max-w-[80%] lg:max-w-[60%] mx-auto"
+          styles={{
+            body: { padding: 0 },
+            content: {
+              borderRadius: '0.5rem',
+              overflow: 'hidden'
+            }
+          }}
+          centered
+        >
+          {selectedImage && (
+            <div className="relative aspect-auto max-h-[90vh] overflow-hidden">
+              <img 
+                src={selectedImage} 
+                alt="รูปภาพขยาย" 
+                className="w-full h-full object-contain"
+              />
+            </div>
+          )}
+        </Modal>
     </div>
   );
 }

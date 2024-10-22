@@ -6,7 +6,7 @@ import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import axios from 'axios';
 import { FaUser, FaPhone, FaCalendar, FaEye, FaVideo, FaFilePdf, FaMapMarkerAlt, FaListUl, FaHome } from 'react-icons/fa';
-import { Spin } from 'antd';
+import { Modal, Spin } from 'antd';
 import Navbar from '../../Navbar';
 
 interface CreativeActivity {
@@ -37,7 +37,7 @@ export default function CreativeActivityDetails() {
   const { id } = useParams();
   const [activity, setActivity] = useState<CreativeActivity | null>(null);
   const [loading, setLoading] = useState(true);
-
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   const fetchActivityDetails = useCallback(async () => {
     if (!id) return;
@@ -61,6 +61,9 @@ export default function CreativeActivityDetails() {
     fetchActivityDetails();
   }, [fetchActivityDetails]);
 
+  const handleImageClick = (url: string) => {
+    setSelectedImage(url);
+  };
 
   if (loading) {
     return (
@@ -170,7 +173,8 @@ export default function CreativeActivityDetails() {
                     key={img.id} 
                     src={img.url} 
                     alt="รูปภาพประกอบ" 
-                    className="w-full h-48 object-cover rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300"
+                   className="w-full h-48 object-cover rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 cursor-pointer"
+                    onClick={() => handleImageClick(img.url)}
                   />
                 ))}
               </div>
@@ -202,6 +206,32 @@ export default function CreativeActivityDetails() {
           <p className="font-extralight">เข้าชมทั้งหมด {activity.viewCount} ครั้ง</p>
         </div>
       </div>
+      {/* Image Modal */}
+      <Modal
+          open={!!selectedImage}
+          footer={null}
+          onCancel={() => setSelectedImage(null)}
+          width="auto"
+          className="max-w-[95%] md:max-w-[80%] lg:max-w-[60%] mx-auto"
+          styles={{
+            body: { padding: 0 },
+            content: {
+              borderRadius: '0.5rem',
+              overflow: 'hidden'
+            }
+          }}
+          centered
+        >
+          {selectedImage && (
+            <div className="relative aspect-auto max-h-[90vh] overflow-hidden">
+              <img 
+                src={selectedImage} 
+                alt="รูปภาพขยาย" 
+                className="w-full h-full object-contain"
+              />
+            </div>
+          )}
+        </Modal>
     </div>
   );
 }

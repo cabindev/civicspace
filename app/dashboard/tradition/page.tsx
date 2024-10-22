@@ -134,83 +134,121 @@ export default function TraditionList() {
   ];
 
   const MobileCard = ({ tradition, index }: { tradition: Tradition; index: number }) => (
-    <Card
-      hoverable
-      className="mb-4"
-      actions={[
-        <Link key="view" href={`/dashboard/tradition/${tradition.id}`}>
-          <EyeOutlined />
-        </Link>,
-        <Link key="edit" href={`/dashboard/tradition/edit/${tradition.id}`}>
-          <EditOutlined />
-        </Link>,
-        <DeleteOutlined key="delete" onClick={() => showDeleteModal(tradition)} />,
-      ]}
-    >
-      <Card.Meta
-        avatar={
-          tradition.images && tradition.images.length > 0 ? (
-            <Avatar src={tradition.images[0].url} size={64} />
-          ) : (
-            <Avatar size={64}>No img</Avatar>
-          )
-        }
-        title={
-          <span>
-            {index + 1}. {tradition.name}
-            {index === 0 && <span className="ml-2 text-xs text-green-600 font-bold">ล่าสุด</span>}
-          </span>
-        }
-        description={
-          <>
-            <Text>{tradition.province} | {tradition.type}</Text>
-            <br />
-            <Text>เริ่มปี {tradition.startYear}</Text>
-          </>
-        }
-      />
-    </Card>
-  );
-
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <Spin size="large" />
+    <div className="card bg-base-100 shadow-xl mb-4 border border-green-100">
+      <figure className="h-48">
+        {tradition.images && tradition.images.length > 0 ? (
+          <img
+            src={tradition.images[0].url}
+            alt={tradition.name}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div className="w-full h-full bg-green-50 flex items-center justify-center text-green-600">
+            No Image Available
+          </div>
+        )}
+      </figure>
+      <div className="card-body">
+        <h2 className="card-title text-green-700">
+          {index + 1}. {tradition.name}
+          {index === 0 && (
+            <div className="badge badge-success text-white">ล่าสุด</div>
+          )}
+        </h2>
+        
+        <div className="space-y-2">
+          {/* หมวดหมู่ */}
+          <div className="flex flex-wrap gap-2">
+            <div className="badge badge-primary text-white">{tradition.category.name}</div>
+          </div>
+          
+          {/* ข้อมูลพื้นที่ */}
+          <div className="flex flex-wrap gap-2">
+            <div className="badge badge-outline text-green-600 border-green-600">{tradition.province}</div>
+            <div className="badge badge-outline text-green-600 border-green-600">{tradition.type}</div>
+          </div>
+   
+          {/* ข้อมูลผู้ประสานงาน */}
+          <div className="text-sm space-y-1 text-gray-600">
+            <p className="flex items-center gap-2">
+              <span className="font-semibold text-green-700">ผู้ประสานงาน:</span> 
+              {tradition.coordinatorName}
+            </p>
+            <p className="flex items-center gap-2">
+              <span className="font-semibold text-green-700">เบอร์โทร:</span> 
+              {tradition.phone}
+            </p>
+            <p className="flex items-center gap-2">
+              <span className="font-semibold text-green-700">เริ่มปี:</span> 
+              {tradition.startYear}
+            </p>
+          </div>
+        </div>
+   
+        <div className="card-actions justify-end mt-4">
+          <Link href={`/dashboard/tradition/${tradition.id}`}>
+            <button className="btn btn-primary btn-sm text-white hover:bg-green-700">
+              <EyeOutlined className="mr-1" />
+              ดู
+            </button>
+          </Link>
+          <Link href={`/dashboard/tradition/edit/${tradition.id}`}>
+            <button className="btn bg-green-500 text-white btn-sm hover:bg-green-600">
+              <EditOutlined className="mr-1" />
+              แก้ไข
+            </button>
+          </Link>
+          <button 
+            className="btn btn-error btn-sm text-white"
+            onClick={() => showDeleteModal(tradition)}
+          >
+            <DeleteOutlined className="mr-1" />
+            ลบ
+          </button>
+        </div>
       </div>
-    );
-  }
-
-  return (
-    <div className="max-w-7xl mx-auto p-6">
+    </div>
+   );
+   
+   // ปรับส่วน return หลัก
+   return (
+    <div className="max-w-7xl mx-auto p-4">
       <div className="flex justify-between items-center mb-6">
-        <Title className="hidden sm:block" level={2}>Traditions</Title>
+        <h1 className="text-2xl font-bold text-green-700 hidden sm:block">
+          งานบุญประเพณี
+        </h1>
         <Link href="/dashboard/tradition/create">
-          <Button type="primary" icon={<PlusOutlined />}>
+          <button className="btn btn-primary text-white hover:bg-green-700">
+            <PlusOutlined className="mr-2" />
             เพิ่มงานบุญประเพณี
-          </Button>
+          </button>
         </Link>
       </div>
-
+   
       {isMobile ? (
-        traditions.map((tradition, index) => (
-          <MobileCard key={tradition.id} tradition={tradition} index={index} />
-        ))
+        <div className="grid gap-4">
+          {traditions.map((tradition, index) => (
+            <MobileCard key={tradition.id} tradition={tradition} index={index} />
+          ))}
+        </div>
       ) : (
-        <Table
-          columns={columns}
-          dataSource={traditions}
-          rowKey="id"
-          pagination={{
-            total: traditions.length,
-            pageSize: 10,
-            showSizeChanger: false,
-            showQuickJumper: true,
-          }}
-        />
+        <div className="bg-base-100 rounded-lg shadow">
+          <Table
+            columns={columns}
+            dataSource={traditions}
+            rowKey="id"
+            pagination={{
+              total: traditions.length,
+              pageSize: 10,
+              showSizeChanger: false,
+              showQuickJumper: true,
+            }}
+          />
+        </div>
       )}
-
+   
       <Modal
-        title="ยืนยันการลบ"
+        title={<span className="text-green-700">ยืนยันการลบ</span>}
         open={isDeleteModalVisible}
         onOk={() => {
           if (selectedTradition) handleDelete(selectedTradition.id);
@@ -219,9 +257,11 @@ export default function TraditionList() {
         onCancel={() => setIsDeleteModalVisible(false)}
         okText="ลบ"
         cancelText="ยกเลิก"
+        okButtonProps={{ className: 'bg-red-500 hover:bg-red-600' }}
+        cancelButtonProps={{ className: 'border-green-500 text-green-500 hover:border-green-600 hover:text-green-600' }}
       >
         <p>คุณแน่ใจหรือไม่ที่จะลบงานบุญประเพณี "{selectedTradition?.name}"?</p>
       </Modal>
     </div>
-  );
+   );
 }

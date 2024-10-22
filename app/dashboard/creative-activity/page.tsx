@@ -140,44 +140,81 @@ export default function CreativeActivityList() {
   ];
 
   const MobileCard = ({ activity, index }: { activity: CreativeActivity; index: number }) => (
-    <Card
-      hoverable
-      className="mb-4"
-      actions={[
-        <Link key="view" href={`/dashboard/creative-activity/${activity.id}`}>
-          <EyeOutlined />
-        </Link>,
-        <Link key="edit" href={`/dashboard/creative-activity/edit/${activity.id}`}>
-          <EditOutlined />
-        </Link>,
-        <DeleteOutlined key="delete" onClick={() => showDeleteModal(activity)} />,
-      ]}
-    >
-      <Card.Meta
-        avatar={
-          activity.images && activity.images.length > 0 ? (
-            <Avatar src={activity.images[0].url} size={64} />
-          ) : (
-            <Avatar size={64}>No img</Avatar>
-          )
-        }
-        title={
-          <span>
-            {index + 1}. {activity.name}
-            {index === 0 && <span className="ml-2 text-xs text-green-600 font-bold">ล่าสุด</span>}
-          </span>
-        }
-        description={
-          <>
-            <Text>{activity.category.name} | {activity.subCategory.name}</Text>
-            <br />
-            <Text>{activity.province} | {activity.type}</Text>
-            <br />
-            <Text>เริ่มปี {activity.startYear}</Text>
-          </>
-        }
-      />
-    </Card>
+    <div className="card bg-base-100 shadow-xl mb-4 border border-green-100">
+      <figure className="h-48">
+        {activity.images && activity.images.length > 0 ? (
+          <img
+            src={activity.images[0].url}
+            alt={activity.name}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div className="w-full h-full bg-green-50 flex items-center justify-center text-green-600">
+            No Image Available
+          </div>
+        )}
+      </figure>
+      <div className="card-body">
+        <h2 className="card-title text-green-700">
+          {index + 1}. {activity.name}
+          {index === 0 && (
+            <div className="badge badge-success text-white">ล่าสุด</div>
+          )}
+        </h2>
+        
+        <div className="space-y-2">
+          {/* ประเภทและหมวดหมู่ย่อย */}
+          <div className="flex flex-wrap gap-2">
+            <div className="badge badge-primary text-white">{activity.category.name}</div>
+            <div className="badge badge-secondary text-white">{activity.subCategory.name}</div>
+          </div>
+          
+          {/* ข้อมูลพื้นที่ */}
+          <div className="flex flex-wrap gap-2">
+            <div className="badge badge-outline text-green-600 border-green-600">{activity.province}</div>
+            <div className="badge badge-outline text-green-600 border-green-600">{activity.type}</div>
+          </div>
+  
+          {/* ข้อมูลผู้ประสานงาน */}
+          <div className="text-sm space-y-1 text-gray-600">
+            <p className="flex items-center gap-2">
+              <span className="font-semibold text-green-700">ผู้ประสานงาน:</span> 
+              {activity.coordinatorName}
+            </p>
+            <p className="flex items-center gap-2">
+              <span className="font-semibold text-green-700">เบอร์โทร:</span> 
+              {activity.phone}
+            </p>
+            <p className="flex items-center gap-2">
+              <span className="font-semibold text-green-700">เริ่มปี:</span> 
+              {activity.startYear}
+            </p>
+          </div>
+        </div>
+  
+        <div className="card-actions justify-end mt-4">
+          <Link href={`/dashboard/creative-activity/${activity.id}`}>
+            <button className="btn btn-primary btn-sm text-white hover:bg-green-700">
+              <EyeOutlined className="mr-1" />
+              ดู
+            </button>
+          </Link>
+          <Link href={`/dashboard/creative-activity/edit/${activity.id}`}>
+            <button className="btn bg-green-500 text-white btn-sm hover:bg-green-600">
+              <EditOutlined className="mr-1" />
+              แก้ไข
+            </button>
+          </Link>
+          <button 
+            className="btn btn-error btn-sm text-white"
+            onClick={() => showDeleteModal(activity)}
+          >
+            <DeleteOutlined className="mr-1" />
+            ลบ
+          </button>
+        </div>
+      </div>
+    </div>
   );
 
   if (loading) {
@@ -189,47 +226,56 @@ export default function CreativeActivityList() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto p-6">
-      <div className="flex justify-between items-center mb-6">
-      <h1 className="text-2xl font-bold hidden sm:block">Creative Activity</h1>
-        <Link href="/dashboard/creative-activity/create">
-          <Button type="primary" icon={<PlusOutlined />}>
-            เพิ่มกิจกรรมสร้างสรรค์
-          </Button>
-        </Link>
-      </div>
-
+    <div className="max-w-7xl mx-auto p-4">
+    <div className="flex justify-between items-center mb-6">
+      <h1 className="text-2xl font-bold text-green-700 hidden sm:block">
+        กิจกรรมสร้างสรรค์
+      </h1>
+      <Link href="/dashboard/creative-activity/create">
+        <button className="btn btn-primary text-white hover:bg-green-700">
+          <PlusOutlined className="mr-2" />
+          เพิ่มกิจกรรมสร้างสรรค์
+        </button>
+      </Link>
+    </div>
+  
       {isMobile ? (
-        activities.map((activity, index) => (
-          <MobileCard key={activity.id} activity={activity} index={index} />
-        ))
+        <div className="grid gap-4">
+          {activities.map((activity, index) => (
+            <MobileCard key={activity.id} activity={activity} index={index} />
+          ))}
+        </div>
       ) : (
-        <Table
-          columns={columns}
-          dataSource={activities}
-          rowKey="id"
-          pagination={{
-            total: activities.length,
-            pageSize: 10,
-            showSizeChanger: false,
-            showQuickJumper: true,
-          }}
-        />
+        <div className="bg-base-100 rounded-lg shadow">
+          <Table
+            columns={columns}
+            dataSource={activities}
+            rowKey="id"
+            pagination={{
+              total: activities.length,
+              pageSize: 10,
+              showSizeChanger: false,
+              showQuickJumper: true,
+            }}
+          />
+        </div>
       )}
-
-      <Modal
-        title="ยืนยันการลบ"
-        open={isDeleteModalVisible}
-        onOk={() => {
-          if (selectedActivity) handleDelete(selectedActivity.id);
-          setIsDeleteModalVisible(false);
-        }}
-        onCancel={() => setIsDeleteModalVisible(false)}
-        okText="ลบ"
-        cancelText="ยกเลิก"
-      >
-        <p>คุณแน่ใจหรือไม่ที่จะลบกิจกรรมสร้างสรรค์ "{selectedActivity?.name}"?</p>
-      </Modal>
+  
+  <Modal
+  title={<span className="text-green-700">ยืนยันการลบ</span>}
+  open={isDeleteModalVisible}
+  onOk={() => {
+    if (selectedActivity) handleDelete(selectedActivity.id);
+    setIsDeleteModalVisible(false);
+  }}
+  onCancel={() => setIsDeleteModalVisible(false)}
+  okText="ลบ"
+  cancelText="ยกเลิก"
+  okButtonProps={{ className: 'bg-red-500 hover:bg-red-600' }}
+  cancelButtonProps={{ className: 'border-green-500 text-green-500 hover:border-green-600 hover:text-green-600' }}
+>
+  <p>คุณแน่ใจหรือไม่ที่จะลบกิจกรรมสร้างสรรค์ "{selectedActivity?.name}"?</p>
+</Modal>
     </div>
   );
 }

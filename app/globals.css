@@ -35,17 +35,11 @@
   }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: var(--font-seppuri), sans-serif;
-}
-
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
+/* @layer base {
+  html {
+    font-family: var(--font-seppuri), system-ui, sans-serif;
   }
-}
+} */
 
 .btn-primary {
   @apply bg-primary text-primary-foreground hover:bg-[var(--hover-bg)] transition-colors duration-200;

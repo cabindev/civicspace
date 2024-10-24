@@ -10,6 +10,7 @@ import { Footer } from './components/Footer';
 import { useSession, signOut } from 'next-auth/react';
 import { FaBars, FaTimes } from 'react-icons/fa';
 import { HiMenuAlt3 } from "react-icons/hi";
+import { seppuri } from './fonts';
 interface AutocompleteResult {
   id: string;
   name: string;
@@ -101,7 +102,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-green-400 to-green-600">
+    <div className={`min-h-screen flex flex-col bg-gradient-to-br from-green-400 to-green-600 ${seppuri.variable}`}>
      <header className="p-4 flex justify-end relative">
         <button
           onClick={toggleMenu}
@@ -156,8 +157,8 @@ export default function Home() {
             />
           </motion.div>
 
-          <motion.h1
-            className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-white mb-3 tracking-wide"
+          <motion.h1 
+            className="font-seppuri text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-3 tracking-wide"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
@@ -166,14 +167,13 @@ export default function Home() {
           </motion.h1>
 
           <motion.p
-            className="text-base sm:text-lg md:text-xl text-green-100 mb-8 font-light"
+            className="font-seppuri text-base sm:text-lg md:text-xl text-green-100 mb-8 font-light"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.4, duration: 0.5 }}
           >
             Database of the Social Synergy Network Foundation
           </motion.p>
-
           <motion.div
             ref={searchRef}
             className="relative"
@@ -181,7 +181,7 @@ export default function Home() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6, duration: 0.5 }}
           >
-            <form onSubmit={handleSearch} className="flex items-center">
+            <form onSubmit={handleSearch} className="font-seppuri flex items-center">
               <input
                 type="text"
                 placeholder="ค้นหาข้อมูล..."
@@ -198,7 +198,7 @@ export default function Home() {
               </button>
             </form>
             {showSuggestions && suggestions.length > 0 && (
-              <ul className="absolute z-10 w-full mt-1 rounded-md  max-h-60 overflow-auto">
+              <ul className="font-seppuri text-start mx-2 absolute z-10 w-full mt-1 rounded-md  max-h-60 overflow-auto">
                 {suggestions.map((suggestion, index) => (
                   <li
                     key={index}

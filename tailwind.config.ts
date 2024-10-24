@@ -8,7 +8,7 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['var(--font-seppuri)', 'sans-serif'],
+        seppuri: ['var(--font-seppuri)'], 
       },
       colors: {
         background: "var(--background)",

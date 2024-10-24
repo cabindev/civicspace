@@ -160,7 +160,7 @@ export default function CreativeActivityDetails() {
             {activity.results && (
               <div className="mb-8">
                 <h3 className="text-xl font-medium mb-4 text-gray-700">ผลลัพธ์</h3>
-                <p className="text-gray-600 leading-relaxed font-extralight">{activity.results}</p>
+                <p className="text-gray-800 leading-relaxed font-light">{activity.results}</p>
               </div>
             )}
           </div>

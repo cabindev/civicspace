@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import axios from 'axios';
 import { motion } from 'framer-motion';
-
+import { seppuri } from '../fonts';
 interface LatestItem {
   id: string;
   name: string;
@@ -83,18 +83,18 @@ export const Footer: React.FC = () => {
 
   return (
     <motion.footer
-      className="bg-green-800 text-white py-4"
+      className={`bg-green-800 text-white py-4 ${seppuri.variable}`}
       initial={{ opacity: 0, y: 50 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.2 }}
     >
-      <div className="container mx-auto px-4 grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="font-seppuri container mx-auto px-4 grid grid-cols-2 lg:grid-cols-4 gap-4">
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>
-          <h3 className="text-sm font-semibold mb-2">งานบุญประเพณีล่าสุด</h3>
+          <h3 className="text-l font-semibold mb-2">งานบุญประเพณีล่าสุด</h3>
           {isLoading ? <SkeletonLoader /> : renderLatestItems(latestTraditions, 'traditions')}
         </motion.div>
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}>
-          <h3 className="text-sm font-semibold mb-2">นโยบายสาธารณะล่าสุด</h3>
+          <h3 className="text-l font-semibold mb-2">นโยบายสาธารณะล่าสุด</h3>
           {isLoading ? (
             <SkeletonLoader />
           ) : (
@@ -118,16 +118,16 @@ export const Footer: React.FC = () => {
           )}
         </motion.div>
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}>
-          <h3 className="text-sm font-semibold mb-2">กลุ่มชาติพันธุ์ล่าสุด</h3>
+          <h3 className="text-l font-semibold mb-2">กลุ่มชาติพันธุ์ล่าสุด</h3>
           {isLoading ? <SkeletonLoader /> : renderLatestItems(latestEthnicGroups, 'ethnic-group')}
         </motion.div>
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }}>
-          <h3 className="text-sm font-semibold mb-2">กิจกรรมสร้างสรรค์ล่าสุด</h3>
+          <h3 className="text-l font-semibold mb-2">กิจกรรมสร้างสรรค์ล่าสุด</h3>
           {isLoading ? <SkeletonLoader /> : renderLatestItems(latestCreativeActivities, 'creative-activity')}
         </motion.div>
       </div>
       <motion.div
-        className="container mx-auto px-4 mt-4 text-center text-xs"
+        className="font-seppuri container mx-auto px-4 mt-4 text-center text-sm"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.7 }}

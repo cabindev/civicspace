@@ -9,6 +9,7 @@ import { FaUser, FaPhone, FaCalendar, FaEye, FaVideo, FaFilePdf, FaMapMarkerAlt,
 import { Modal, Spin } from 'antd';
 import Navbar from '../../Navbar';
 
+
 interface CreativeActivity {
   id: string;
   categoryId: string;

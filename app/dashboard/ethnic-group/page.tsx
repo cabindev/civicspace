@@ -81,7 +81,7 @@ export default function EthnicGroupList() {
      width: '25%',
    },
    {
-     title: 'ประเภท',
+     title: 'กลุ่มชาติพันธุ์',
      dataIndex: ['category', 'name'],
      key: 'category',
      width: '15%',

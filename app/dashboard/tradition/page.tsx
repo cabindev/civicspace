@@ -91,7 +91,7 @@ export default function TraditionList() {
       key: 'province',
     },
     {
-      title: 'ประเภท',
+      title: 'ภาค',
       dataIndex: 'type',
       key: 'type',
     },

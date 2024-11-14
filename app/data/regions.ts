@@ -23767,7 +23767,7 @@ export const data = [
       "district_code": 960599,
       "amphoe_code": 9612,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "ช้างเผือก",
@@ -23777,7 +23777,7 @@ export const data = [
       "district_code": 961204,
       "amphoe_code": 9612,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "ดุซงญอ",
@@ -23787,7 +23787,7 @@ export const data = [
       "district_code": 960598,
       "amphoe_code": 9612,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "ผดุงมาตร",
@@ -23797,7 +23797,7 @@ export const data = [
       "district_code": 961203,
       "amphoe_code": 9612,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "นานาค",
@@ -23807,7 +23807,7 @@ export const data = [
       "district_code": 960207,
       "amphoe_code": 9602,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "บางขุนทอง",
@@ -23817,7 +23817,7 @@ export const data = [
       "district_code": 960205,
       "amphoe_code": 9602,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "พร่อน",
@@ -23827,7 +23827,7 @@ export const data = [
       "district_code": 960203,
       "amphoe_code": 9602,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "ศาลาใหม่",
@@ -23837,7 +23837,7 @@ export const data = [
       "district_code": 960204,
       "amphoe_code": 9602,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "เกาะสะท้อน",
@@ -23847,7 +23847,7 @@ export const data = [
       "district_code": 960206,
       "amphoe_code": 9602,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "เจ๊ะเห",
@@ -23857,7 +23857,7 @@ export const data = [
       "district_code": 960201,
       "amphoe_code": 9602,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "โฆษิต",
@@ -23867,7 +23867,7 @@ export const data = [
       "district_code": 960208,
       "amphoe_code": 9602,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "ไพรวัน",
@@ -23877,7 +23877,7 @@ export const data = [
       "district_code": 960202,
       "amphoe_code": 9602,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "กาเยาะมาตี",
@@ -23887,7 +23887,7 @@ export const data = [
       "district_code": 960303,
       "amphoe_code": 9603,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "บาเจาะ",
@@ -23897,7 +23897,7 @@ export const data = [
       "district_code": 960301,
       "amphoe_code": 9603,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "บาเระเหนือ",
@@ -23907,7 +23907,7 @@ export const data = [
       "district_code": 960305,
       "amphoe_code": 9603,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "บาเระใต้",
@@ -23917,7 +23917,7 @@ export const data = [
       "district_code": 960306,
       "amphoe_code": 9603,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "ปะลุกาสาเมาะ",
@@ -23927,7 +23927,7 @@ export const data = [
       "district_code": 960304,
       "amphoe_code": 9603,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "ลุโบะสาวอ",
@@ -23937,7 +23937,7 @@ export const data = [
       "district_code": 960302,
       "amphoe_code": 9603,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "จอเบาะ",
@@ -23947,7 +23947,7 @@ export const data = [
       "district_code": 960403,
       "amphoe_code": 9604,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "ตะปอเยาะ",
@@ -23957,7 +23957,7 @@ export const data = [
       "district_code": 960406,
       "amphoe_code": 9604,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "ยี่งอ",
@@ -23967,7 +23967,7 @@ export const data = [
       "district_code": 960401,
       "amphoe_code": 9604,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "ละหาร",
@@ -23977,7 +23977,7 @@ export const data = [
       "district_code": 960402,
       "amphoe_code": 9604,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "ลุโบะบายะ",
@@ -23987,7 +23987,7 @@ export const data = [
       "district_code": 960404,
       "amphoe_code": 9604,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "ลุโบะบือซา",
@@ -23997,7 +23997,7 @@ export const data = [
       "district_code": 960405,
       "amphoe_code": 9604,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "กาลิซา",
@@ -24007,7 +24007,7 @@ export const data = [
       "district_code": 960507,
       "amphoe_code": 9605,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "ตันหยงมัส",
@@ -24017,7 +24017,7 @@ export const data = [
       "district_code": 960501,
       "amphoe_code": 9605,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "ตันหยงลิมอ",
@@ -24027,7 +24027,7 @@ export const data = [
       "district_code": 960502,
       "amphoe_code": 9605,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "บองอ",
@@ -24037,7 +24037,7 @@ export const data = [
       "district_code": 960506,
       "amphoe_code": 9605,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "บาโงสะโต",
@@ -24047,7 +24047,7 @@ export const data = [
       "district_code": 960508,
       "amphoe_code": 9605,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "มะรือโบตก",
@@ -24057,7 +24057,7 @@ export const data = [
       "district_code": 960510,
       "amphoe_code": 9605,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "เฉลิม",
@@ -24067,7 +24067,7 @@ export const data = [
       "district_code": 960509,
       "amphoe_code": 9605,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "บาตง",
@@ -24077,7 +24077,7 @@ export const data = [
       "district_code": 960605,
       "amphoe_code": 9606,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "รือเสาะ",
@@ -24087,7 +24087,7 @@ export const data = [
       "district_code": 960601,
       "amphoe_code": 9606,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "รือเสาะออก",
@@ -24097,7 +24097,7 @@ export const data = [
       "district_code": 960607,
       "amphoe_code": 9606,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "ลาโละ",
@@ -24107,7 +24107,7 @@ export const data = [
       "district_code": 960606,
       "amphoe_code": 9606,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "สามัคคี",
@@ -24117,7 +24117,7 @@ export const data = [
       "district_code": 960604,
       "amphoe_code": 9606,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "สาวอ",
@@ -24127,7 +24127,7 @@ export const data = [
       "district_code": 960602,
       "amphoe_code": 9606,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "สุวารี",
@@ -24137,7 +24137,7 @@ export const data = [
       "district_code": 960609,
       "amphoe_code": 9606,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "เรียง",
@@ -24147,7 +24147,7 @@ export const data = [
       "district_code": 960603,
       "amphoe_code": 9606,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "โคกสะตอ",
@@ -24157,7 +24157,7 @@ export const data = [
       "district_code": 960608,
       "amphoe_code": 9606,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "กาหลง",
@@ -24167,7 +24167,7 @@ export const data = [
       "district_code": 960705,
       "amphoe_code": 9607,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "ซากอ",
@@ -24177,7 +24177,7 @@ export const data = [
       "district_code": 960701,
       "amphoe_code": 9607,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "ตะมะยูง",
@@ -24187,7 +24187,7 @@ export const data = [
       "district_code": 960698,
       "amphoe_code": 9607,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "ศรีบรรพต",
@@ -24197,7 +24197,7 @@ export const data = [
       "district_code": 960706,
       "amphoe_code": 9607,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "ศรีสาคร",
@@ -24207,7 +24207,7 @@ export const data = [
       "district_code": 960703,
       "amphoe_code": 9607,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "เชิงคีรี",
@@ -24217,7 +24217,7 @@ export const data = [
       "district_code": 960704,
       "amphoe_code": 9607,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "ภูเขาทอง",
@@ -24227,7 +24227,7 @@ export const data = [
       "district_code": 960904,
       "amphoe_code": 9609,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "มาโมง",
@@ -24237,7 +24237,7 @@ export const data = [
       "district_code": 960901,
       "amphoe_code": 9609,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "ร่มไทร",
@@ -24247,7 +24247,7 @@ export const data = [
       "district_code": 960905,
       "amphoe_code": 9609,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "สุคิริน",
@@ -24257,7 +24257,7 @@ export const data = [
       "district_code": 960902,
       "amphoe_code": 9609,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "เกียร์",
@@ -24267,7 +24267,7 @@ export const data = [
       "district_code": 960903,
       "amphoe_code": 9609,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "กาวะ",
@@ -24277,7 +24277,7 @@ export const data = [
       "district_code": 961106,
       "amphoe_code": 9611,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "ปะลุรู",
@@ -24287,7 +24287,7 @@ export const data = [
       "district_code": 961101,
       "amphoe_code": 9611,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "ริโก๋",
@@ -24297,7 +24297,7 @@ export const data = [
       "district_code": 961105,
       "amphoe_code": 9611,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "สากอ",
@@ -24307,7 +24307,7 @@ export const data = [
       "district_code": 961104,
       "amphoe_code": 9611,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "สุไหงปาดี",
@@ -24317,7 +24317,7 @@ export const data = [
       "district_code": 961102,
       "amphoe_code": 9611,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "โต๊ะเด็ง",
@@ -24327,7 +24327,7 @@ export const data = [
       "district_code": 961103,
       "amphoe_code": 9611,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "ปาเสมัส",
@@ -24337,7 +24337,7 @@ export const data = [
       "district_code": 961002,
       "amphoe_code": 9610,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "ปูโยะ",
@@ -24347,7 +24347,7 @@ export const data = [
       "district_code": 961004,
       "amphoe_code": 9610,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "มูโนะ",
@@ -24357,7 +24357,7 @@ export const data = [
       "district_code": 961003,
       "amphoe_code": 9610,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "สุไหงโก-ลก",
@@ -24367,7 +24367,7 @@ export const data = [
       "district_code": 961001,
       "amphoe_code": 9610,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "จวบ",
@@ -24377,7 +24377,7 @@ export const data = [
       "district_code": 960503,
       "amphoe_code": 9613,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "บูกิต",
@@ -24387,7 +24387,7 @@ export const data = [
       "district_code": 960505,
       "amphoe_code": 9613,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "มะรือโบออก",
@@ -24397,7 +24397,7 @@ export const data = [
       "district_code": 961303,
       "amphoe_code": 9613,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "กะลุวอ",
@@ -24407,7 +24407,7 @@ export const data = [
       "district_code": 960105,
       "amphoe_code": 9601,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "กะลุวอเหนือ",
@@ -24417,7 +24417,7 @@ export const data = [
       "district_code": 960106,
       "amphoe_code": 9601,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "บางนาค",
@@ -24427,7 +24427,7 @@ export const data = [
       "district_code": 960101,
       "amphoe_code": 9601,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "บางปอ",
@@ -24437,7 +24437,7 @@ export const data = [
       "district_code": 960104,
       "amphoe_code": 9601,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "มะนังตายอ",
@@ -24447,7 +24447,7 @@ export const data = [
       "district_code": 960103,
       "amphoe_code": 9601,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "ลำภู",
@@ -24457,7 +24457,7 @@ export const data = [
       "district_code": 960102,
       "amphoe_code": 9601,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "โคกเคียน",
@@ -24467,7 +24467,7 @@ export const data = [
       "district_code": 960107,
       "amphoe_code": 9601,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "กายูคละ",
@@ -24477,7 +24477,7 @@ export const data = [
       "district_code": 960802,
       "amphoe_code": 9608,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "ฆอเลาะ",
@@ -24487,7 +24487,7 @@ export const data = [
       "district_code": 960803,
       "amphoe_code": 9608,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "เอราวัณ",
@@ -24497,7 +24497,7 @@ export const data = [
       "district_code": 960806,
       "amphoe_code": 9608,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "แม่ดง",
@@ -24507,7 +24507,7 @@ export const data = [
       "district_code": 960805,
       "amphoe_code": 9608,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "แว้ง",
@@ -24517,7 +24517,7 @@ export const data = [
       "district_code": 960801,
       "amphoe_code": 9608,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "โละจูด",
@@ -24527,7 +24527,7 @@ export const data = [
       "district_code": 960804,
       "amphoe_code": 9608,
       "province_code": 96,
-      "type": "ใต้ล่าง "
+      "type": "ใต้ล่าง"
   },
   {
       "district": "งอบ",

@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
         <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; margin: 0 auto; padding: 20px;">
           <tr>
             <td align="center" style="padding-bottom: 20px;">
-              <img src="https://ssnthailand.com/logomail.png" alt="SSN Thailand Logo" width="150" style="display: block;">
+              <img src="https://database.ssnthailand.com/logomail.png" alt="SSN Thailand Logo" width="150" style="display: block;">
             </td>
           </tr>
           <tr>

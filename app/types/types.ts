@@ -119,7 +119,7 @@ export interface MapData {
 export interface PolicyData {
   name: string;
   signingDate: string;
-  level: 'NATIONAL' | 'PROVINCIAL' | 'DISTRICT' | 'SUB_DISTRICT' | 'VILLAGE';
+  level: 'NATIONAL' | 'HEALTH_REGION' | 'PROVINCIAL' | 'DISTRICT' | 'SUB_DISTRICT' | 'VILLAGE';
   district: string;
   amphoe: string;
   province: string;
@@ -205,3 +205,4 @@ export type SearchParams = {
   page?: number;
   limit?: number;
 };
+

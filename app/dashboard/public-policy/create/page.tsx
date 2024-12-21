@@ -204,17 +204,24 @@ export default function CreatePublicPolicy() {
                 />
               </Form.Item>
 
-              <Form.Item name="level" label="ระดับของนโยบาย" rules={[{ required: true, message: 'กรุณาเลือกระดับของนโยบาย' }]}>
+              <Form.Item 
+                name="level" 
+                label="ระดับของนโยบาย" 
+                rules={[{ required: true, message: 'กรุณาเลือกระดับของนโยบาย' }]}
+              >
                 <Radio.Group>
-                  <Radio value="NATIONAL">ระดับประเทศ</Radio>
-                  <Radio value="PROVINCIAL">ระดับจังหวัด</Radio>
-                  <Radio value="DISTRICT">ระดับอำเภอ</Radio>
-                  <Radio value="SUB_DISTRICT">ระดับตำบล</Radio>
-                  <Radio value="VILLAGE">ระดับหมู่บ้าน</Radio>
+                  <div className="space-y-2">
+                    <Radio value="NATIONAL">ระดับประเทศ</Radio>
+                    <Radio value="HEALTH_REGION">ระดับเขตสุขภาพ</Radio>
+                    <Radio value="PROVINCIAL">ระดับจังหวัด</Radio>
+                    <Radio value="DISTRICT">ระดับอำเภอ</Radio>
+                    <Radio value="SUB_DISTRICT">ระดับตำบล</Radio>
+                    <Radio value="VILLAGE">ระดับหมู่บ้าน</Radio>
+                  </div>
                 </Radio.Group>
               </Form.Item>
 
-              <Form.Item name="location" label="พื้นที่ดำเนินการ" rules={[{ required: true, message: 'กรุณาเลือกพื้นที่ดำเนินการ' }]}>
+              <Form.Item name="location" label="พื้นที่ดำเนินการ (ไม่ต้องระบุ ตำบล หรือ ต./ให้ระบุชื่อตำบลโดยไม่มีคำนำหน้า) " rules={[{ required: true, message: 'กรุณาเลือกพื้นที่ดำเนินการ' }]}>
                 <Select
                   showSearch
                   placeholder="เลือกตำบล > อำเภอ > จังหวัด"
@@ -230,16 +237,16 @@ export default function CreatePublicPolicy() {
                 </Select>
               </Form.Item>
 
-              <Form.Item name="district" className={autoFilledFields.has('district') ? 'auto-filled' : ''}>
+              <Form.Item name="district" label="ตำบล" className={autoFilledFields.has('district') ? 'auto-filled' : ''}>
                 <Input readOnly />
               </Form.Item>
-              <Form.Item name="amphoe" className={autoFilledFields.has('amphoe') ? 'auto-filled' : ''}>
+              <Form.Item name="amphoe" label="อำเถอ" className={autoFilledFields.has('amphoe') ? 'auto-filled' : ''}>
                 <Input readOnly />
               </Form.Item>
-              <Form.Item name="province" className={autoFilledFields.has('province') ? 'auto-filled' : ''}>
+              <Form.Item name="province" label="จังหวัด" className={autoFilledFields.has('province') ? 'auto-filled' : ''}>
                 <Input readOnly />
               </Form.Item>
-              <Form.Item name="type" className={autoFilledFields.has('type') ? 'auto-filled' : ''}>
+              <Form.Item name="type" label="ภาค" className={autoFilledFields.has('type') ? 'auto-filled' : ''}>
                 <Input readOnly />
               </Form.Item>
               <Form.Item name="zipcode" hidden>
@@ -263,7 +270,7 @@ export default function CreatePublicPolicy() {
 
           <Col xs={24} lg={12}>
             <Card title="รายละเอียด" className="mb-4">
-              <Form.Item name="content" label="เนื้อหาของนโยบาย" rules={[{ required: true, message: 'กรุณาเลือกเนื้อหาของนโยบาย' }]}>
+              <Form.Item name="content" label="ประเภท เนื้อหาของนโยบาย (เลือกได้มากกว่า 1)" rules={[{ required: true, message: 'กรุณาเลือกเนื้อหาของนโยบาย' }]}>
                 <Select mode="multiple">
                   <Option value="LAW_ENFORCEMENT">การบังคับใช้กฎหมาย</Option>
                   <Option value="ALCOHOL_FREE_TRADITION">บุญประเพณีปลอดเหล้า</Option>

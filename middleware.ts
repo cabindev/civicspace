@@ -1,3 +1,4 @@
+//niddleware.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getToken } from 'next-auth/jwt';
 
@@ -16,8 +17,8 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL('/auth/signin', request.url));
     }
     
-    // ถ้าผู้ใช้เป็น ADMIN ให้เข้าถึง dashboard ได้
-    if (user.role === 'ADMIN') {
+    // ถ้าผู้ใช้เป็น ADMIN หรือ SUPER_ADMIN ให้เข้าถึง dashboard ได้
+    if (user.role === 'ADMIN' || user.role === 'SUPER_ADMIN') {
       return NextResponse.next();
     }
     

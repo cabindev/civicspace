@@ -15,7 +15,8 @@ import {
   CloseOutlined,
   TeamOutlined,
   AppstoreOutlined,
-  ExperimentOutlined
+  ExperimentOutlined,
+  TableOutlined
 
 } from '@ant-design/icons';
 import Link from 'next/link';
@@ -45,6 +46,17 @@ export default function DashboardLayout({
 const menuItems = [
   { key: '/', icon: <HomeOutlined />, label: 'Home' },
   { key: '/dashboard', icon: <DashboardOutlined />, label: 'Dashboard' },
+  {
+    key: 'dataTables',
+    icon: <TableOutlined />,
+    label: 'Data Tables',
+    children: [
+      { key: '/dashboard/data-tables/traditions', label: 'งานบุญประเพณี' },
+      { key: '/dashboard/data-tables/public-policies', label: 'นโยบายสาธารณะ' },
+      { key: '/dashboard/data-tables/ethnic-groups', label: 'กลุ่มชาติพันธุ์' },
+      { key: '/dashboard/data-tables/creative-activities', label: 'กิจกรรมสร้างสรรค์' },
+    ],
+  },
   { key: '/dashboard/users', icon: <UserOutlined />, label: 'Users' },
   // { key: '/dashboard/settings', icon: <SettingOutlined />, label: 'Settings' },
   {

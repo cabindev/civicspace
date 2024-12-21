@@ -9,6 +9,7 @@ import { useRouter } from 'next/navigation';
 import { data } from '@/app/data/regions';
 import type { UploadFile } from 'antd/es/upload/interface';
 import imageCompression from 'browser-image-compression';
+import { Radio, Space } from 'antd';
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -40,6 +41,12 @@ interface FormValues {
   images?: UploadFile[];
   videoLink?: string;
   policyFile?: UploadFile;
+  hasPolicy: boolean;
+  hasAnnouncement: boolean;
+  hasInspector: boolean;
+  hasMonitoring: boolean;
+  hasCampaign: boolean;
+  hasAlcoholPromote: boolean;
 }
 
 export default function EditTradition({ params }: { params: { id: string } }) {
@@ -67,6 +74,12 @@ export default function EditTradition({ params }: { params: { id: string } }) {
       form.setFieldsValue({
         ...traditionData,
         location: `${traditionData.district}, ${traditionData.amphoe}, ${traditionData.province}`,
+        hasPolicy: traditionData.hasPolicy || false,
+        hasAnnouncement: traditionData.hasAnnouncement || false,
+        hasInspector: traditionData.hasInspector || false,
+        hasMonitoring: traditionData.hasMonitoring || false,
+        hasCampaign: traditionData.hasCampaign || false,
+        hasAlcoholPromote: traditionData.hasAlcoholPromote || false,
       });
       if (traditionData.images) {
         setFileList(traditionData.images.map((image: any) => ({
@@ -308,7 +321,50 @@ export default function EditTradition({ params }: { params: { id: string } }) {
             </Card>
           </Col>
         </Row>
-
+        <Card title="การดำเนินการและมาตรการ" className="mb-4">
+          <div className="space-y-4">
+            {[
+              {
+                name: "hasPolicy",
+                label: "1. มีการกำหนดนโยบาย มาตรการธรรมนูญชุมชนร่วมกันของคณะกรรมการจังหวัดหรืออำเภอ เพื่อให้การจัดงานบุญ งานประเพณี งานเทศกาล ปลอดเครื่องดื่มแอลกอฮอล์"
+              },
+              {
+                name: "hasAnnouncement",
+                label: "2. มีเอกสาร คำสั่ง ป้ายประกาศ บริเวณทางเข้าหรือรอบ ๆ บริเวณ เพื่อแสดงให้ผู้ร่วมงานรับทราบร่วมกันว่าเป็นการจัดงานปลอดเครื่องดื่มแอลกอฮอล์"
+              },
+              {
+                name: "hasInspector",
+                label: "3. มีเจ้าหน้าที่กำกับดูแล/คณะกรรมการจังหวัดหรืออำเภอ ตรวจสอบบริเวณการจัดงานอย่างสม่ำเสมอ"
+              },
+              {
+                name: "hasMonitoring",
+                label: "4. มีเจ้าหน้าที่ในการเฝ้าระวังและตรวจสอบการนำเครื่องดื่มแอลกอฮอล์เข้ามาในงานบุญ งานประเพณี งานเทศกาล"
+              },
+              {
+                name: "hasCampaign",
+                label: "5. มีการจัดกิจกรรรมรณรงค์ประชาสัมพันธ์จากเจ้าหน้าที่หรือภาคีเครือข่ายในพื้นที่ เพื่อให้งานบุญ งานประเพณี งานเทศกาล ปลอดเครื่องดื่มแอลกอฮอล์"
+              },
+              {
+                name: "hasAlcoholPromote",
+                label: "6. มีการรับหรือสนับสนุนหรือพบเห็นการโฆษณาเครื่องดื่มแอลกอฮอล์จากธุรกิจสุราในพื้นที่"
+              }
+            ].map((item) => (
+              <Form.Item
+                key={item.name}
+                name={item.name}
+                label={item.label}
+                rules={[{ required: true, message: "กรุณาเลือกคำตอบ" }]}
+              >
+                <Radio.Group>
+                  <Space direction="horizontal">
+                    <Radio value={true}>ใช่</Radio>
+                    <Radio value={false}>ไม่ใช่</Radio>
+                  </Space>
+                </Radio.Group>
+              </Form.Item>
+            ))}
+          </div>
+        </Card>
         <Form.Item className="text-center">
           <Button type="primary" htmlType="submit" loading={loading}>
             บันทึกการแก้ไข

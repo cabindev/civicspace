@@ -1,6 +1,6 @@
 // components/RecentPolicies.tsx
 import { PolicyData } from '@/app/types/types';
-import { FaFileSignature, FaMapMarkerAlt, FaFlagUsa, FaCity, FaBuilding, FaHome, FaLandmark } from 'react-icons/fa';
+import { FaFileSignature, FaMapMarkerAlt, FaFlagUsa, FaCity, FaBuilding, FaHome, FaLandmark, FaHospital } from 'react-icons/fa';
 import { format } from 'date-fns';
 import { th } from 'date-fns/locale';
 
@@ -16,6 +16,7 @@ interface LevelInfo {
 export default function RecentPolicies({ data }: RecentPoliciesProps) {
   const levelMap: Record<PolicyData['level'], LevelInfo> = {
     NATIONAL: { name: 'ระดับประเทศ', icon: <FaFlagUsa className="text-red-500" /> },
+    HEALTH_REGION: { name: 'ระดับเขตสุขภาพ', icon: <FaHospital className="text-pink-500" /> },  
     PROVINCIAL: { name: 'ระดับจังหวัด', icon: <FaLandmark className="text-blue-500" /> },
     DISTRICT: { name: 'ระดับอำเภอ', icon: <FaCity className="text-green-500" /> },
     SUB_DISTRICT: { name: 'ระดับตำบล', icon: <FaBuilding className="text-yellow-500" /> },

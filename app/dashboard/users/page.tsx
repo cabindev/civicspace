@@ -1,10 +1,10 @@
-// app/dashboard/users/page.tsx
 'use client'
 import React, { useState, useEffect } from 'react';
-import { Table, Switch, message, Avatar, Card, List, Typography, Space } from 'antd';
+import { Table, Switch, message, Avatar, Card, List, Typography, Space, Tag } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import axios from 'axios';
 import { useMediaQuery } from 'react-responsive';
+import { useSession } from 'next-auth/react';
 
 const { Text } = Typography;
 
@@ -13,7 +13,7 @@ interface User {
   firstName: string;
   lastName: string;
   email: string;
-  role: 'ADMIN' | 'MEMBER';
+  role: 'SUPER_ADMIN' | 'ADMIN' | 'MEMBER';
   image: string | null;
 }
 
@@ -21,6 +21,7 @@ export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const isMobile = useMediaQuery({ maxWidth: 768 });
+  const { data: session } = useSession();
 
   useEffect(() => {
     fetchUsers();
@@ -42,7 +43,7 @@ export default function UsersPage() {
     try {
       await axios.put(`/api/users/${userId}`, { role: newRole });
       message.success('User role updated successfully');
-      fetchUsers(); // Refresh the user list
+      fetchUsers();
     } catch (error) {
       console.error('Failed to update user role:', error);
       message.error('Failed to update user role');
@@ -53,11 +54,26 @@ export default function UsersPage() {
     try {
       await axios.delete(`/api/users/${userId}`);
       message.success('User deleted successfully');
-      fetchUsers(); // Refresh the user list
+      fetchUsers();
     } catch (error) {
       console.error('Failed to delete user:', error);
       message.error('Failed to delete user');
     }
+  };
+
+  const getRoleDisplay = (role: string, userId: number) => {
+    if (role === 'SUPER_ADMIN') {
+      return <Tag color="gold">SUPER ADMIN</Tag>;
+    }
+    return (
+      <Switch
+        checked={role === 'ADMIN'}
+        onChange={(checked) => toggleUserRole(userId, checked ? 'ADMIN' : 'MEMBER')}
+        checkedChildren="ADMIN"
+        unCheckedChildren="MEMBER"
+        disabled={role === 'SUPER_ADMIN'}
+      />
+    );
   };
 
   const columns: ColumnsType<User> = [
@@ -82,21 +98,16 @@ export default function UsersPage() {
     {
       title: 'Role',
       key: 'role',
-      render: (_, record) => (
-        <Switch
-          checked={record.role === 'ADMIN'}
-          onChange={(checked) => toggleUserRole(record.id, checked ? 'ADMIN' : 'MEMBER')}
-          checkedChildren="ADMIN"
-          unCheckedChildren="MEMBER"
-        />
-      ),
+      render: (_, record) => getRoleDisplay(record.role, record.id),
     },
     {
       title: 'Action',
       key: 'action',
       render: (_, record) => (
         <Space size="middle">
-          <a className='text-red-500' onClick={() => handleDelete(record.id)}>Delete</a>
+          {session?.user?.role === 'SUPER_ADMIN' && record.role !== 'SUPER_ADMIN' && (
+            <a className='text-red-500' onClick={() => handleDelete(record.id)}>Delete</a>
+          )}
         </Space>
       ),
     },
@@ -111,15 +122,12 @@ export default function UsersPage() {
           <Space direction="vertical">
             <Text>{user.email}</Text>
             <Space>
-              <Text>Role:</Text>
-              <Switch
-                checked={user.role === 'ADMIN'}
-                onChange={(checked) => toggleUserRole(user.id, checked ? 'ADMIN' : 'MEMBER')}
-                checkedChildren="ADMIN"
-                unCheckedChildren="MEMBER"
-              />
-            </Space>
-            <a onClick={() => handleDelete(user.id)}>Delete</a>
+            <Text>Role:</Text>
+            {getRoleDisplay(user.role, user.id)}
+          </Space>
+            {session?.user?.role === 'SUPER_ADMIN' && user.role !== 'SUPER_ADMIN' && (
+              <a onClick={() => handleDelete(user.id)}>Delete</a>
+            )}
           </Space>
         }
       />

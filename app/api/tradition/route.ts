@@ -44,7 +44,13 @@ export async function POST(request: NextRequest) {
       },
       user: {
         connect: { id: user.id }
-      }
+      },
+      hasPolicy: formData.get('hasPolicy') === 'true',
+      hasAnnouncement: formData.get('hasAnnouncement') === 'true',
+      hasInspector: formData.get('hasInspector') === 'true',
+      hasMonitoring: formData.get('hasMonitoring') === 'true',
+      hasCampaign: formData.get('hasCampaign') === 'true',
+      hasAlcoholPromote: formData.get('hasAlcoholPromote') === 'true',
     };
 
     // Handle numeric fields

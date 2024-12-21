@@ -1,27 +1,34 @@
+// layout.tsx
 import type { Metadata } from "next";
 import "./globals.css";
 import SessionProvider from "./components/SessionProvider";
 import { getServerSession } from "next-auth";
 import authOptions from "./lib/configs/auth/authOptions";
 import AntdProvider from "./components/AntdProvider";
-import 'antd/dist/reset.css';
 import { seppuri } from './fonts';
 
 export const metadata: Metadata = {
-  title: "SSN Thailand",
-  description: "Social Security Number Thailand",
+  title: "มูลนิธิเครือข่ายพลังสังคม | SSN Thailand",
+  description: "ฐานข้อมูลมูลนิธิเครือข่ายพลังสังคม รวบรวมข้อมูลงานบุญประเพณี นโยบายสาธารณะ กลุ่มชาติพันธุ์ และกิจกรรมสร้างสรรค์",
+  keywords: ["มูลนิธิเครือข่ายพลังสังคม", "SSN", "งานบุญประเพณี", "นโยบายสาธารณะ", "กลุ่มชาติพันธุ์"],
+  authors: [{ name: "SSN Thailand" }],
+  creator: "SSN Thailand",
+  publisher: "มูลนิธิเครือข่ายพลังสังคม",
+  openGraph: {
+    type: 'website',
+    title: 'มูลนิธิเครือข่ายพลังสังคม | SSN Thailand',
+    description: 'ฐานข้อมูลมูลนิธิเครือข่ายพลังสังคม',
+    url: 'https://database.ssnthailand.com',
+    siteName: 'SSN Thailand',
+  },
 };
 
-type RootLayoutProps = {
-  children: React.ReactNode;
-};
-
-export default async function RootLayout({ children }: RootLayoutProps) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const session = await getServerSession(authOptions);
 
   return (
-    <html lang="th">  {/* ลบ className={`${seppuri.variable}`} */}
-      <body>  {/* ลบ className={seppuri.className} */}
+    <html lang="th" className={seppuri.variable}>
+      <body>
         <SessionProvider session={session}>
           <AntdProvider>
             {children}

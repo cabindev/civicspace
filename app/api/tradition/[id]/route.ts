@@ -65,6 +65,12 @@ export async function PUT(
       results: body.results || null,
       startYear: parseInt(body.startYear as string),
       videoLink: body.videoLink || null,
+      hasPolicy: body.hasPolicy === 'true',
+      hasAnnouncement: body.hasAnnouncement === 'true',
+      hasInspector: body.hasInspector === 'true',
+      hasMonitoring: body.hasMonitoring === 'true',
+      hasCampaign: body.hasCampaign === 'true',
+      hasAlcoholPromote: body.hasAlcoholPromote === 'true',
     };
 
     ['zipcode', 'district_code', 'amphoe_code', 'province_code'].forEach(field => {

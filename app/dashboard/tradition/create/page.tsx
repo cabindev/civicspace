@@ -8,6 +8,7 @@ import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import { data } from '@/app/data/regions';
 import { UploadFile } from 'antd/es/upload';
+import { Radio, Space } from 'antd';
 import imageCompression from 'browser-image-compression';
 
 const { Option } = Select;
@@ -40,6 +41,12 @@ interface FormValues {
   images?: UploadFile[];
   videoLink?: string;
   policyFile?: UploadFile;
+  hasPolicy: boolean;
+  hasAnnouncement: boolean;
+  hasInspector: boolean;
+  hasMonitoring: boolean;
+  hasCampaign: boolean;
+  hasAlcoholPromote: boolean;
 }
 
 export default function CreateTradition() {
@@ -144,19 +151,50 @@ export default function CreateTradition() {
           });
         } else if (key === 'policyFile' && policyFile.length > 0) {
           formData.append('policyFile', policyFile[0].originFileObj as File);
+        } else if (
+          // เพิ่มเงื่อนไขสำหรับข้อมูลแบบ boolean
+          ['hasPolicy', 'hasAnnouncement', 'hasInspector', 'hasMonitoring', 'hasCampaign', 'hasAlcoholPromote'].includes(key)
+        ) {
+          // แปลงค่า boolean เป็น string 'true' หรือ 'false'
+          formData.append(key, value.toString());
         } else if (value !== undefined && value !== null) {
           formData.append(key, value.toString());
         }
       });
   
+      // เพิ่ม validation สำหรับฟิลด์ที่จำเป็น
+      const requiredBooleanFields = [
+        'hasPolicy',
+        'hasAnnouncement', 
+        'hasInspector',
+        'hasMonitoring',
+        'hasCampaign',
+        'hasAlcoholPromote'
+      ];
+  
+      // ตรวจสอบว่าทุกฟิลด์มีค่าถูกส่งมาครบ
+      const missingFields = requiredBooleanFields.filter(
+        field => !formData.has(field)
+      );
+  
+      if (missingFields.length > 0) {
+        throw new Error(`กรุณากรอกข้อมูลให้ครบทุกข้อ: ${missingFields.join(', ')}`);
+      }
+  
       await axios.post('/api/tradition', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
+      
       message.success('สร้างข้อมูลงานบุญประเพณีสำเร็จ');
       router.push('/dashboard/tradition');
     } catch (error) {
       console.error('Error creating tradition:', error);
-      message.error('ไม่สามารถสร้างข้อมูลงานบุญประเพณีได้');
+      if (error instanceof Error) {
+        // แสดงข้อความ error ที่เฉพาะเจาะจง
+        message.error(error.message);
+      } else {
+        message.error('ไม่สามารถสร้างข้อมูลงานบุญประเพณีได้');
+      }
     } finally {
       setLoading(false);
     }
@@ -286,7 +324,50 @@ export default function CreateTradition() {
             </Card>
           </Col>
         </Row>
-
+        <Card title="การดำเนินการและมาตรการ" className="mb-4">
+  <div className="space-y-4">
+    {[
+      {
+        name: "hasPolicy",
+        label: "1. มีการกำหนดนโยบาย มาตรการธรรมนูญชุมชนร่วมกันของคณะกรรมการจังหวัดหรืออำเภอ เพื่อให้การจัดงานบุญ งานประเพณี งานเทศกาล ปลอดเครื่องดื่มแอลกอฮอล์"
+      },
+      {
+        name: "hasAnnouncement",
+        label: "2. มีเอกสาร คำสั่ง ป้ายประกาศ บริเวณทางเข้าหรือรอบ ๆ บริเวณ เพื่อแสดงให้ผู้ร่วมงานรับทราบร่วมกันว่าเป็นการจัดงานปลอดเครื่องดื่มแอลกอฮอล์"
+      },
+      {
+        name: "hasInspector",
+        label: "3. มีเจ้าหน้าที่กำกับดูแล/คณะกรรมการจังหวัดหรืออำเภอ ตรวจสอบบริเวณการจัดงานอย่างสม่ำเสมอ"
+      },
+      {
+        name: "hasMonitoring",
+        label: "4. มีเจ้าหน้าที่ในการเฝ้าระวังและตรวจสอบการนำเครื่องดื่มแอลกอฮอล์เข้ามาในงานบุญ งานประเพณี งานเทศกาล"
+      },
+      {
+        name: "hasCampaign",
+        label: "5. มีการจัดกิจกรรรมรณรงค์ประชาสัมพันธ์จากเจ้าหน้าที่หรือภาคีเครือข่ายในพื้นที่ เพื่อให้งานบุญ งานประเพณี งานเทศกาล ปลอดเครื่องดื่มแอลกอฮอล์"
+      },
+      {
+        name: "hasAlcoholPromote",
+        label: "6. มีการรับหรือสนับสนุนหรือพบเห็นการโฆษณาเครื่องดื่มแอลกอฮอล์จากธุรกิจสุราในพื้นที่"
+      }
+    ].map((item) => (
+      <Form.Item
+        key={item.name}
+        name={item.name}
+        label={item.label}
+        rules={[{ required: true, message: "กรุณาเลือกคำตอบ" }]}
+      >
+        <Radio.Group>
+          <Space direction="horizontal">
+            <Radio value={true}>ใช่</Radio>
+            <Radio value={false}>ไม่ใช่</Radio>
+          </Space>
+        </Radio.Group>
+      </Form.Item>
+    ))}
+  </div>
+</Card>
         <Form.Item className="text-center">
           <Button type="primary" htmlType="submit" loading={loading}>
             สร้างงานบุญประเพณี

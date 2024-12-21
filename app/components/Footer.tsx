@@ -3,8 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import axios from 'axios';
-import { motion } from 'framer-motion';
 import { seppuri } from '../fonts';
+
 interface LatestItem {
   id: string;
   name: string;
@@ -20,120 +20,119 @@ interface LatestPublicPolicy {
 }
 
 export const Footer: React.FC = () => {
-  const [latestTraditions, setLatestTraditions] = useState<LatestItem[]>([]);
-  const [latestPolicies, setLatestPolicies] = useState<LatestPublicPolicy[]>([]);
-  const [latestEthnicGroups, setLatestEthnicGroups] = useState<LatestItem[]>([]);
-  const [latestCreativeActivities, setLatestCreativeActivities] = useState<LatestItem[]>([]);
+  const [data, setData] = useState<{
+    traditions: LatestItem[];
+    policies: LatestPublicPolicy[];
+    ethnicGroups: LatestItem[];
+    creativeActivities: LatestItem[];
+  }>({
+    traditions: [],
+    policies: [],
+    ethnicGroups: [],
+    creativeActivities: []
+  });
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    let isMounted = true;
+
     const fetchLatestData = async () => {
-      setIsLoading(true);
       try {
-        const [traditionsResponse, policiesResponse, ethnicGroupsResponse, creativeActivitiesResponse] = await Promise.all([
+        const [traditions, policies, ethnicGroups, activities] = await Promise.all([
           axios.get('/api/home/tradition'),
           axios.get('/api/home/public-policy'),
           axios.get('/api/home/ethnic-group'),
           axios.get('/api/home/creative-activity')
         ]);
-        setLatestTraditions(traditionsResponse.data);
-        setLatestPolicies(policiesResponse.data);
-        setLatestEthnicGroups(ethnicGroupsResponse.data);
-        setLatestCreativeActivities(creativeActivitiesResponse.data);
+
+        if (isMounted) {
+          setData({
+            traditions: traditions.data,
+            policies: policies.data,
+            ethnicGroups: ethnicGroups.data,
+            creativeActivities: activities.data
+          });
+          setIsLoading(false);
+        }
       } catch (error) {
-        console.error('Error fetching latest data:', error);
-      } finally {
+        console.error('Error fetching data:', error);
         setIsLoading(false);
       }
     };
 
     fetchLatestData();
+    return () => { isMounted = false };
   }, []);
 
   const renderLatestItems = (items: LatestItem[], path: string) => (
-    <ul>
+    <ul className="space-y-2">
       {items.slice(0, 2).map((item) => (
-        <motion.li
-          key={item.id}
-          className="mb-2"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <Link href={`/components/${path}/${item.id}`} className="hover:text-green-300">
+        <li key={item.id} className="transition-colors duration-200">
+          <Link href={`/components/${path}/${item.id}`} className="hover:text-green-300 block">
             <span className="font-light">{item.name}</span>
-            <br />
-            <span className="text-xs text-green-300">{item.category.name} | {item.province}</span>
+            <span className="text-xs text-green-300 block">
+              {item.category.name} | {item.province}
+            </span>
           </Link>
-        </motion.li>
+        </li>
       ))}
     </ul>
   );
 
-  const SkeletonLoader = () => (
-    <div className="animate-pulse">
-      <div className="h-4 bg-green-200 rounded w-3/4 mb-2"></div>
-      <div className="h-3 bg-green-200 rounded w-1/2 mb-1"></div>
-      <div className="h-3 bg-green-200 rounded w-2/3 mb-3"></div>
-      <div className="h-4 bg-green-200 rounded w-3/4 mb-2"></div>
-      <div className="h-3 bg-green-200 rounded w-1/2 mb-1"></div>
-      <div className="h-3 bg-green-200 rounded w-2/3"></div>
-    </div>
+  const renderPolicyItems = (policies: LatestPublicPolicy[]) => (
+    <ul className="space-y-2">
+      {policies.slice(0, 2).map((policy) => (
+        <li key={policy.id} className="transition-colors duration-200">
+          <Link href={`/components/public-policy/${policy.id}`} className="hover:text-green-300 block">
+            <span className="font-light">{policy.name}</span>
+            <span className="text-xs text-green-300 block">
+              {policy.level} | {policy.province}
+            </span>
+          </Link>
+        </li>
+      ))}
+    </ul>
   );
 
+  if (isLoading) {
+    return (
+      <footer className={`bg-green-800 text-white py-4 ${seppuri.variable}`}>
+        <div className="container mx-auto px-4 grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="animate-pulse">
+              <div className="h-4 bg-green-700 rounded w-3/4 mb-2" />
+              <div className="h-3 bg-green-700 rounded w-1/2 mb-1" />
+              <div className="h-3 bg-green-700 rounded w-2/3" />
+            </div>
+          ))}
+        </div>
+      </footer>
+    );
+  }
+
   return (
-    <motion.footer
-      className={`bg-green-800 text-white py-4 ${seppuri.variable}`}
-      initial={{ opacity: 0, y: 50 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: 0.2 }}
-    >
+    <footer className={`bg-green-800 text-white py-4 ${seppuri.variable}`}>
       <div className="font-seppuri container mx-auto px-4 grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>
+        <div>
           <h3 className="text-l font-semibold mb-2">งานบุญประเพณีล่าสุด</h3>
-          {isLoading ? <SkeletonLoader /> : renderLatestItems(latestTraditions, 'traditions')}
-        </motion.div>
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}>
+          {renderLatestItems(data.traditions, 'traditions')}
+        </div>
+        <div>
           <h3 className="text-l font-semibold mb-2">นโยบายสาธารณะล่าสุด</h3>
-          {isLoading ? (
-            <SkeletonLoader />
-          ) : (
-            <ul>
-              {latestPolicies.slice(0, 2).map((policy) => (
-                <motion.li
-                  key={policy.id}
-                  className="mb-2"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5 }}
-                >
-                  <Link href={`/components/public-policy/${policy.id}`} className="hover:text-green-300">
-                    <span className="font-light">{policy.name}</span>
-                    <br />
-                    <span className="text-xs text-green-300">{policy.level} | {policy.province}</span>
-                  </Link>
-                </motion.li>
-              ))}
-            </ul>
-          )}
-        </motion.div>
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}>
+          {renderPolicyItems(data.policies)}
+        </div>
+        <div>
           <h3 className="text-l font-semibold mb-2">กลุ่มชาติพันธุ์ล่าสุด</h3>
-          {isLoading ? <SkeletonLoader /> : renderLatestItems(latestEthnicGroups, 'ethnic-group')}
-        </motion.div>
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }}>
+          {renderLatestItems(data.ethnicGroups, 'ethnic-group')}
+        </div>
+        <div>
           <h3 className="text-l font-semibold mb-2">กิจกรรมสร้างสรรค์ล่าสุด</h3>
-          {isLoading ? <SkeletonLoader /> : renderLatestItems(latestCreativeActivities, 'creative-activity')}
-        </motion.div>
+          {renderLatestItems(data.creativeActivities, 'creative-activity')}
+        </div>
       </div>
-      <motion.div
-        className="font-seppuri container mx-auto px-4 mt-4 text-center text-sm"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.7 }}
-      >
+      <div className="font-seppuri container mx-auto px-4 mt-4 text-center text-sm">
         <p>© 2024 มูลนิธิเครือข่ายพลังสังคม. All rights reserved.</p>
-      </motion.div>
-    </motion.footer>
+      </div>
+    </footer>
   );
 };

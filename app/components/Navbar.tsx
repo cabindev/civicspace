@@ -88,7 +88,7 @@ const Navbar: React.FC = () => {
                       ? "text-orange-500"
                       : prevScrollPos > 0 
                         ? "text-gray-500 hover:text-gray-900"
-                        : "text-gray-500 hover:text-gray-600"
+                        : "text-gray-500 hover:text-gray-200"
                   } inline-flex items-center px-1 pt-1 text-sm font-medium transition-colors duration-200`}
                 >
                   {item.label}
@@ -149,7 +149,7 @@ const Navbar: React.FC = () => {
               className={`md:hidden p-2 rounded-md ${
                 prevScrollPos > 0 
                   ? "text-gray-400 hover:text-gray-500"
-                  : "text-gray-400 hover:text-gray-600"
+                  : "text-white hover:text-gray-200"
               }`}
             >
               <HiMenuAlt3 className="h-6 w-6" />

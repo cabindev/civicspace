@@ -222,13 +222,20 @@ export default function EditPublicPolicy({ params }: { params: { id: string } })
                 />
               </Form.Item>
 
-              <Form.Item name="level" label="ระดับของนโยบาย" rules={[{ required: true, message: 'กรุณาเลือกระดับของนโยบาย' }]}>
+              <Form.Item 
+                name="level" 
+                label="ระดับของนโยบาย" 
+                rules={[{ required: true, message: 'กรุณาเลือกระดับของนโยบาย' }]}
+              >
                 <Radio.Group>
-                  <Radio value="NATIONAL">ระดับประเทศ</Radio>
-                  <Radio value="PROVINCIAL">ระดับจังหวัด</Radio>
-                  <Radio value="DISTRICT">ระดับอำเภอ</Radio>
-                  <Radio value="SUB_DISTRICT">ระดับตำบล</Radio>
-                  <Radio value="VILLAGE">ระดับหมู่บ้าน</Radio>
+                  <div className="space-y-2">
+                    <Radio value="NATIONAL">ระดับประเทศ</Radio>
+                    <Radio value="HEALTH_REGION">ระดับเขตสุขภาพ</Radio>
+                    <Radio value="PROVINCIAL">ระดับจังหวัด</Radio>
+                    <Radio value="DISTRICT">ระดับอำเภอ</Radio>
+                    <Radio value="SUB_DISTRICT">ระดับตำบล</Radio>
+                    <Radio value="VILLAGE">ระดับหมู่บ้าน</Radio>
+                  </div>
                 </Radio.Group>
               </Form.Item>
 

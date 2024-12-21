@@ -27,6 +27,12 @@ interface Tradition {
   images: { id: string; url: string }[];
   category: { id: string; name: string };
   viewCount: number;
+  hasPolicy: boolean;
+  hasAnnouncement: boolean;
+  hasInspector: boolean;
+  hasMonitoring: boolean;
+  hasCampaign: boolean;
+  hasAlcoholPromote: boolean;
 }
 
 export default function TraditionDetails() {
@@ -177,7 +183,93 @@ export default function TraditionDetails() {
               </div>
             </div>
           )}
-          
+          {/* เพิ่มหลังจากส่วน ประวัติและแนวทาง */}
+          <h2 className="text-xl text-center font-medium my-6 text-green-600 border-b pb-2">การดำเนินการและมาตรการ</h2>
+          <div className="mb-8">
+            <div className="grid gap-6">
+              {[
+                {
+                  name: "hasPolicy",
+                  label: "นโยบายและมาตรการชุมชน",
+                  description: "มีการกำหนดนโยบาย มาตรการธรรมนูญชุมชนร่วมกันของคณะกรรมการจังหวัดหรืออำเภอ เพื่อให้การจัดงานบุญ งานประเพณี งานเทศกาล ปลอดเครื่องดื่มแอลกอฮอล์",
+                  value: tradition.hasPolicy,
+                  icon: "📜"
+                },
+                {
+                  name: "hasAnnouncement",
+                  label: "การประกาศและสื่อสาร",
+                  description: "มีเอกสาร คำสั่ง ป้ายประกาศ บริเวณทางเข้าหรือรอบ ๆ บริเวณ เพื่อแสดงให้ผู้ร่วมงานรับทราบร่วมกันว่าเป็นการจัดงานปลอดเครื่องดื่มแอลกอฮอล์",
+                  value: tradition.hasAnnouncement,
+                  icon: "📢"
+                },
+                {
+                  name: "hasInspector",
+                  label: "การกำกับดูแล",
+                  description: "มีเจ้าหน้าที่กำกับดูแล/คณะกรรมการจังหวัดหรืออำเภอ ตรวจสอบบริเวณการจัดงานอย่างสม่ำเสมอ",
+                  value: tradition.hasInspector,
+                  icon: "👮"
+                },
+                {
+                  name: "hasMonitoring",
+                  label: "การเฝ้าระวัง",
+                  description: "มีเจ้าหน้าที่ในการเฝ้าระวังและตรวจสอบการนำเครื่องดื่มแอลกอฮอล์เข้ามาในงานบุญ งานประเพณี งานเทศกาล",
+                  value: tradition.hasMonitoring,
+                  icon: "🔍"
+                },
+                {
+                  name: "hasCampaign",
+                  label: "การรณรงค์และประชาสัมพันธ์",
+                  description: "มีการจัดกิจกรรรมรณรงค์ประชาสัมพันธ์จากเจ้าหน้าที่หรือภาคีเครือข่ายในพื้นที่ เพื่อให้งานบุญ งานประเพณี งานเทศกาล ปลอดเครื่องดื่มแอลกอฮอล์",
+                  value: tradition.hasCampaign,
+                  icon: "📣"
+                },
+                {
+                  name: "hasAlcoholPromote",
+                  label: "การโฆษณาเครื่องดื่มแอลกอฮอล์",
+                  description: "มีการรับหรือสนับสนุนหรือพบเห็นการโฆษณาเครื่องดื่มแอลกอฮอล์จากธุรกิจสุราในพื้นที่",
+                  value: tradition.hasAlcoholPromote,
+                  icon: "🚫"
+                }
+              ].map((item) => (
+                <div 
+                  key={item.name} 
+                  className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-all duration-300"
+                >
+                  <div className="flex items-start gap-4">
+                    <div className="flex-shrink-0 text-2xl w-10 h-10 flex items-center justify-center">
+                      {item.icon}
+                    </div>
+                    <div className="flex-grow">
+                      <div className="flex items-center justify-between mb-2">
+                        <h3 className="text-lg font-medium text-gray-800">
+                          {item.label}
+                        </h3>
+                        <span className={`
+                          px-2 py-1 text-xs sm:px-3 sm:py-1 sm:text-sm rounded-full font-medium whitespace-nowrap
+                          ${
+                            item.name === "hasAlcoholPromote"
+                              ? item.value 
+                                ? 'bg-red-100 text-red-700'
+                                : 'bg-green-100 text-green-700'
+                              : item.value
+                                ? 'bg-green-100 text-green-700'
+                                : 'bg-red-100 text-red-700'
+                          }
+                        `}>
+                          {item.name === "hasAlcoholPromote"
+                            ? item.value ? 'พบ' : 'ไม่พบ'
+                            : item.value ? 'ดำเนินการ' : 'ไม่ได้ดำเนินการ'}
+                        </span>
+                      </div>
+                      <p className="text-gray-600 font-light text-sm leading-relaxed">
+                        {item.description}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
           {(tradition.videoLink || tradition.policyFileUrl) && (
             <div className="p-8">
               <h2 className="text-3xl font-medium mb-6 text-green-600 border-b pb-2">ไฟล์และลิงก์ที่เกี่ยวข้อง</h2>

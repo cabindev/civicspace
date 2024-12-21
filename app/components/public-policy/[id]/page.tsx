@@ -27,6 +27,24 @@ interface PublicPolicy {
   viewCount: number;
 }
 
+const levelNameMap: Record<string, string> = {
+  'NATIONAL': 'ระดับประเทศ',
+  'HEALTH_REGION': 'ระดับเขตสุขภาพ',
+  'PROVINCIAL': 'ระดับจังหวัด',
+  'DISTRICT': 'ระดับอำเภอ',
+  'SUB_DISTRICT': 'ระดับตำบล',
+  'VILLAGE': 'ระดับหมู่บ้าน'
+};
+
+const contentNameMap: Record<string, string> = {
+  'LAW_ENFORCEMENT': 'การบังคับใช้กฎหมาย',
+  'ALCOHOL_FREE_TRADITION': 'บุญประเพณีปลอดเหล้า',
+  'ALCOHOL_FREE_MERIT': 'งานบุญปลอดเหล้า',
+  'CHILD_YOUTH_PROTECTION': 'การปกป้องเด็กและเยาวชน',
+  'CREATIVE_SPACE': 'พื้นที่สร้างสรรค์'
+};
+
+
 export default function PublicPolicyDetails() {
   const { id } = useParams();
   const [policy, setPolicy] = useState<PublicPolicy | null>(null);
@@ -48,6 +66,7 @@ export default function PublicPolicyDetails() {
       setLoading(false);
     }
   }, [id]);
+  
 
   useEffect(() => {
     fetchPolicyDetails();
@@ -112,7 +131,7 @@ export default function PublicPolicyDetails() {
                 </p>
                 <p className="mb-4">
                   <span className="font-medium text-gray-700">ระดับ:</span> 
-                  <span className="ml-2 font-extralight">{policy.level}</span>
+                  <span className="ml-2 font-extralight">{levelNameMap[policy.level]}</span>
                 </p>
                 <p className="mb-4 flex items-start">
                   <FaMapMarkerAlt className="mr-2 text-green-500 mt-1 flex-shrink-0" />
@@ -128,8 +147,10 @@ export default function PublicPolicyDetails() {
                   <span className="ml-2 font-extralight">{policy.type}</span>
                 </p>
                 <p className="mb-4">
-                  <span className="font-medium text-gray-700">เนื้อหา:</span> 
-                  <span className="ml-2 font-extralight">{policy.content.join(', ')}</span>
+                  <span className="font-medium text-gray-700">เนื้อหาของนโยบาย:</span> 
+                  <span className="ml-2 font-extralight">
+                    {policy.content.map(c => contentNameMap[c]).join(', ')}
+                  </span>
                 </p>
               </div>
             </div>

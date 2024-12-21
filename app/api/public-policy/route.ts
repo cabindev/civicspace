@@ -29,6 +29,7 @@ export async function POST(request: NextRequest) {
       name: formData.get('name') as string || 'Untitled Policy',
       signingDate: new Date(formData.get('signingDate') as string) || new Date(),
       level: formData.get('level') as string || 'UNKNOWN',
+      healthRegion: formData.get('healthRegion') as string || null, // เพิ่มฟิลด์ healthRegion
       district: formData.get('district') as string || 'UNKNOWN',
       amphoe: formData.get('amphoe') as string || 'UNKNOWN',
       province: formData.get('province') as string || 'UNKNOWN',
@@ -38,7 +39,7 @@ export async function POST(request: NextRequest) {
       summary: formData.get('summary') as string || '',
       results: formData.get('results') as string || null,
       videoLink: formData.get('videoLink') as string || null,
-      userId: user.id  // Use the user's ID from the session
+      userId: user.id
     };
 
     // Handle numeric fields

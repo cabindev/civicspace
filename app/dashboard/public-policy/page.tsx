@@ -87,11 +87,19 @@ export default function PublicPolicyList() {
      width: '15%',
    },
    {
-     title: 'ระดับ',
-     dataIndex: 'level',
-     key: 'level',
-     width: '15%',
-   },
+    title: 'ระดับ',
+    dataIndex: 'level',
+    key: 'level',
+    render: (level: string) => ({
+      'DISTRICT': 'ระดับอำเภอ',
+      'HEALTH_REGION': 'ระดับเขตสุขภาพ',
+      'NATIONAL': 'ระดับประเทศ',
+      'PROVINCIAL': 'ระดับจังหวัด',
+      'SUB_DISTRICT': 'ระดับตำบล',
+      'VILLAGE': 'ระดับหมู่บ้าน'
+    })[level] || level,
+    width: '15%',
+  },
    {
      title: 'พื้นที่',
      key: 'area',

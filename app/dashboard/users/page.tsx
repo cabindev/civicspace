@@ -5,6 +5,7 @@ import type { ColumnsType } from 'antd/es/table';
 import axios from 'axios';
 import { useMediaQuery } from 'react-responsive';
 import { useSession } from 'next-auth/react';
+import Link from 'next/link';
 
 const { Text } = Typography;
 
@@ -61,9 +62,31 @@ export default function UsersPage() {
     }
   };
 
+  // Sort users with SUPER_ADMIN first
+  const sortedUsers = users.sort((a, b) => {
+    if (a.role === 'SUPER_ADMIN') return -1;
+    if (b.role === 'SUPER_ADMIN') return 1;
+    return 0;
+  });
+
   const getRoleDisplay = (role: string, userId: number) => {
     if (role === 'SUPER_ADMIN') {
-      return <Tag color="gold">SUPER ADMIN</Tag>;
+      return (
+        <Tag color="gold" style={{ 
+          padding: '0 15px',
+          height: '24px',
+          lineHeight: '24px',
+          background: 'linear-gradient(45deg, #FFD700, #FFA500)',
+          border: 'none',
+          fontWeight: 'bold',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '4px'
+        }}>
+          <span style={{ fontSize: '14px' }}>👑</span>
+          SUPER ADMIN
+        </Tag>
+      );
     }
     return (
       <Switch
@@ -76,24 +99,54 @@ export default function UsersPage() {
     );
   };
 
+  const getAvatarStyles = (role: string) => {
+    if (role === 'SUPER_ADMIN') {
+      return {
+        border: '2px solid gold',
+        boxShadow: '0 0 10px rgba(255, 215, 0, 0.5)'
+      };
+    }
+    return {};
+  };
+
   const columns: ColumnsType<User> = [
     {
       title: 'Avatar',
       key: 'avatar',
+      width: 80,
       render: (_, record) => (
-        <Avatar src={record.image || '/default-avatar.png'} alt={`${record.firstName} ${record.lastName}`} />
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <Avatar 
+            src={record.image || '/default-avatar.png'} 
+            alt={`${record.firstName} ${record.lastName}`}
+            style={getAvatarStyles(record.role)}
+            size={40}
+          />
+          {record.role === 'SUPER_ADMIN' && (
+            <span style={{ marginLeft: '5px', fontSize: '20px' }}>👑</span>
+          )}
+        </div>
       ),
     },
     {
       title: 'Name',
       dataIndex: 'firstName',
       key: 'name',
-      render: (_, record) => `${record.firstName} ${record.lastName}`,
+      render: (_, record) => (
+        <Link href={`/dashboard/users/${record.id}`}>
+  <Text strong={record.role === 'SUPER_ADMIN'} className="cursor-pointer hover:underline">
+    {`${record.firstName} ${record.lastName}`}
+  </Text>
+</Link>
+      ),
     },
     {
       title: 'Email',
       dataIndex: 'email',
       key: 'email',
+      render: (email, record) => (
+        <Text strong={record.role === 'SUPER_ADMIN'}>{email}</Text>
+      ),
     },
     {
       title: 'Role',
@@ -106,7 +159,12 @@ export default function UsersPage() {
       render: (_, record) => (
         <Space size="middle">
           {session?.user?.role === 'SUPER_ADMIN' && record.role !== 'SUPER_ADMIN' && (
-            <a className='text-red-500' onClick={() => handleDelete(record.id)}>Delete</a>
+            <a 
+              className='text-red-500 hover:text-red-700 transition-colors' 
+              onClick={() => handleDelete(record.id)}
+            >
+              Delete
+            </a>
           )}
         </Space>
       ),
@@ -114,19 +172,52 @@ export default function UsersPage() {
   ];
 
   const renderMobileCard = (user: User) => (
-    <Card key={user.id} style={{ marginBottom: 16 }}>
+    <Card 
+      key={user.id} 
+      style={{ 
+        marginBottom: 16,
+        transition: 'all 0.3s ease',
+        ...(user.role === 'SUPER_ADMIN' ? {
+          background: 'linear-gradient(to right, rgba(255,215,0,0.1), transparent)',
+          border: '1px solid gold',
+          boxShadow: '0 2px 8px rgba(255,215,0,0.2)'
+        } : {})
+      }}
+      hoverable
+    >
       <Card.Meta
-        avatar={<Avatar src={user.image || '/default-avatar.png'} alt={`${user.firstName} ${user.lastName}`} />}
-        title={`${user.firstName} ${user.lastName}`}
+        avatar={
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <Avatar 
+              src={user.image || '/default-avatar.png'} 
+              alt={`${user.firstName} ${user.lastName}`}
+              style={getAvatarStyles(user.role)}
+              size={50}
+            />
+            {user.role === 'SUPER_ADMIN' && (
+              <span style={{ marginLeft: '5px', fontSize: '20px' }}>👑</span>
+            )}
+          </div>
+        }
+        title={
+          <Text strong={user.role === 'SUPER_ADMIN'}>
+            {`${user.firstName} ${user.lastName}`}
+          </Text>
+        }
         description={
-          <Space direction="vertical">
-            <Text>{user.email}</Text>
+          <Space direction="vertical" size="small">
+            <Text type="secondary">{user.email}</Text>
             <Space>
-            <Text>Role:</Text>
-            {getRoleDisplay(user.role, user.id)}
-          </Space>
+              <Text type="secondary">Role:</Text>
+              {getRoleDisplay(user.role, user.id)}
+            </Space>
             {session?.user?.role === 'SUPER_ADMIN' && user.role !== 'SUPER_ADMIN' && (
-              <a onClick={() => handleDelete(user.id)}>Delete</a>
+              <a 
+                className="text-red-500 hover:text-red-700 transition-colors" 
+                onClick={() => handleDelete(user.id)}
+              >
+                Delete
+              </a>
             )}
           </Space>
         }
@@ -135,15 +226,35 @@ export default function UsersPage() {
   );
 
   return (
-    <div>
+    <div className="p-4">
+      <Typography.Title level={2} className="mb-6">
+        User Management
+      </Typography.Title>
+      
       {isMobile ? (
         <List
-          dataSource={users}
+          dataSource={sortedUsers}
           renderItem={renderMobileCard}
           loading={loading}
         />
       ) : (
-        <Table columns={columns} dataSource={users} loading={loading} rowKey="id" />
+        <Table 
+          columns={columns} 
+          dataSource={sortedUsers} 
+          loading={loading} 
+          rowKey="id"
+          rowClassName={(record) => 
+            record.role === 'SUPER_ADMIN' 
+              ? 'bg-gradient-to-r from-yellow-50 to-transparent hover:from-yellow-100' 
+              : ''
+          }
+          pagination={{
+            pageSize: 10,
+            showSizeChanger: true,
+            showTotal: (total, range) => 
+              `${range[0]}-${range[1]} of ${total} users`,
+          }}
+        />
       )}
     </div>
   );

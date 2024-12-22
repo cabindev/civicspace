@@ -134,10 +134,10 @@ export default function UsersPage() {
       key: 'name',
       render: (_, record) => (
         <Link href={`/dashboard/users/${record.id}`}>
-  <Text strong={record.role === 'SUPER_ADMIN'} className="cursor-pointer hover:underline">
-    {`${record.firstName} ${record.lastName}`}
-  </Text>
-</Link>
+          <Text strong={record.role === 'SUPER_ADMIN'} className="cursor-pointer hover:underline">
+            {`${record.firstName} ${record.lastName}`}
+          </Text>
+        </Link>
       ),
     },
     {

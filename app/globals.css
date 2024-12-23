@@ -81,7 +81,7 @@
 }
 
 
-/* Custom styles for Stats */
+/* Custom styles for Stats User/[id]/page.tsx*/
 .stats {
   @apply rounded-xl;
 }

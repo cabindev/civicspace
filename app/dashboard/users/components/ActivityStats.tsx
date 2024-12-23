@@ -71,7 +71,6 @@ export function ActivityStats({ totalActivities, breakdown, monthlyData = [], is
        <div className="stat-value text-emerald-500">{breakdown.ethnicGroups}</div>
        <div className="stat-desc">กลุ่มชาติพันธุ์ที่บันทึก</div>
      </div>
-
      <div className="stat">
        <div className="stat-figure text-emerald-500">
          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="inline-block w-8 h-8 stroke-current">

@@ -1,7 +1,7 @@
 //app/api/creative-activity/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/app/lib/prisma';
-import { writeFile, unlink } from 'fs/promises';
+import { writeFile } from 'fs/promises';
 import path from 'path';
 import { getServerSession } from 'next-auth/next';
 import authOptions from '@/app/lib/configs/auth/authOptions';
@@ -49,15 +49,12 @@ export async function POST(request: NextRequest) {
       }
     };
 
-    // Handle numeric fields
     ['zipcode', 'district_code', 'amphoe_code', 'province_code'].forEach(field => {
       const value = formData.get(field);
       if (value && !isNaN(Number(value))) {
         activityData[field] = Number(value);
       }
     });
-
-    console.log('Creative Activity Data to be created:', activityData);
 
     const activity = await prisma.creativeActivity.create({
       data: activityData,
@@ -91,8 +88,16 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    revalidatePath ('/api/creative-activity');
-    
+    // Create notification
+    await prisma.notification.create({
+      data: {
+        userId: user.id,
+        activityId: activity.id,
+        activityType: 'creativeActivity',
+      }
+    });
+
+    revalidatePath('/api/creative-activity');
     return NextResponse.json(activity, { status: 201 });
   } catch (error) {
     console.error('Error creating creative activity:', error);

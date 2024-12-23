@@ -110,10 +110,26 @@ export async function PUT(
     // Handle policy file
     await handlePolicyFile(body, params.id);
 
+    const currentTradition = await prisma.tradition.findUnique({
+      where: { id: params.id },
+      select: { userId: true }
+    });
+
     const updatedTradition = await prisma.tradition.update({
       where: { id: params.id },
       data: traditionData,
     });
+
+    // Create notification for updated tradition
+    if (currentTradition) {
+      await prisma.notification.create({
+        data: {
+          userId: currentTradition.userId,
+          activityId: params.id,
+          activityType: 'tradition_updated',
+        }
+      });
+    }
 
     return NextResponse.json(updatedTradition);
   } catch (error) {
@@ -164,6 +180,16 @@ export async function DELETE(
     if (!tradition) {
       return NextResponse.json({ error: 'Tradition not found' }, { status: 404 });
     }
+
+    // Delete associated notifications
+    await prisma.notification.deleteMany({
+      where: {
+        activityId: params.id,
+        activityType: {
+          in: ['tradition', 'tradition_updated']
+        }
+      }
+    });
 
     // Delete associated images
     for (const image of tradition.images) {

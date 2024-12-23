@@ -6,6 +6,7 @@ import axios from 'axios';
 import { useMediaQuery } from 'react-responsive';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
+import NotificationBadge from '@/app/components/NotificationBadge';
 
 const { Text } = Typography;
 
@@ -134,9 +135,11 @@ export default function UsersPage() {
       key: 'name',
       render: (_, record) => (
         <Link href={`/dashboard/users/${record.id}`}>
-          <Text strong={record.role === 'SUPER_ADMIN'} className="cursor-pointer hover:underline">
-            {`${record.firstName} ${record.lastName}`}
-          </Text>
+          {/* <NotificationBadge userId={record.id}> */}
+            <Text strong={record.role === 'SUPER_ADMIN'} className="cursor-pointer hover:underline">
+              {`${record.firstName} ${record.lastName}`}
+            </Text>
+          {/* </NotificationBadge> */}
         </Link>
       ),
     },

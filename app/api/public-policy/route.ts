@@ -5,9 +5,8 @@ import { writeFile } from 'fs/promises';
 import path from 'path';
 import { getServerSession } from 'next-auth/next';
 import authOptions from '@/app/lib/configs/auth/authOptions';
-import { revalidatePath
+import { revalidatePath } from 'next/cache';
 
- } from 'next/cache';
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
@@ -29,7 +28,7 @@ export async function POST(request: NextRequest) {
       name: formData.get('name') as string || 'Untitled Policy',
       signingDate: new Date(formData.get('signingDate') as string) || new Date(),
       level: formData.get('level') as string || 'UNKNOWN',
-      healthRegion: formData.get('healthRegion') as string || null, // เพิ่มฟิลด์ healthRegion
+      healthRegion: formData.get('healthRegion') as string || null,
       district: formData.get('district') as string || 'UNKNOWN',
       amphoe: formData.get('amphoe') as string || 'UNKNOWN',
       province: formData.get('province') as string || 'UNKNOWN',
@@ -42,20 +41,15 @@ export async function POST(request: NextRequest) {
       userId: user.id
     };
 
-    // Handle numeric fields
     ['zipcode', 'district_code', 'amphoe_code', 'province_code'].forEach(field => {
       const value = formData.get(field);
       policyData[field] = value && !isNaN(Number(value)) ? Number(value) : null;
     });
 
-    console.log('Policy Data to be created:', policyData); // For debugging
-
-    // Create the public policy
     const policy = await prisma.publicPolicy.create({
       data: policyData,
     });
 
-    // Handle image uploads
     const images = formData.getAll('images') as File[];
     for (const image of images) {
       const buffer = Buffer.from(await image.arrayBuffer());
@@ -70,7 +64,6 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Handle policy file upload
     const policyFile = formData.get('policyFile') as File;
     if (policyFile) {
       const buffer = Buffer.from(await policyFile.arrayBuffer());
@@ -82,7 +75,17 @@ export async function POST(request: NextRequest) {
         data: { policyFileUrl: `/uploads/policy-files/${filename}` },
       });
     }
-    revalidatePath ('/api/public-policy');
+
+    // Create notification
+    await prisma.notification.create({
+      data: {
+        userId: user.id,
+        activityId: policy.id,
+        activityType: 'publicPolicy',
+      }
+    });
+
+    revalidatePath('/api/public-policy');
     return NextResponse.json(policy, { status: 201 });
   } catch (error) {
     console.error('Error creating public policy:', error);

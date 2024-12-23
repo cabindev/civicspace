@@ -4,7 +4,7 @@ import { writeFile } from 'fs/promises';
 import path from 'path';
 import { getServerSession } from 'next-auth/next';
 import authOptions from '@/app/lib/configs/auth/authOptions';
-import { revalidatePath} from 'next/cache';
+import { revalidatePath } from 'next/cache';
 
 export async function POST(request: NextRequest) {
   console.log('Ethnic Group API route hit');
@@ -48,7 +48,6 @@ export async function POST(request: NextRequest) {
       }
     };
 
-    // Handle numeric fields
     ['zipcode', 'district_code', 'amphoe_code', 'province_code'].forEach(field => {
       const value = formData.get(field);
       if (value && !isNaN(Number(value))) {
@@ -56,9 +55,6 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    console.log('Ethnic Group Data to be created:', ethnicGroupData);
-
-    // Create the ethnic group
     const ethnicGroup = await prisma.ethnicGroup.create({
       data: ethnicGroupData,
     });
@@ -90,8 +86,17 @@ export async function POST(request: NextRequest) {
         data: { fileUrl: `/uploads/ethnic-group-files/${filename}` },
       });
     }
-    revalidatePath ('/api/ethnic-group');
 
+    // Create notification
+    await prisma.notification.create({
+      data: {
+        userId: user.id,
+        activityId: ethnicGroup.id,
+        activityType: 'ethnicGroup',
+      }
+    });
+
+    revalidatePath('/api/ethnic-group');
     return NextResponse.json(ethnicGroup, { status: 201 });
   } catch (error) {
     console.error('Error creating ethnic group:', error);

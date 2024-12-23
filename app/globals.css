@@ -81,3 +81,27 @@
 }
 
 
+/* Custom styles for Stats */
+.stats {
+  @apply rounded-xl;
+}
+
+.stat-value {
+  @apply font-bold;
+}
+
+.stat-desc {
+  @apply text-gray-500;
+}
+
+/* Hover effects */
+.stat:hover {
+  @apply bg-emerald-50 transition-colors duration-300;
+}
+
+/* Custom responsive styles */
+@media (max-width: 768px) {
+  .stats-vertical .stat {
+    @apply border-b border-gray-200 last:border-b-0;
+  }
+}

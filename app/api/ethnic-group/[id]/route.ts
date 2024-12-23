@@ -43,6 +43,11 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       return NextResponse.json(updatedEthnicGroup);
     }
 
+    const currentEthnicGroup = await prisma.ethnicGroup.findUnique({
+      where: { id: params.id },
+      select: { userId: true }
+    });
+
     const ethnicGroupData: any = {
       categoryId: body.categoryId,
       name: body.name,
@@ -110,7 +115,6 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       ethnicGroupData.fileUrl = null;
     }
 
-    // Update ethnic group with new file URL if necessary
     if (ethnicGroupData.fileUrl !== undefined) {
       await prisma.ethnicGroup.update({
         where: { id: params.id },
@@ -118,7 +122,17 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       });
     }
 
-    // Fetch updated ethnic group with images
+    // Create notification for update
+    if (currentEthnicGroup) {
+      await prisma.notification.create({
+        data: {
+          userId: currentEthnicGroup.userId,
+          activityId: params.id,
+          activityType: 'ethnicGroup_updated',
+        }
+      });
+    }
+
     const finalUpdatedEthnicGroup = await prisma.ethnicGroup.findUnique({
       where: { id: params.id },
       include: { images: true, category: true },
@@ -141,6 +155,16 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     if (!ethnicGroup) {
       return NextResponse.json({ error: 'Ethnic group not found' }, { status: 404 });
     }
+
+    // Delete associated notifications
+    await prisma.notification.deleteMany({
+      where: {
+        activityId: params.id,
+        activityType: {
+          in: ['ethnicGroup', 'ethnicGroup_updated']
+        }
+      }
+    });
 
     // Delete associated images
     for (const image of ethnicGroup.images) {

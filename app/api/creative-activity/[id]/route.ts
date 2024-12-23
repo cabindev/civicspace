@@ -52,6 +52,11 @@ export async function PUT(
       return NextResponse.json(updatedActivity);
     }
 
+    const currentActivity = await prisma.creativeActivity.findUnique({
+      where: { id: params.id },
+      select: { userId: true }
+    });
+
     const activityData: any = {
       name: body.name,
       categoryId: body.categoryId,
@@ -87,7 +92,6 @@ export async function PUT(
       }
     });
 
-    // จัดการรูปภาพใหม่
     if (body.newImages) {
       const newImages = Array.isArray(body.newImages) ? body.newImages : [body.newImages];
       for (const image of newImages) {
@@ -109,7 +113,24 @@ export async function PUT(
     // Handle report file
     await handleReportFile(body, params.id);
 
-    return NextResponse.json(updatedActivity);
+    // Create notification for update
+    if (currentActivity) {
+      await prisma.notification.create({
+        data: {
+          userId: currentActivity.userId,
+          activityId: params.id,
+          activityType: 'creativeActivity_updated',
+        }
+      });
+    }
+
+    // Fetch final updated activity with all relations
+    const finalUpdatedActivity = await prisma.creativeActivity.findUnique({
+      where: { id: params.id },
+      include: { images: true, category: true, subCategory: true },
+    });
+
+    return NextResponse.json(finalUpdatedActivity);
   } catch (error) {
     console.error('Error updating creative activity:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
@@ -156,17 +177,30 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       return NextResponse.json({ error: 'Creative Activity not found' }, { status: 404 });
     }
 
+    // Delete associated notifications
+    await prisma.notification.deleteMany({
+      where: {
+        activityId: params.id,
+        activityType: {
+          in: ['creativeActivity', 'creativeActivity_updated']
+        }
+      }
+    });
+
+    // Delete associated images
     for (const image of activity.images) {
       const imagePath = path.join(process.cwd(), 'public', image.url);
       await unlink(imagePath).catch(error => console.error('Error deleting image file:', error));
       await prisma.image.delete({ where: { id: image.id } });
     }
 
+    // Delete report file if exists
     if (activity.reportFileUrl) {
       const reportFilePath = path.join(process.cwd(), 'public', activity.reportFileUrl);
       await unlink(reportFilePath).catch(error => console.error('Error deleting report file:', error));
     }
 
+    // Delete the activity
     await prisma.creativeActivity.delete({
       where: { id: params.id },
     });

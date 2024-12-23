@@ -5,9 +5,8 @@ import { writeFile } from 'fs/promises';
 import path from 'path';
 import { getServerSession } from 'next-auth/next';
 import authOptions from '@/app/lib/configs/auth/authOptions';
-import { revalidatePath
-  
- } from 'next/cache';
+import { revalidatePath } from 'next/cache';
+
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
@@ -61,8 +60,6 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    console.log('Tradition Data to be created:', traditionData); // For debugging
-
     // Create the tradition
     const tradition = await prisma.tradition.create({
       data: traditionData,
@@ -96,7 +93,16 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    revalidatePath ('/api/tradition');
+    // Create notification for new tradition
+    await prisma.notification.create({
+      data: {
+        userId: user.id,
+        activityId: tradition.id,
+        activityType: 'tradition',
+      }
+    });
+
+    revalidatePath('/api/tradition');
     return NextResponse.json(tradition, { status: 201 });
   } catch (error) {
     console.error('Error creating tradition:', error);
@@ -108,7 +114,7 @@ export async function GET(request: NextRequest) {
   try {
     const traditions = await prisma.tradition.findMany({
       include: { images: true, category: true },
-      orderBy: { createdAt: 'desc' } // เรียงลำดับจากใหม่ไปเก่า
+      orderBy: { createdAt: 'desc' }
     });
     return NextResponse.json(traditions);
   } catch (error) {

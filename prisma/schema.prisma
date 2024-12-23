@@ -26,6 +26,7 @@ model User {
   ethnicGroups   EthnicGroup[]
   traditions         Tradition[]
   creativeActivities CreativeActivity[]
+  notifications Notification[]
 }
 
 enum Role {
@@ -34,6 +35,15 @@ enum Role {
   MEMBER
 }
 
+model Notification {
+  id          String    @id @default(cuid())
+  userId      Int
+  user        User      @relation(fields: [userId], references: [id])
+  activityId  String
+  activityType String   // 'tradition' | 'publicPolicy' | 'ethnicGroup' | 'creativeActivity'
+  isRead      Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+}
 model TraditionCategory {
   id         String      @id @default(cuid())
   name       String      @unique
@@ -219,3 +229,5 @@ model Image {
   creativeActivityId String?
   creativeActivity   CreativeActivity? @relation(fields: [creativeActivityId], references: [id], onDelete: Cascade)
 }
+
+

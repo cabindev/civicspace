@@ -63,111 +63,132 @@ export async function PUT(
       summary: body.summary,
       results: body.results || null,
       videoLink: body.videoLink || null,
-      };
-     ['zipcode', 'district_code', 'amphoe_code', 'province_code'].forEach(field => {
-        policyData[field] = body[field] && !isNaN(Number(body[field])) ? Number(body[field]) : null;
+    };
+
+    ['zipcode', 'district_code', 'amphoe_code', 'province_code'].forEach(field => {
+      policyData[field] = body[field] && !isNaN(Number(body[field])) ? Number(body[field]) : null;
+    });
+
+    const currentPolicy = await prisma.publicPolicy.findUnique({
+      where: { id: params.id },
+      select: { userId: true }
+    });
+
+    const updatedPolicy = await prisma.publicPolicy.update({
+      where: { id: params.id },
+      data: policyData,
+    });
+
+    if (body.existingImages) {
+      const existingImages = JSON.parse(body.existingImages);
+      await prisma.image.deleteMany({
+        where: {
+          publicPolicyId: params.id,
+          url: { notIn: existingImages }
+        }
       });
-      
-      const updatedPolicy = await prisma.publicPolicy.update({
-        where: { id: params.id },
-        data: policyData,
-      });
-      
-      // Handle existing images
-      if (body.existingImages) {
-        const existingImages = JSON.parse(body.existingImages);
-        await prisma.image.deleteMany({
-          where: {
-            publicPolicyId: params.id,
-            url: { notIn: existingImages }
-          }
-        });
-      }
-      
-      // Handle new images
-      if (body.newImages) {
-        const newImages = Array.isArray(body.newImages) ? body.newImages : [body.newImages];
-        for (const image of newImages) {
-          if (image instanceof Blob) {
-            const buffer = await image.arrayBuffer();
-            const filename = Date.now() + '-' + (image as File).name.replace(/\s+/g, '-');
-            const filepath = path.join(process.cwd(), 'public/uploads/public-policy-images', filename);
-            await writeFile(filepath, Buffer.from(buffer));
-            await prisma.image.create({
-              data: {
-                url: `/uploads/public-policy-images/${filename}`,
-                publicPolicyId: params.id,
-              },
-            });
-          }
+    }
+
+    if (body.newImages) {
+      const newImages = Array.isArray(body.newImages) ? body.newImages : [body.newImages];
+      for (const image of newImages) {
+        if (image instanceof Blob) {
+          const buffer = await image.arrayBuffer();
+          const filename = Date.now() + '-' + (image as File).name.replace(/\s+/g, '-');
+          const filepath = path.join(process.cwd(), 'public/uploads/public-policy-images', filename);
+          await writeFile(filepath, Buffer.from(buffer));
+          await prisma.image.create({
+            data: {
+              url: `/uploads/public-policy-images/${filename}`,
+              publicPolicyId: params.id,
+            },
+          });
         }
       }
-      
-      // Handle policy file
-      if (body.policyFile instanceof Blob) {
-        const buffer = await body.policyFile.arrayBuffer();
-        const filename = Date.now() + '-' + body.policyFile.name.replace(/\s+/g, '-');
-        const filepath = path.join(process.cwd(), 'public/uploads/policy-files', filename);
-        await writeFile(filepath, Buffer.from(buffer));
-        policyData.policyFileUrl = `/uploads/policy-files/${filename}`;
-      } else if (body.removePolicyFile === 'true') {
-        policyData.policyFileUrl = null;
-      }
-      
-      // Update policy with new file URL if necessary
-      if (policyData.policyFileUrl !== undefined) {
-        await prisma.publicPolicy.update({
-          where: { id: params.id },
-          data: { policyFileUrl: policyData.policyFileUrl },
-        });
-      }
-      
-      // Fetch updated policy with images
-      const finalUpdatedPolicy = await prisma.publicPolicy.findUnique({
+    }
+
+    if (body.policyFile instanceof Blob) {
+      const buffer = await body.policyFile.arrayBuffer();
+      const filename = Date.now() + '-' + body.policyFile.name.replace(/\s+/g, '-');
+      const filepath = path.join(process.cwd(), 'public/uploads/policy-files', filename);
+      await writeFile(filepath, Buffer.from(buffer));
+      policyData.policyFileUrl = `/uploads/policy-files/${filename}`;
+    } else if (body.removePolicyFile === 'true') {
+      policyData.policyFileUrl = null;
+    }
+
+    if (policyData.policyFileUrl !== undefined) {
+      await prisma.publicPolicy.update({
         where: { id: params.id },
-        include: { images: true },
+        data: { policyFileUrl: policyData.policyFileUrl },
       });
-      
-      return NextResponse.json(finalUpdatedPolicy);
-      } catch (error) {
-      console.error('Error updating public policy:', error);
-      return NextResponse.json({ error: 'Internal Server Error', details: String(error) }, { status: 500 });
-      }
-      }
-      export async function DELETE(
-      request: NextRequest,
-      { params }: { params: { id: string } }
-      ) {
-      try {
-      const policy = await prisma.publicPolicy.findUnique({
+    }
+
+    // Create notification for update
+    if (currentPolicy) {
+      await prisma.notification.create({
+        data: {
+          userId: currentPolicy.userId,
+          activityId: params.id,
+          activityType: 'publicPolicy_updated',
+        }
+      });
+    }
+
+    const finalUpdatedPolicy = await prisma.publicPolicy.findUnique({
       where: { id: params.id },
       include: { images: true },
-      });
+    });
+
+    return NextResponse.json(finalUpdatedPolicy);
+  } catch (error) {
+    console.error('Error updating public policy:', error);
+    return NextResponse.json({ error: 'Internal Server Error', details: String(error) }, { status: 500 });
+  }
+}
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const policy = await prisma.publicPolicy.findUnique({
+      where: { id: params.id },
+      include: { images: true },
+    });
+
     if (!policy) {
-        return NextResponse.json({ error: 'Policy not found' }, { status: 404 });
+      return NextResponse.json({ error: 'Policy not found' }, { status: 404 });
+    }
+
+    // Delete associated notifications
+    await prisma.notification.deleteMany({
+      where: {
+        activityId: params.id,
+        activityType: {
+          in: ['publicPolicy', 'publicPolicy_updated']
+        }
       }
-      
-      // Delete associated images
-      for (const image of policy.images) {
-        const imagePath = path.join(process.cwd(), 'public', image.url);
-        await unlink(imagePath).catch(error => console.error('Error deleting image file:', error));
-        await prisma.image.delete({ where: { id: image.id } });
-      }
-      
-      // Delete associated policy file
-      if (policy.policyFileUrl) {
-        const policyFilePath = path.join(process.cwd(), 'public', policy.policyFileUrl);
-        await unlink(policyFilePath).catch(error => console.error('Error deleting policy file:', error));
-      }
-      
-      // Delete the policy
-      await prisma.publicPolicy.delete({
-        where: { id: params.id },
-      });
-      
-      return NextResponse.json({ message: 'Policy deleted successfully' });
-      } catch (error) {
-      console.error('Error deleting public policy:', error);
-      return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
-      }
-      }
+    });
+
+    for (const image of policy.images) {
+      const imagePath = path.join(process.cwd(), 'public', image.url);
+      await unlink(imagePath).catch(error => console.error('Error deleting image file:', error));
+      await prisma.image.delete({ where: { id: image.id } });
+    }
+
+    if (policy.policyFileUrl) {
+      const policyFilePath = path.join(process.cwd(), 'public', policy.policyFileUrl);
+      await unlink(policyFilePath).catch(error => console.error('Error deleting policy file:', error));
+    }
+
+    await prisma.publicPolicy.delete({
+      where: { id: params.id },
+    });
+
+    return NextResponse.json({ message: 'Policy deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting public policy:', error);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  }
+}

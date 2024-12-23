@@ -89,13 +89,14 @@ export async function POST(request: NextRequest) {
     }
 
     // Create notification
-    await prisma.notification.create({
-      data: {
-        userId: user.id,
-        activityId: activity.id,
-        activityType: 'creativeActivity',
-      }
-    });
+    
+    // await prisma.notification.create({
+    //   data: {
+    //     userId: user.id,
+    //     activityId: activity.id,
+    //     activityType: 'creativeActivity',
+    //   }
+    // });
 
     revalidatePath('/api/creative-activity');
     return NextResponse.json(activity, { status: 201 });

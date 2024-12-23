@@ -94,13 +94,14 @@ export async function POST(request: NextRequest) {
     }
 
     // Create notification for new tradition
-    await prisma.notification.create({
-      data: {
-        userId: user.id,
-        activityId: tradition.id,
-        activityType: 'tradition',
-      }
-    });
+    
+    // await prisma.notification.create({
+    //   data: {
+    //     userId: user.id,
+    //     activityId: tradition.id,
+    //     activityType: 'tradition',
+    //   }
+    // });
 
     revalidatePath('/api/tradition');
     return NextResponse.json(tradition, { status: 201 });

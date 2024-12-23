@@ -125,15 +125,16 @@ export async function PUT(
     }
 
     // Create notification for update
-    if (currentPolicy) {
-      await prisma.notification.create({
-        data: {
-          userId: currentPolicy.userId,
-          activityId: params.id,
-          activityType: 'publicPolicy_updated',
-        }
-      });
-    }
+
+    // if (currentPolicy) {
+    //   await prisma.notification.create({
+    //     data: {
+    //       userId: currentPolicy.userId,
+    //       activityId: params.id,
+    //       activityType: 'publicPolicy_updated',
+    //     }
+    //   });
+    // }
 
     const finalUpdatedPolicy = await prisma.publicPolicy.findUnique({
       where: { id: params.id },
@@ -162,14 +163,15 @@ export async function DELETE(
     }
 
     // Delete associated notifications
-    await prisma.notification.deleteMany({
-      where: {
-        activityId: params.id,
-        activityType: {
-          in: ['publicPolicy', 'publicPolicy_updated']
-        }
-      }
-    });
+
+    // await prisma.notification.deleteMany({
+    //   where: {
+    //     activityId: params.id,
+    //     activityType: {
+    //       in: ['publicPolicy', 'publicPolicy_updated']
+    //     }
+    //   }
+    // });
 
     for (const image of policy.images) {
       const imagePath = path.join(process.cwd(), 'public', image.url);

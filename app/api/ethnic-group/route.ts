@@ -88,13 +88,14 @@ export async function POST(request: NextRequest) {
     }
 
     // Create notification
-    await prisma.notification.create({
-      data: {
-        userId: user.id,
-        activityId: ethnicGroup.id,
-        activityType: 'ethnicGroup',
-      }
-    });
+
+    // await prisma.notification.create({
+    //   data: {
+    //     userId: user.id,
+    //     activityId: ethnicGroup.id,
+    //     activityType: 'ethnicGroup',
+    //   }
+    // });
 
     revalidatePath('/api/ethnic-group');
     return NextResponse.json(ethnicGroup, { status: 201 });

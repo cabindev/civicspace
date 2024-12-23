@@ -123,15 +123,16 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     }
 
     // Create notification for update
-    if (currentEthnicGroup) {
-      await prisma.notification.create({
-        data: {
-          userId: currentEthnicGroup.userId,
-          activityId: params.id,
-          activityType: 'ethnicGroup_updated',
-        }
-      });
-    }
+
+    // if (currentEthnicGroup) {
+    //   await prisma.notification.create({
+    //     data: {
+    //       userId: currentEthnicGroup.userId,
+    //       activityId: params.id,
+    //       activityType: 'ethnicGroup_updated',
+    //     }
+    //   });
+    // }
 
     const finalUpdatedEthnicGroup = await prisma.ethnicGroup.findUnique({
       where: { id: params.id },
@@ -157,14 +158,15 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     }
 
     // Delete associated notifications
-    await prisma.notification.deleteMany({
-      where: {
-        activityId: params.id,
-        activityType: {
-          in: ['ethnicGroup', 'ethnicGroup_updated']
-        }
-      }
-    });
+
+    // await prisma.notification.deleteMany({
+    //   where: {
+    //     activityId: params.id,
+    //     activityType: {
+    //       in: ['ethnicGroup', 'ethnicGroup_updated']
+    //     }
+    //   }
+    // });
 
     // Delete associated images
     for (const image of ethnicGroup.images) {

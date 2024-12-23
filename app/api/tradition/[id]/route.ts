@@ -121,15 +121,16 @@ export async function PUT(
     });
 
     // Create notification for updated tradition
-    if (currentTradition) {
-      await prisma.notification.create({
-        data: {
-          userId: currentTradition.userId,
-          activityId: params.id,
-          activityType: 'tradition_updated',
-        }
-      });
-    }
+
+    // if (currentTradition) {
+    //   await prisma.notification.create({
+    //     data: {
+    //       userId: currentTradition.userId,
+    //       activityId: params.id,
+    //       activityType: 'tradition_updated',
+    //     }
+    //   });
+    // }
 
     return NextResponse.json(updatedTradition);
   } catch (error) {
@@ -182,14 +183,15 @@ export async function DELETE(
     }
 
     // Delete associated notifications
-    await prisma.notification.deleteMany({
-      where: {
-        activityId: params.id,
-        activityType: {
-          in: ['tradition', 'tradition_updated']
-        }
-      }
-    });
+
+    // await prisma.notification.deleteMany({
+    //   where: {
+    //     activityId: params.id,
+    //     activityType: {
+    //       in: ['tradition', 'tradition_updated']
+    //     }
+    //   }
+    // });
 
     // Delete associated images
     for (const image of tradition.images) {

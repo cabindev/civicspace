@@ -179,14 +179,15 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     }
 
     // Delete associated notifications
-    await prisma.notification.deleteMany({
-      where: {
-        activityId: params.id,
-        activityType: {
-          in: ['creativeActivity', 'creativeActivity_updated']
-        }
-      }
-    });
+    
+    // await prisma.notification.deleteMany({
+    //   where: {
+    //     activityId: params.id,
+    //     activityType: {
+    //       in: ['creativeActivity', 'creativeActivity_updated']
+    //     }
+    //   }
+    // });
 
     // Delete associated images
     for (const image of activity.images) {

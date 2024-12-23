@@ -113,16 +113,17 @@ export async function PUT(
     // Handle report file
     await handleReportFile(body, params.id);
 
-    // Create notification for update
-    if (currentActivity) {
-      await prisma.notification.create({
-        data: {
-          userId: currentActivity.userId,
-          activityId: params.id,
-          activityType: 'creativeActivity_updated',
-        }
-      });
-    }
+    // Create notification for update  ยังไม่ใช้ตอนนี้
+
+    // if (currentActivity) {
+    //   await prisma.notification.create({
+    //     data: {
+    //       userId: currentActivity.userId,
+    //       activityId: params.id,
+    //       activityType: 'creativeActivity_updated',
+    //     }
+    //   });
+    // }
 
     // Fetch final updated activity with all relations
     const finalUpdatedActivity = await prisma.creativeActivity.findUnique({

@@ -102,8 +102,14 @@ export default function CreativeActivityDetails() {
               <p className="text-gray-500">ไม่มีรูปภาพ</p>
             </div>
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent flex items-end">
-            <h1 className="text-3xl md:text-2xl font-bold text-white p-8">{activity.name}</h1>
+          <div
+            className="absolute inset-0 bg-gradient-to-t 
+                       from-black via-transparent to-transparent
+                        flex items-end"
+          >
+            <h1 className="text-2xl md:text-md font-bold text-white p-8">
+              {activity.name}
+            </h1>
           </div>
         </div>
 
@@ -193,7 +199,7 @@ export default function CreativeActivityDetails() {
                   </a>
                 )}
                 {activity.reportFileUrl && (
-                  <a href={activity.reportFileUrl} download className="flex items-center justify-center bg-blue-100 text-blue-700 px-6 py-3 rounded-full hover:bg-blue-200 transition duration-300 font-medium">
+                  <a href={activity.reportFileUrl} download className="flex items-center justify-center bg-green-100 text-green-700 px-6 py-3 rounded-full hover:bg-green-200 transition duration-300 font-medium">
                     <FaFilePdf className="mr-2" />
                     ดาวน์โหลดไฟล์รายงาน
                   </a>

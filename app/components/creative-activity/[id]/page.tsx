@@ -103,7 +103,7 @@ export default function CreativeActivityDetails() {
             </div>
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent flex items-end">
-            <h1 className="text-4xl md:text-5xl font-bold text-white p-8">{activity.name}</h1>
+            <h1 className="text-3xl md:text-2xl font-bold text-white p-8">{activity.name}</h1>
           </div>
         </div>
 

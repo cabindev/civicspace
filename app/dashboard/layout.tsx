@@ -46,6 +46,7 @@ export default function DashboardLayout({
 const menuItems = [
   { key: '/', icon: <HomeOutlined />, label: 'Home' },
   { key: '/dashboard', icon: <DashboardOutlined />, label: 'Dashboard' },
+  { key: '/dashboard/users', icon: <UserOutlined />, label: 'Users' },
   {
     key: 'dataTables',
     icon: <TableOutlined />,
@@ -57,7 +58,7 @@ const menuItems = [
       { key: '/dashboard/data-tables/creative-activities', label: 'กิจกรรมสร้างสรรค์' },
     ],
   },
-  { key: '/dashboard/users', icon: <UserOutlined />, label: 'Users' },
+  
   // { key: '/dashboard/settings', icon: <SettingOutlined />, label: 'Settings' },
   {
     key: 'tradition',

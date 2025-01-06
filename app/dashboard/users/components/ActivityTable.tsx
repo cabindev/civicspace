@@ -12,14 +12,12 @@ interface Props {
 
 export function ActivityTable({ data, type }: Props) {
   const columns = [
-    { 
-      title: getTitleByType(type), 
-      dataIndex: 'name', 
+    {
+      title: getTitleByType(type),
+      dataIndex: 'name',
       key: 'name',
-      render: (text: string, record: Activity | Policy) => (
-        <Link href={`/dashboard/${getLinkPath(type)}/${record.id}`}>
-          <Text className="hover:underline cursor-pointer">{text}</Text>
-        </Link>
+      render: (text: string) => (
+        <Text>{text}</Text>
       ),
     },
     { 

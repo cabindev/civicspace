@@ -240,7 +240,7 @@ export default function CreatePublicPolicy() {
               <Form.Item name="district" label="ตำบล" className={autoFilledFields.has('district') ? 'auto-filled' : ''}>
                 <Input readOnly />
               </Form.Item>
-              <Form.Item name="amphoe" label="อำเถอ" className={autoFilledFields.has('amphoe') ? 'auto-filled' : ''}>
+              <Form.Item name="amphoe" label="อำเภอ" className={autoFilledFields.has('amphoe') ? 'auto-filled' : ''}>
                 <Input readOnly />
               </Form.Item>
               <Form.Item name="province" label="จังหวัด" className={autoFilledFields.has('province') ? 'auto-filled' : ''}>

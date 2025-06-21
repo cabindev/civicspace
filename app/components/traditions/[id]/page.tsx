@@ -8,6 +8,7 @@ import axios from 'axios';
 import { FaUser, FaPhone, FaCalendar, FaEye, FaVideo, FaFilePdf, FaMapMarkerAlt, FaHome, FaTag, FaGlobe, FaImage } from 'react-icons/fa';
 import { Spin, Modal } from 'antd';
 import Navbar from '../../Navbar';
+import PrintPage from '../../PrintPage';
 
 interface Tradition {
   id: string;
@@ -84,12 +85,16 @@ export default function TraditionDetails() {
     <div className="min-h-screen bg-white">
       <Navbar/>
       <div className="max-w-5xl mx-auto px-6 lg:px-8 pt-24 pb-16">
-        <Link href="/components/traditions" className="inline-block mb-12">
-          <div className="text-gray-600 hover:text-green-600 transition-colors duration-200 flex items-center gap-2 text-sm font-medium">
-            <FaHome className="text-sm" />
-            กลับสู่หน้ารวมงานบุญประเพณี
-          </div>
-        </Link>
+        <div className="flex justify-between items-center mb-12">
+           <Link href="/components/ethnic-group" className="inline-block" data-back-button>
+           <div className="text-gray-600 hover:text-green-600 transition-colors duration-200 flex items-center gap-2 text-base md:text-lg font-medium">
+              <FaHome className="text-lg md:text-xl" />
+              กลับสู่หน้ารวมงานบุญประเพณี
+            </div>
+          </Link>
+          
+          <PrintPage showText={true} iconSize="md" />
+        </div>
         
         {/* Hero Section */}
         <div className="mb-16">
@@ -108,16 +113,16 @@ export default function TraditionDetails() {
               </div>
             )}
           </div>
-          <h1 className="text-2xl md:text-3xl font-normal text-gray-900 leading-tight">
+          <h4 className="text-xl md:text-xl font-normal text-gray-900 leading-tight">
             {tradition.name}
-          </h1>
+          </h4>
         </div>
 
         {/* Main Content */}
         <div className="space-y-16">
           {/* General Information */}
           <section>
-            <h2 className="text-2xl font-normal mb-8 text-gray-900">ข้อมูลทั่วไป</h2>
+            <h4 className="text-xl font-normal mb-8 text-gray-900">ข้อมูลทั่วไป</h4>
             <div className="grid md:grid-cols-2 gap-x-16 gap-y-6">
               <div className="space-y-6">
                 <div className="flex items-center gap-3">
@@ -334,7 +339,7 @@ export default function TraditionDetails() {
         footer={null}
         onCancel={() => setSelectedImage(null)}
         width="auto"
-        className="max-w-[95%] md:max-w-[80%] lg:max-w-[60%] mx-auto"
+        className="max-w-[95%] md:max-w-[80%] lg:max-w-[60%] mx-auto print:hidden"
         styles={{
           body: { padding: 0 },
           content: {

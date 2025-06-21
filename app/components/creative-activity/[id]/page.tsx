@@ -82,13 +82,13 @@ export default function CreativeActivityDetails() {
       <div className="max-w-5xl mx-auto px-6 lg:px-8 pt-24 pb-16">
         <div className="flex justify-between items-center mb-12">
           <Link href="/components/creative-activity" className="inline-block" data-back-button>
-            <div className="text-gray-600 hover:text-green-600 transition-colors duration-200 flex items-center gap-2 text-sm font-medium">
-              <FaHome className="text-sm" />
+            <div className="text-gray-600 hover:text-green-600 transition-colors duration-200 flex items-center gap-2 text-base md:text-lg font-medium">
+              <FaHome className="text-lg md:text-xl" />
               กลับสู่หน้ารวมกิจกรรมสร้างสรรค์
             </div>
           </Link>
           
-          <PrintPage iconSize="sm" />
+          <PrintPage showText={true} iconSize="md" />
         </div>
         
         {/* Hero Section */}
@@ -108,16 +108,16 @@ export default function CreativeActivityDetails() {
               </div>
             )}
           </div>
-          <h1 className="text-2xl md:text-3xl font-normal text-gray-900 leading-tight">
+            <h4 className="text-xl md:text-xl font-normal text-gray-900 leading-tight">
             {activity.name}
-          </h1>
+            </h4>
         </div>
 
         {/* Main Content */}
         <div className="space-y-16">
           {/* General Information */}
           <section className="print-avoid-break">
-            <h2 className="text-2xl font-normal mb-8 text-gray-900">ข้อมูลทั่วไป</h2>
+            <h4 className="text-xl font-normal mb-8 text-gray-900">ข้อมูลทั่วไป</h4>
             <div className="grid md:grid-cols-2 gap-x-16 gap-y-6">
               <div className="space-y-6">
                 <div className="flex items-center gap-3">

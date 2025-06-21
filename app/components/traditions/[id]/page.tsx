@@ -86,7 +86,7 @@ export default function TraditionDetails() {
       <Navbar/>
       <div className="max-w-5xl mx-auto px-6 lg:px-8 pt-24 pb-16">
         <div className="flex justify-between items-center mb-12">
-           <Link href="/components/ethnic-group" className="inline-block" data-back-button>
+          <Link href="/components/ethnic-group" className="inline-block" data-back-button>
            <div className="text-gray-600 hover:text-green-600 transition-colors duration-200 flex items-center gap-2 text-base md:text-lg font-medium">
               <FaHome className="text-lg md:text-xl" />
               กลับสู่หน้ารวมงานบุญประเพณี
@@ -126,7 +126,8 @@ export default function TraditionDetails() {
             <div className="grid md:grid-cols-2 gap-x-16 gap-y-6">
               <div className="space-y-6">
                 <div className="flex items-center gap-3">
-                  <span className="text-gray-500 font-light min-w-[80px]">ประเภท</span>
+                  <FaTag className="text-green-500 flex-shrink-0" />
+                  <span className="text-gray-500 font-light">ประเภท</span>
                   <span className="text-gray-900 font-light">{tradition.category.name}</span>
                 </div>
                 <div className="flex items-start gap-3">
@@ -139,7 +140,8 @@ export default function TraditionDetails() {
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="text-gray-500 font-light min-w-[80px]">ภาค</span>
+                  <FaGlobe className="text-green-500 flex-shrink-0" />
+                  <span className="text-gray-500 font-light">ภาค</span>
                   <span className="text-gray-900 font-light">{tradition.type}</span>
                 </div>
               </div>

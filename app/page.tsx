@@ -2,11 +2,15 @@ import Image from 'next/image';
 import { Search } from './components/Search';
 import { NavMenu } from './components/NavMenu';
 import { Footer } from './components/Footer';
+import { UserGreeting } from './components/UserGreeting';
 
 export default function Home() {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-green-400 to-green-600">
-      <header className="p-4 flex justify-end relative">
+      <header className="p-4 flex items-center relative">
+        <div className="flex-1">
+          <UserGreeting />
+        </div>
         <NavMenu />
       </header>
 

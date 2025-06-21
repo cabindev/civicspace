@@ -1,4 +1,3 @@
-// app/page.tsx
 import Image from 'next/image';
 import { Search } from './components/Search';
 import { NavMenu } from './components/NavMenu';
@@ -24,21 +23,21 @@ export default function Home() {
                 width: 'auto',
                 height: 'auto',
                 maxWidth: '180px',
-                maxHeight: '180px'
+                maxHeight: '180px',
               }}
               className="mx-auto drop-shadow-xl"
             />
           </div>
 
+          <Search />
+
           <h1 className="font-seppuri text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-3 tracking-wide">
             เครือข่ายพลังสังคม
           </h1>
-          
+
           <p className="font-seppuri text-base sm:text-lg md:text-xl text-green-100 mb-8 font-light">
             ฐานข้อมูลมูลนิธิเครือข่ายพลังสังคม
           </p>
-
-          <Search />
         </div>
       </main>
 

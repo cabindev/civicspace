@@ -1,15 +1,13 @@
-//dashboard/creative-activity/page.ts
+//app/components/creative-activity/page.tsx
 'use client'
 
 import { useState, useEffect } from 'react';
-import { Spin, Card, Row, Col } from 'antd';
+import { Spin } from 'antd';
 import Link from 'next/link';
 import axios from 'axios';
-import Image from 'next/image';
-import { FaCalendar, FaMapMarkerAlt, FaUser, FaPhone } from 'react-icons/fa';
+import { FaCalendar, FaMapMarkerAlt, FaUser, FaPhone, FaImage } from 'react-icons/fa';
 import Navbar from '../Navbar';
-
-const { Meta } = Card;
+import Pagination from '../Pagination';
 
 interface CreativeActivity {
   id: string;
@@ -24,9 +22,12 @@ interface CreativeActivity {
   phone: string;
 }
 
+const ITEMS_PER_PAGE = 12;
+
 export default function CreativeActivityList() {
   const [activities, setActivities] = useState<CreativeActivity[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     const fetchActivities = async () => {
@@ -42,72 +43,133 @@ export default function CreativeActivityList() {
     fetchActivities();
   }, []);
 
+  const totalPages = Math.ceil(activities.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const currentActivities = activities.slice(startIndex, endIndex);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen">
+      <div className="flex justify-center items-center h-screen bg-white">
         <Spin size="large" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       <Navbar/>
-      <div className="container mx-auto p-4 pt-24">
-        <h1 className="text-3xl font-bold mb-6 text-center text-green-700">CREATIVE ACTIVITY</h1>
-        <Row gutter={[16, 16]}>
-          {activities.map((activity) => (
-            <Col xs={24} sm={12} md={8} lg={6} key={activity.id}>
-              <Link href={`/components/creative-activity/${activity.id}`}>
-              <Card
-                  hoverable
-                  className="h-full"
-                  cover={
-                    activity.images && activity.images.length > 0 ? (
-                      <div className="h-48 relative">
-                        <img
-                          src={activity.images[0].url}
-                          alt={activity.name}
-                          className="w-full h-full object-cover"
-                        />
+      <div className="max-w-7xl mx-auto px-6 lg:px-8 pt-24 pb-16">
+        {/* Header */}
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-normal text-gray-900 mb-3">
+            Creative Activity Hub
+          </h1>
+          <p className="text-xl font-light text-gray-600">
+            กิจกรรมสร้างสรรค์
+          </p>
+          <div className="mt-4 w-24 h-1 bg-gradient-to-r from-green-400 to-green-600 mx-auto rounded-full"></div>
+        </div>
+        
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {currentActivities.map((activity) => (
+            <Link href={`/components/creative-activity/${activity.id}`} key={activity.id}>
+              <div className="bg-white rounded-2xl overflow-hidden transition-transform duration-200 hover:scale-105 cursor-pointer">
+                <div className="aspect-[16/9] relative">
+                  {activity.images && activity.images.length > 0 ? (
+                    <img
+                      src={activity.images[0].url}
+                      alt={activity.name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex flex-col items-center justify-center">
+                      <FaImage className="text-4xl text-gray-400 mb-2" />
+                      <p className="text-gray-500 font-light text-sm">ไม่มีรูปภาพ</p>
+                      <p className="text-gray-400 font-light text-xs">{activity.category.name}</p>
+                    </div>
+                  )}
+                </div>
+                
+                <div className="p-6">
+                  <h2 className="text-lg font-normal text-gray-900 mb-4 line-clamp-2 leading-tight">
+                    {activity.name}
+                  </h2>
+                  
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                      <FaCalendar className="text-green-500 flex-shrink-0" />
+                      <span className="font-light">ปีที่เริ่ม: {activity.startYear}</span>
+                    </div>
+                    
+                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                      <FaMapMarkerAlt className="text-green-500 flex-shrink-0" />
+                      <span className="font-light">{activity.province} | {activity.type}</span>
+                    </div>
+                    
+                    <div className="pt-2 border-t border-gray-100">
+                      <p className="text-sm text-gray-700 mb-1">
+                        <span className="font-medium">ประเภท:</span> 
+                        <span className="font-light ml-1">{activity.category.name}</span>
+                      </p>
+                      <p className="text-sm text-gray-700 mb-3">
+                        <span className="font-medium">หมวดหมู่ย่อย:</span> 
+                        <span className="font-light ml-1">{activity.subCategory.name}</span>
+                      </p>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <FaUser className="text-green-500 flex-shrink-0" />
+                        <span className="font-light">{activity.coordinatorName}</span>
                       </div>
-                    ) : (
-                      <div className="h-48 bg-gray-200 flex items-center justify-center">
-                        <p>ไม่มีรูปภาพ</p>
-                      </div>
-                    )
-                  }
-                >
-                  <Meta
-                    title={<span className="text-lg font-semibold text-green-600">{activity.name}</span>}
-                    description={
-                      <div>
-                        <p className="flex items-center text-sm text-gray-500 mb-1">
-                          <FaCalendar className="mr-2" />
-                          ปีที่เริ่ม: {activity.startYear}
-                        </p>
-                        <p className="flex items-center text-sm text-gray-500 mb-1">
-                          <FaMapMarkerAlt className="mr-2" />
-                          {activity.province} | {activity.type}
-                        </p>
-                        <p className="text-sm"><span className="font-medium">ประเภท:</span> {activity.category.name}</p>
-                        <p className="text-sm"><span className="font-medium">หมวดหมู่ย่อย:</span> {activity.subCategory.name}</p>
-                        <p className="flex items-center text-sm text-gray-500 mb-1">
-                          <FaUser className="mr-2" />
-                          {activity.coordinatorName}
-                        </p>
-                        <p className="flex items-center text-sm text-gray-500">
-                          <FaPhone className="mr-2" />
-                          {activity.phone}
-                        </p>
-                      </div>
-                    }
-                  />
-                </Card>
-              </Link>
-            </Col>
+                      
+                      {activity.phone && (
+                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                          <FaPhone className="text-green-500 flex-shrink-0" />
+                          <span className="font-light">{activity.phone}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </Link>
           ))}
-        </Row>
+        </div>
+
+        {/* Empty State */}
+        {currentActivities.length === 0 && (
+          <div className="text-center py-16">
+            <div className="w-24 h-24 mx-auto mb-6 bg-gray-100 rounded-full flex items-center justify-center">
+              <FaImage className="text-4xl text-gray-400" />
+            </div>
+            <h3 className="text-xl font-normal text-gray-900 mb-2">ไม่พบกิจกรรมสร้างสรรค์</h3>
+            <p className="text-gray-500 font-light">ยังไม่มีข้อมูลกิจกรรมสร้างสรรค์ในระบบ</p>
+          </div>
+        )}
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+            className="mt-12"
+          />
+        )}
+
+        {/* Results Info */}
+        {activities.length > 0 && (
+          <div className="mt-8 text-center text-sm text-gray-500">
+            แสดง {startIndex + 1}-{Math.min(endIndex, activities.length)} จาก {activities.length} รายการ
+          </div>
+        )}
       </div>
     </div>
   );

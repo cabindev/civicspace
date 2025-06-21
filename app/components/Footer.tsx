@@ -111,27 +111,33 @@ export const Footer: React.FC = () => {
   }
 
   return (
-    <footer className={`bg-green-800 text-white py-4 ${seppuri.variable}`}>
-      <div className="font-seppuri container mx-auto px-4 grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <footer className={`bg-gradient-to-t from-green-900 to-green-700 text-white py-8 ${seppuri.variable}`}>
+      <div className="container mx-auto px-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
         <div>
-          <h3 className="text-l font-semibold mb-2">งานบุญประเพณีล่าสุด</h3>
-          {renderLatestItems(data.traditions, 'traditions')}
+        <h3 className="text-base font-light mb-3 border-b border-green-400 pb-1">งานบุญประเพณีล่าสุด</h3>
+        <div className="text-xs font-light text-green-200 mb-3">Latest Traditions</div>
+        {renderLatestItems(data.traditions, 'traditions')}
         </div>
         <div>
-          <h3 className="text-l font-semibold mb-2">นโยบายสาธารณะล่าสุด</h3>
-          {renderPolicyItems(data.policies)}
+        <h3 className="text-base font-light mb-3 border-b border-green-400 pb-1">นโยบายสาธารณะล่าสุด</h3>
+        <div className="text-xs font-light text-green-200 mb-3">Latest Public Policies</div>
+        {renderPolicyItems(data.policies)}
         </div>
         <div>
-          <h3 className="text-l font-semibold mb-2">กลุ่มชาติพันธุ์ล่าสุด</h3>
-          {renderLatestItems(data.ethnicGroups, 'ethnic-group')}
+        <h3 className="text-base font-light mb-3 border-b border-green-400 pb-1">กลุ่มชาติพันธุ์ล่าสุด</h3>
+        <div className="text-xs font-light text-green-200 mb-3">Latest Ethnic Groups</div>
+        {renderLatestItems(data.ethnicGroups, 'ethnic-group')}
         </div>
         <div>
-          <h3 className="text-l font-semibold mb-2">กิจกรรมสร้างสรรค์ล่าสุด</h3>
-          {renderLatestItems(data.creativeActivities, 'creative-activity')}
+        <h3 className="text-base font-light mb-3 border-b border-green-400 pb-1">กิจกรรมสร้างสรรค์ล่าสุด</h3>
+        <div className="text-xs font-light text-green-200 mb-3">Latest Creative Activities</div>
+        {renderLatestItems(data.creativeActivities, 'creative-activity')}
         </div>
       </div>
-      <div className="font-seppuri container mx-auto px-4 mt-4 text-center text-sm">
+      <div className="border-t border-green-600 mt-8 pt-4 text-center text-xs font-light text-green-200">
         <p>© 2024 มูลนิธิเครือข่ายพลังสังคม. All rights reserved.</p>
+      </div>
       </div>
     </footer>
   );

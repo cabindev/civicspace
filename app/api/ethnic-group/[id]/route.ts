@@ -7,7 +7,18 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   try {
     const ethnicGroup = await prisma.ethnicGroup.findUnique({
       where: { id: params.id },
-      include: { category: true, images: true },
+      include: { 
+        category: true, 
+        images: true,
+        user: {
+          select: {
+            firstName: true,
+            lastName: true,
+            image: true,
+            email: true
+          }
+        }
+      },
     });
 
     if (!ethnicGroup) {

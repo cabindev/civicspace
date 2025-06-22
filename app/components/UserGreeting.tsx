@@ -2,7 +2,7 @@
 'use client';
 
 import { useSession } from 'next-auth/react';
-import { HiOutlineUser } from 'react-icons/hi';
+import { HiOutlineUserCircle } from 'react-icons/hi';
 
 export function UserGreeting() {
   const { data: session } = useSession();
@@ -13,9 +13,9 @@ export function UserGreeting() {
 
   return (
     <div className="flex items-center">
-        <HiOutlineUser className="text-2xl text-black mr-2" />
+<HiOutlineUserCircle className="text-2xl text-gray-600 mr-2" />
       <span className="text-base font-light text-gray-600">
-     {session.user?.firstName || session.user?.lastName || 'ผู้ใช้'}
+        {session.user?.firstName || session.user?.lastName || 'ผู้ใช้'}
       </span>
     </div>
   );

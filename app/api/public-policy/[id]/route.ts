@@ -11,7 +11,17 @@ export async function GET(
   try {
     const policy = await prisma.publicPolicy.findUnique({
       where: { id: params.id },
-      include: { images: true },
+      include: { 
+        images: true,
+        user: {
+          select: {
+            firstName: true,
+            lastName: true,
+            image: true,
+            email: true
+          }
+        }
+      },
     });
 
     if (!policy) {

@@ -11,7 +11,18 @@ export async function GET(
   try {
     const tradition = await prisma.tradition.findUnique({
       where: { id: params.id },
-      include: { category: true, images: true },
+      include: { 
+        category: true, 
+        images: true,
+        user: {
+          select: {
+            firstName: true,
+            lastName: true,
+            image: true,
+            email: true
+          }
+        }
+      },
     });
 
     if (!tradition) {

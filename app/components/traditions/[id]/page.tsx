@@ -36,8 +36,13 @@ interface Tradition {
   hasMonitoring: boolean;
   hasCampaign: boolean;
   hasAlcoholPromote: boolean;
+  user: {
+    firstName: string;
+    lastName: string;
+    image: string | null;
+    email: string;
+  };
 }
-
 export default function TraditionDetails() {
   const { id } = useParams();
   const [tradition, setTradition] = useState<Tradition | null>(null);
@@ -83,19 +88,23 @@ export default function TraditionDetails() {
 
   return (
     <div className="min-h-screen bg-white">
-      <Navbar/>
+      <Navbar />
       <div className="max-w-5xl mx-auto px-6 lg:px-8 pt-24 pb-16">
         <div className="flex justify-between items-center mb-12">
-          <Link href="/components/traditions" className="inline-block" data-back-button>
+          <Link
+            href="/components/traditions"
+            className="inline-block"
+            data-back-button
+          >
             <div className="text-gray-600 hover:text-green-600 transition-colors duration-200 flex items-center gap-2 text-base md:text-lg font-medium">
               <FaHome className="text-green-500 text-lg md:text-xl" />
               กลับสู่หน้ารวมงานบุญประเพณี
             </div>
           </Link>
-          
+
           <PrintPage showText={true} iconSize="md" />
         </div>
-        
+
         {/* Hero Section */}
         <div className="mb-16">
           <div className="aspect-[16/9] rounded-2xl overflow-hidden bg-gray-100 mb-6">
@@ -109,7 +118,9 @@ export default function TraditionDetails() {
               <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex flex-col items-center justify-center">
                 <FaImage className="text-6xl text-gray-400 mb-4" />
                 <p className="text-gray-500 font-light text-lg">ไม่มีรูปภาพ</p>
-                <p className="text-gray-400 font-light text-sm">{tradition.category.name}</p>
+                <p className="text-gray-400 font-light text-sm">
+                  {tradition.category.name}
+                </p>
               </div>
             )}
           </div>
@@ -122,46 +133,64 @@ export default function TraditionDetails() {
         <div className="space-y-16">
           {/* General Information */}
           <section>
-            <h4 className="text-xl font-normal mb-8 text-gray-900">ข้อมูลทั่วไป</h4>
+            <h4 className="text-xl font-normal mb-8 text-gray-900">
+              ข้อมูลทั่วไป
+            </h4>
             <div className="grid md:grid-cols-2 gap-x-16 gap-y-6">
               <div className="space-y-6">
                 <div className="flex items-center gap-3">
                   <FaTag className="text-green-500 flex-shrink-0" />
                   <span className="text-gray-500 font-light">ประเภท</span>
-                  <span className="text-gray-900 font-light">{tradition.category.name}</span>
+                  <span className="text-gray-900 font-light">
+                    {tradition.category.name}
+                  </span>
                 </div>
                 <div className="flex items-start gap-3">
                   <FaMapMarkerAlt className="text-green-500 mt-1 flex-shrink-0" />
                   <div>
                     <span className="text-gray-500 font-light">พื้นที่</span>
                     <div className="text-gray-900 font-light">
-                      {tradition.village ? `${tradition.village}, ` : ''}{tradition.district}, {tradition.amphoe}, {tradition.province}
+                      {tradition.village ? `${tradition.village}, ` : ""}
+                      {tradition.district}, {tradition.amphoe},{" "}
+                      {tradition.province}
                     </div>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
                   <FaGlobe className="text-green-500 flex-shrink-0" />
                   <span className="text-gray-500 font-light">ภาค</span>
-                  <span className="text-gray-900 font-light">{tradition.type}</span>
+                  <span className="text-gray-900 font-light">
+                    {tradition.type}
+                  </span>
                 </div>
               </div>
               <div className="space-y-6">
                 <div className="flex items-center gap-3">
                   <FaUser className="text-green-500 flex-shrink-0" />
                   <span className="text-gray-500 font-light">ผู้ประสานงาน</span>
-                  <span className="text-gray-900 font-light">{tradition.coordinatorName}</span>
+                  <span className="text-gray-900 font-light">
+                    {tradition.coordinatorName}
+                  </span>
                 </div>
                 {tradition.phone && (
                   <div className="flex items-center gap-3">
                     <FaPhone className="text-green-500 flex-shrink-0" />
-                    <span className="text-gray-500 font-light">เบอร์ติดต่อ</span>
-                    <span className="text-gray-900 font-light">{tradition.phone}</span>
+                    <span className="text-gray-500 font-light">
+                      เบอร์ติดต่อ
+                    </span>
+                    <span className="text-gray-900 font-light">
+                      {tradition.phone}
+                    </span>
                   </div>
                 )}
                 <div className="flex items-center gap-3">
                   <FaCalendar className="text-green-500 flex-shrink-0" />
-                  <span className="text-gray-500 font-light">ปีที่เริ่มดำเนินการ</span>
-                  <span className="text-gray-900 font-light">{tradition.startYear}</span>
+                  <span className="text-gray-500 font-light">
+                    ปีที่เริ่มดำเนินการ
+                  </span>
+                  <span className="text-gray-900 font-light">
+                    {tradition.startYear}
+                  </span>
                 </div>
               </div>
             </div>
@@ -170,73 +199,93 @@ export default function TraditionDetails() {
           {/* Content Sections */}
           <section className="space-y-12">
             <div>
-              <h3 className="text-xl font-normal mb-6 text-gray-900">แนวทางการจัดงานแบบปลอดเหล้า</h3>
-              <p className="text-gray-700 leading-relaxed font-light text-lg">{tradition.alcoholFreeApproach}</p>
+              <h3 className="text-xl font-normal mb-6 text-gray-900">
+                แนวทางการจัดงานแบบปลอดเหล้า
+              </h3>
+              <p className="text-gray-700 leading-relaxed font-light text-lg">
+                {tradition.alcoholFreeApproach}
+              </p>
             </div>
-            
+
             {tradition.results && (
               <div>
-                <h3 className="text-xl font-normal mb-6 text-gray-900">ผลลัพธ์</h3>
-                <p className="text-gray-700 leading-relaxed font-light text-lg">{tradition.results}</p>
+                <h3 className="text-xl font-normal mb-6 text-gray-900">
+                  ผลลัพธ์
+                </h3>
+                <p className="text-gray-700 leading-relaxed font-light text-lg">
+                  {tradition.results}
+                </p>
               </div>
             )}
-            
+
             <div>
-              <h3 className="text-xl font-normal mb-6 text-gray-900">ประวัติของงาน</h3>
-              <p className="text-gray-700 leading-relaxed font-light text-lg">{tradition.history}</p>
+              <h3 className="text-xl font-normal mb-6 text-gray-900">
+                ประวัติของงาน
+              </h3>
+              <p className="text-gray-700 leading-relaxed font-light text-lg">
+                {tradition.history}
+              </p>
             </div>
           </section>
 
           {/* Measures Section */}
           <section>
-            <h2 className="text-2xl font-light mb-8 text-gray-900">การดำเนินการและมาตรการ</h2>
+            <h2 className="text-2xl font-light mb-8 text-gray-900">
+              การดำเนินการและมาตรการ
+            </h2>
             <div className="grid gap-6">
               {[
                 {
                   name: "hasPolicy",
                   label: "นโยบายและมาตรการชุมชน",
-                  description: "มีการกำหนดนโยบาย มาตรการธรรมนูญชุมชนร่วมกันของคณะกรรมการจังหวัดหรืออำเภอ เพื่อให้การจัดงานบุญ งานประเพณี งานเทศกาล ปลอดเครื่องดื่มแอลกอฮอล์",
+                  description:
+                    "มีการกำหนดนโยบาย มาตรการธรรมนูญชุมชนร่วมกันของคณะกรรมการจังหวัดหรืออำเภอ เพื่อให้การจัดงานบุญ งานประเพณี งานเทศกาล ปลอดเครื่องดื่มแอลกอฮอล์",
                   value: tradition.hasPolicy,
-                  icon: "📜"
+                  icon: "📜",
                 },
                 {
                   name: "hasAnnouncement",
                   label: "การประกาศและสื่อสาร",
-                  description: "มีเอกสาร คำสั่ง ป้ายประกาศ บริเวณทางเข้าหรือรอบ ๆ บริเวณ เพื่อแสดงให้ผู้ร่วมงานรับทราบร่วมกันว่าเป็นการจัดงานปลอดเครื่องดื่มแอลกอฮอล์",
+                  description:
+                    "มีเอกสาร คำสั่ง ป้ายประกาศ บริเวณทางเข้าหรือรอบ ๆ บริเวณ เพื่อแสดงให้ผู้ร่วมงานรับทราบร่วมกันว่าเป็นการจัดงานปลอดเครื่องดื่มแอลกอฮอล์",
                   value: tradition.hasAnnouncement,
-                  icon: "📢"
+                  icon: "📢",
                 },
                 {
                   name: "hasInspector",
                   label: "การกำกับดูแล",
-                  description: "มีเจ้าหน้าที่กำกับดูแล/คณะกรรมการจังหวัดหรืออำเภอ ตรวจสอบบริเวณการจัดงานอย่างสม่ำเสมอ",
+                  description:
+                    "มีเจ้าหน้าที่กำกับดูแล/คณะกรรมการจังหวัดหรืออำเภอ ตรวจสอบบริเวณการจัดงานอย่างสม่ำเสมอ",
                   value: tradition.hasInspector,
-                  icon: "👮"
+                  icon: "👮",
                 },
                 {
                   name: "hasMonitoring",
                   label: "การเฝ้าระวัง",
-                  description: "มีเจ้าหน้าที่ในการเฝ้าระวังและตรวจสอบการนำเครื่องดื่มแอลกอฮอล์เข้ามาในงานบุญ งานประเพณี งานเทศกาล",
+                  description:
+                    "มีเจ้าหน้าที่ในการเฝ้าระวังและตรวจสอบการนำเครื่องดื่มแอลกอฮอล์เข้ามาในงานบุญ งานประเพณี งานเทศกาล",
                   value: tradition.hasMonitoring,
-                  icon: "🔍"
+                  icon: "🔍",
                 },
                 {
                   name: "hasCampaign",
                   label: "การรณรงค์และประชาสัมพันธ์",
-                  description: "มีการจัดกิจกรรรมรณรงค์ประชาสัมพันธ์จากเจ้าหน้าที่หรือภาคีเครือข่ายในพื้นที่ เพื่อให้งานบุญ งานประเพณี งานเทศกาล ปลอดเครื่องดื่มแอลกอฮอล์",
+                  description:
+                    "มีการจัดกิจกรรรมรณรงค์ประชาสัมพันธ์จากเจ้าหน้าที่หรือภาคีเครือข่ายในพื้นที่ เพื่อให้งานบุญ งานประเพณี งานเทศกาล ปลอดเครื่องดื่มแอลกอฮอล์",
                   value: tradition.hasCampaign,
-                  icon: "📣"
+                  icon: "📣",
                 },
                 {
                   name: "hasAlcoholPromote",
                   label: "การโฆษณาเครื่องดื่มแอลกอฮอล์",
-                  description: "มีการรับหรือสนับสนุนหรือพบเห็นการโฆษณาเครื่องดื่มแอลกอฮอล์จากธุรกิจสุราในพื้นที่",
+                  description:
+                    "มีการรับหรือสนับสนุนหรือพบเห็นการโฆษณาเครื่องดื่มแอลกอฮอล์จากธุรกิจสุราในพื้นที่",
                   value: tradition.hasAlcoholPromote,
-                  icon: "🚫"
-                }
+                  icon: "🚫",
+                },
               ].map((item) => (
-                <div 
-                  key={item.name} 
+                <div
+                  key={item.name}
                   className="bg-gray-50 p-6 rounded-xl transition-colors duration-200 hover:bg-gray-100"
                 >
                   <div className="flex items-start gap-4">
@@ -248,21 +297,27 @@ export default function TraditionDetails() {
                         <h3 className="text-lg font-normal text-gray-900">
                           {item.label}
                         </h3>
-                        <span className={`
+                        <span
+                          className={`
                           px-3 py-1 text-sm rounded-full font-light whitespace-nowrap
                           ${
                             item.name === "hasAlcoholPromote"
-                              ? item.value 
-                                ? 'bg-red-50 text-red-600'
-                                : 'bg-green-50 text-green-600'
+                              ? item.value
+                                ? "bg-red-50 text-red-600"
+                                : "bg-green-50 text-green-600"
                               : item.value
-                                ? 'bg-green-50 text-green-600'
-                                : 'bg-red-50 text-red-600'
+                              ? "bg-green-50 text-green-600"
+                              : "bg-red-50 text-red-600"
                           }
-                        `}>
+                        `}
+                        >
                           {item.name === "hasAlcoholPromote"
-                            ? item.value ? 'พบ' : 'ไม่พบ'
-                            : item.value ? 'ดำเนินการ' : 'ไม่ได้ดำเนินการ'}
+                            ? item.value
+                              ? "พบ"
+                              : "ไม่พบ"
+                            : item.value
+                            ? "ดำเนินการ"
+                            : "ไม่ได้ดำเนินการ"}
                         </span>
                       </div>
                       <p className="text-gray-600 font-light leading-relaxed">
@@ -278,7 +333,9 @@ export default function TraditionDetails() {
           {/* Additional Images */}
           {tradition.images && tradition.images.length > 1 && (
             <section>
-              <h2 className="text-2xl font-normal mb-8 text-gray-900">รูปภาพประกอบเพิ่มเติม</h2>
+              <h2 className="text-2xl font-normal mb-8 text-gray-900">
+                รูปภาพประกอบเพิ่มเติม
+              </h2>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {tradition.images.slice(1).map((img) => (
                   <div
@@ -286,9 +343,9 @@ export default function TraditionDetails() {
                     className="aspect-square rounded-xl overflow-hidden bg-gray-100 cursor-pointer transition-transform duration-200 hover:scale-105"
                     onClick={() => handleImageClick(img.url)}
                   >
-                    <img 
-                      src={img.url} 
-                      alt="รูปภาพประกอบ" 
+                    <img
+                      src={img.url}
+                      alt="รูปภาพประกอบ"
                       className="w-full h-full object-cover"
                     />
                   </div>
@@ -300,13 +357,15 @@ export default function TraditionDetails() {
           {/* Files and Links */}
           {(tradition.videoLink || tradition.policyFileUrl) && (
             <section>
-              <h2 className="text-2xl font-normal mb-8 text-gray-900">ไฟล์และลิงก์ที่เกี่ยวข้อง</h2>
+              <h2 className="text-2xl font-normal mb-8 text-gray-900">
+                ไฟล์และลิงก์ที่เกี่ยวข้อง
+              </h2>
               <div className="flex flex-wrap gap-4">
                 {tradition.videoLink && (
-                  <a 
-                    href={tradition.videoLink} 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
+                  <a
+                    href={tradition.videoLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 bg-green-50 text-green-700 px-6 py-3 rounded-xl hover:bg-green-100 transition-colors duration-200 font-light"
                   >
                     <FaVideo />
@@ -314,9 +373,9 @@ export default function TraditionDetails() {
                   </a>
                 )}
                 {tradition.policyFileUrl && (
-                  <a 
-                    href={tradition.policyFileUrl} 
-                    download 
+                  <a
+                    href={tradition.policyFileUrl}
+                    download
                     className="inline-flex items-center gap-2 bg-green-50 text-green-700 px-6 py-3 rounded-xl hover:bg-green-100 transition-colors duration-200 font-light"
                   >
                     <FaFilePdf />
@@ -326,11 +385,40 @@ export default function TraditionDetails() {
               </div>
             </section>
           )}
+          {/* Author Information */}
+          <section className="rounded-xl p-0 no-print">
+            <h3 className="text-sm font-light text-gray-500 mb-4">
+              Recorder Information
+            </h3>
+            <div className="flex items-center gap-4">
+              <div className="flex-shrink-0">
+                {tradition.user.image ? (
+                  <img
+                    src={tradition.user.image}
+                    alt={`${tradition.user.firstName} ${tradition.user.lastName}`}
+                    className="w-12 h-12 rounded-full object-cover border-2 border-green-200"
+                  />
+                ) : (
+                  <div className="w-12 h-12 rounded-full bg-green-100 border-2 border-green-200 flex items-center justify-center">
+                    <FaUser className="text-green-600 text-lg" />
+                  </div>
+                )}
+              </div>
+              <div>
+                <p className="font-light text-gray-900">
+                  {tradition.user.firstName} {tradition.user.lastName}
+                </p>
+                <p className="text-sm text-gray-500">{tradition.user.email}</p>
+              </div>
+            </div>
+          </section>
 
           {/* View Count */}
           <div className="flex justify-end items-center text-gray-500 pt-8">
             <FaEye className="mr-2" />
-            <p className="font-light">เข้าชมทั้งหมด {tradition.viewCount} ครั้ง</p>
+            <p className="font-light">
+              เข้าชมทั้งหมด {tradition.viewCount} ครั้ง
+            </p>
           </div>
         </div>
       </div>
@@ -345,18 +433,18 @@ export default function TraditionDetails() {
         styles={{
           body: { padding: 0 },
           content: {
-            borderRadius: '1rem',
-            overflow: 'hidden',
-            border: 'none'
-          }
+            borderRadius: "1rem",
+            overflow: "hidden",
+            border: "none",
+          },
         }}
         centered
       >
         {selectedImage && (
           <div className="relative aspect-auto max-h-[90vh] overflow-hidden">
-            <img 
-              src={selectedImage} 
-              alt="รูปภาพขยาย" 
+            <img
+              src={selectedImage}
+              alt="รูปภาพขยาย"
               className="w-full h-full object-contain"
             />
           </div>

@@ -5,7 +5,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import axios from 'axios';
-import { FaCalendar, FaEye, FaVideo, FaFilePdf, FaMapMarkerAlt, FaHome, FaTag, FaGlobe, FaListUl, FaImage } from 'react-icons/fa';
+import { FaCalendar, FaEye, FaVideo, FaFilePdf, FaMapMarkerAlt, FaHome, FaTag,FaUser, FaGlobe, FaListUl, FaImage } from 'react-icons/fa';
 import { Modal, Spin } from 'antd';
 import Navbar from '../../Navbar';
 import PrintPage from '../../PrintPage';
@@ -27,6 +27,12 @@ interface PublicPolicy {
   videoLink?: string;
   policyFileUrl?: string;
   viewCount: number;
+  user: {
+    firstName: string;
+    lastName: string;
+    image: string | null;
+    email: string;
+  };
 }
 
 const levelNameMap: Record<string, string> = {
@@ -94,16 +100,20 @@ export default function PublicPolicyDetails() {
       <Navbar />
       <div className="max-w-5xl mx-auto px-6 lg:px-8 pt-24 pb-16">
         <div className="flex justify-between items-center mb-12">
-          <Link href="/components/public-policy" className="inline-block" data-back-button>
+          <Link
+            href="/components/public-policy"
+            className="inline-block"
+            data-back-button
+          >
             <div className="text-gray-600 hover:text-green-600 transition-colors duration-200 flex items-center gap-2 text-base md:text-lg font-medium">
               <FaHome className="text-green-500 text-lg md:text-xl" />
               กลับสู่หน้ารวมนโยบายสาธารณะ
             </div>
           </Link>
-          
+
           <PrintPage showText={true} iconSize="md" />
         </div>
-        
+
         {/* Hero Section */}
         <div className="mb-16">
           <div className="aspect-[16/9] rounded-2xl overflow-hidden bg-gray-100 mb-6">
@@ -117,7 +127,9 @@ export default function PublicPolicyDetails() {
               <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex flex-col items-center justify-center">
                 <FaImage className="text-6xl text-gray-400 mb-4" />
                 <p className="text-gray-500 font-light text-lg">ไม่มีรูปภาพ</p>
-                <p className="text-gray-400 font-light text-sm">นโยบายสาธารณะ</p>
+                <p className="text-gray-400 font-light text-sm">
+                  นโยบายสาธารณะ
+                </p>
               </div>
             )}
           </div>
@@ -130,39 +142,50 @@ export default function PublicPolicyDetails() {
         <div className="space-y-16">
           {/* General Information */}
           <section className="print-avoid-break">
-            <h4 className="text-xl font-normal mb-8 text-gray-900">ข้อมูลทั่วไป</h4>
+            <h4 className="text-xl font-normal mb-8 text-gray-900">
+              ข้อมูลทั่วไป
+            </h4>
             <div className="grid md:grid-cols-2 gap-x-16 gap-y-6">
               <div className="space-y-6">
                 <div className="flex items-center gap-3">
                   <FaTag className="text-green-500 flex-shrink-0" />
-                  <span className="text-gray-900 font-light">{levelNameMap[policy.level]}</span>
+                  <span className="text-gray-900 font-light">
+                    {levelNameMap[policy.level]}
+                  </span>
                 </div>
                 <div className="flex items-start gap-3">
                   <FaMapMarkerAlt className="text-green-500 mt-1 flex-shrink-0" />
                   <div>
                     <span className="text-gray-500 font-light">พื้นที่</span>
                     <div className="text-gray-900 font-light">
-                      {policy.village ? `${policy.village}, ` : ''}{policy.district}, {policy.amphoe}, {policy.province}
+                      {policy.village ? `${policy.village}, ` : ""}
+                      {policy.district}, {policy.amphoe}, {policy.province}
                     </div>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
                   <FaGlobe className="text-green-500 flex-shrink-0" />
-                  <span className="text-gray-900 font-light">{policy.type}</span>
+                  <span className="text-gray-900 font-light">
+                    {policy.type}
+                  </span>
                 </div>
               </div>
               <div className="space-y-6">
                 <div className="flex items-center gap-3">
                   <FaCalendar className="text-green-500 flex-shrink-0" />
                   <span className="text-gray-500 font-light">วันที่ลงนาม</span>
-                  <span className="text-gray-900 font-light">{new Date(policy.signingDate).toLocaleDateString('th-TH')}</span>
+                  <span className="text-gray-900 font-light">
+                    {new Date(policy.signingDate).toLocaleDateString("th-TH")}
+                  </span>
                 </div>
                 <div className="flex items-start gap-3">
                   <FaListUl className="text-green-500 mt-1 flex-shrink-0" />
                   <div>
-                    <span className="text-gray-500 font-light">เนื้อหาของนโยบาย</span>
+                    <span className="text-gray-500 font-light">
+                      เนื้อหาของนโยบาย
+                    </span>
                     <div className="text-gray-900 font-light">
-                      {policy.content.map(c => contentNameMap[c]).join(', ')}
+                      {policy.content.map((c) => contentNameMap[c]).join(", ")}
                     </div>
                   </div>
                 </div>
@@ -174,13 +197,19 @@ export default function PublicPolicyDetails() {
           <section className="space-y-12">
             <div className="print-avoid-break">
               <h3 className="text-xl font-normal mb-6 text-gray-900">สรุป</h3>
-              <p className="text-gray-700 leading-relaxed font-light text-lg">{policy.summary}</p>
+              <p className="text-gray-700 leading-relaxed font-light text-lg">
+                {policy.summary}
+              </p>
             </div>
-            
+
             {policy.results && (
               <div className="print-avoid-break">
-                <h3 className="text-xl font-normal mb-6 text-gray-900">ผลลัพธ์</h3>
-                <p className="text-gray-700 leading-relaxed font-light text-lg">{policy.results}</p>
+                <h3 className="text-xl font-normal mb-6 text-gray-900">
+                  ผลลัพธ์
+                </h3>
+                <p className="text-gray-700 leading-relaxed font-light text-lg">
+                  {policy.results}
+                </p>
               </div>
             )}
           </section>
@@ -188,7 +217,9 @@ export default function PublicPolicyDetails() {
           {/* Additional Images */}
           {policy.images && policy.images.length > 1 && (
             <section>
-              <h2 className="text-2xl font-normal mb-8 text-gray-900">รูปภาพประกอบเพิ่มเติม</h2>
+              <h2 className="text-2xl font-normal mb-8 text-gray-900">
+                รูปภาพประกอบเพิ่มเติม
+              </h2>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {policy.images.slice(1).map((img) => (
                   <div
@@ -196,9 +227,9 @@ export default function PublicPolicyDetails() {
                     className="aspect-square rounded-xl overflow-hidden bg-gray-100 cursor-pointer transition-transform duration-200 hover:scale-105"
                     onClick={() => handleImageClick(img.url)}
                   >
-                    <img 
-                      src={img.url} 
-                      alt="รูปภาพประกอบ" 
+                    <img
+                      src={img.url}
+                      alt="รูปภาพประกอบ"
                       className="w-full h-full object-cover"
                     />
                   </div>
@@ -210,13 +241,15 @@ export default function PublicPolicyDetails() {
           {/* Files and Links - Hidden in print */}
           {(policy.videoLink || policy.policyFileUrl) && (
             <section className="no-print">
-              <h2 className="text-2xl font-normal mb-8 text-gray-900">ไฟล์และลิงก์ที่เกี่ยวข้อง</h2>
+              <h2 className="text-2xl font-normal mb-8 text-gray-900">
+                ไฟล์และลิงก์ที่เกี่ยวข้อง
+              </h2>
               <div className="flex flex-wrap gap-4">
                 {policy.videoLink && (
-                  <a 
-                    href={policy.videoLink} 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
+                  <a
+                    href={policy.videoLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 bg-green-50 text-green-700 px-6 py-3 rounded-xl hover:bg-green-100 transition-colors duration-200 font-light"
                   >
                     <FaVideo />
@@ -224,9 +257,9 @@ export default function PublicPolicyDetails() {
                   </a>
                 )}
                 {policy.policyFileUrl && (
-                  <a 
-                    href={policy.policyFileUrl} 
-                    download 
+                  <a
+                    href={policy.policyFileUrl}
+                    download
                     className="inline-flex items-center gap-2 bg-green-50 text-green-700 px-6 py-3 rounded-xl hover:bg-green-100 transition-colors duration-200 font-light"
                   >
                     <FaFilePdf />
@@ -236,6 +269,33 @@ export default function PublicPolicyDetails() {
               </div>
             </section>
           )}
+          {/* Author Information */}
+          <section className="rounded-xl p-0 no-print">
+            <h3 className="text-sm font-light text-gray-500 mb-4">
+              Recorder Information
+            </h3>
+            <div className="flex items-center gap-4">
+              <div className="flex-shrink-0">
+                {policy.user.image ? (
+                  <img
+                    src={policy.user.image}
+                    alt={`${policy.user.firstName} ${policy.user.lastName}`}
+                    className="w-12 h-12 rounded-full object-cover border-2 border-green-200"
+                  />
+                ) : (
+                  <div className="w-12 h-12 rounded-full bg-green-100 border-2 border-green-200 flex items-center justify-center">
+                    <FaUser className="text-green-600 text-lg" />
+                  </div>
+                )}
+              </div>
+              <div>
+                <p className="font-light text-gray-900">
+                  {policy.user.firstName} {policy.user.lastName}
+                </p>
+                <p className="text-sm text-gray-500">{policy.user.email}</p>
+              </div>
+            </div>
+          </section>
 
           {/* View Count - Hidden in print */}
           <div className="flex justify-end items-center text-gray-500 pt-8 no-print">
@@ -244,7 +304,7 @@ export default function PublicPolicyDetails() {
           </div>
         </div>
       </div>
-      
+
       {/* Image Modal - Hidden in print */}
       <Modal
         open={!!selectedImage}
@@ -255,18 +315,18 @@ export default function PublicPolicyDetails() {
         styles={{
           body: { padding: 0 },
           content: {
-            borderRadius: '1rem',
-            overflow: 'hidden',
-            border: 'none'
-          }
+            borderRadius: "1rem",
+            overflow: "hidden",
+            border: "none",
+          },
         }}
         centered
       >
         {selectedImage && (
           <div className="relative aspect-auto max-h-[90vh] overflow-hidden">
-            <img 
-              src={selectedImage} 
-              alt="รูปภาพขยาย" 
+            <img
+              src={selectedImage}
+              alt="รูปภาพขยาย"
               className="w-full h-full object-contain"
             />
           </div>

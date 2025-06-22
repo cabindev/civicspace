@@ -7,7 +7,19 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   try {
     const activity = await prisma.creativeActivity.findUnique({
       where: { id: params.id },
-      include: { category: true, subCategory: true, images: true },
+      include: { 
+        category: true, 
+        subCategory: true, 
+        images: true,
+        user: {
+          select: {
+            firstName: true,
+            lastName: true,
+            image: true,
+            email: true
+          }
+        }
+      },
     });
 
     if (!activity) {

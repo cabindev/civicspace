@@ -5,7 +5,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import axios from 'axios';
-import { FaCalendar, FaEye, FaVideo, FaFileAlt, FaMapMarkerAlt, FaUsers, FaHistory, FaHome, FaTag, FaImage } from 'react-icons/fa';
+import { FaCalendar, FaEye, FaVideo, FaFileAlt, FaMapMarkerAlt, FaUser, FaHistory, FaHome, FaTag, FaImage } from 'react-icons/fa';
 import { Modal, Spin } from 'antd';
 import Navbar from '../../Navbar';
 import PrintPage from '../../PrintPage';
@@ -30,6 +30,12 @@ interface EthnicGroup {
   videoLink: string | null;
   fileUrl: string | null;
   viewCount: number;
+  user: {
+    firstName: string;
+    lastName: string;
+    image: string | null;
+    email: string;
+  };
 }
 
 export default function EthnicGroupDetails() {
@@ -80,16 +86,20 @@ export default function EthnicGroupDetails() {
       <Navbar />
       <div className="max-w-5xl mx-auto px-6 lg:px-8 pt-24 pb-16">
         <div className="flex justify-between items-center mb-12">
-          <Link href="/components/ethnic-group" className="inline-block" data-back-button>
+          <Link
+            href="/components/ethnic-group"
+            className="inline-block"
+            data-back-button
+          >
             <div className="text-gray-600 hover:text-green-600 transition-colors duration-200 flex items-center gap-2 text-base md:text-lg font-medium">
               <FaHome className="text-green-500 text-lg md:text-xl" />
               กลับสู่หน้ารวมกลุ่มชาติพันธุ์
             </div>
           </Link>
-          
+
           <PrintPage showText={true} iconSize="md" />
         </div>
-        
+
         {/* Hero Section */}
         <div className="mb-16">
           <div className="aspect-[16/9] rounded-2xl overflow-hidden bg-gray-100 mb-6">
@@ -100,35 +110,45 @@ export default function EthnicGroupDetails() {
                 className="w-full h-full object-cover"
               />
             ) : (
-                <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex flex-col items-center justify-center">
+              <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex flex-col items-center justify-center">
                 <FaImage className="text-6xl text-gray-400 mb-4" />
-                <p className="text-gray-500 text-base font-medium">ไม่มีรูปภาพ</p>
-                <p className="text-gray-400 text-sm font-normal">{ethnicGroup.category.name}</p>
-                </div>
+                <p className="text-gray-500 text-base font-medium">
+                  ไม่มีรูปภาพ
+                </p>
+                <p className="text-gray-400 text-sm font-normal">
+                  {ethnicGroup.category.name}
+                </p>
+              </div>
             )}
           </div>
-            <h4 className="text-xl md:text-xl font-normal text-gray-900 leading-tight">
+          <h4 className="text-xl md:text-xl font-normal text-gray-900 leading-tight">
             {ethnicGroup.name}
-            </h4>
+          </h4>
         </div>
 
         {/* Main Content */}
         <div className="space-y-16">
           {/* General Information */}
           <section className="print-avoid-break">
-            <h4 className="text-xl font-normal mb-8 text-gray-900">ข้อมูลทั่วไป</h4>
+            <h4 className="text-xl font-normal mb-8 text-gray-900">
+              ข้อมูลทั่วไป
+            </h4>
             <div className="grid md:grid-cols-2 gap-x-16 gap-y-6">
               <div className="space-y-6">
                 <div className="flex items-center gap-3">
                   <FaTag className="text-green-500 flex-shrink-0" />
-                  <span className="text-gray-900 font-light">{ethnicGroup.category.name}</span>
+                  <span className="text-gray-900 font-light">
+                    {ethnicGroup.category.name}
+                  </span>
                 </div>
                 <div className="flex items-start gap-3">
                   <FaMapMarkerAlt className="text-green-500 mt-1 flex-shrink-0" />
                   <div className="print-avoid-break">
                     <span className="text-gray-500 font-light">พื้นที่</span>
                     <div className="text-gray-900 font-light">
-                      {ethnicGroup.village ? `${ethnicGroup.village}, ` : ''}{ethnicGroup.district}, {ethnicGroup.amphoe}, {ethnicGroup.province}
+                      {ethnicGroup.village ? `${ethnicGroup.village}, ` : ""}
+                      {ethnicGroup.district}, {ethnicGroup.amphoe},{" "}
+                      {ethnicGroup.province}
                     </div>
                   </div>
                 </div>
@@ -137,12 +157,18 @@ export default function EthnicGroupDetails() {
                 <div className="flex items-center gap-3">
                   <FaHistory className="text-green-500 flex-shrink-0" />
                   <span className="text-gray-500 font-light">ชื่อกิจกรรม</span>
-                  <span className="text-gray-900 font-light">{ethnicGroup.activityName}</span>
+                  <span className="text-gray-900 font-light">
+                    {ethnicGroup.activityName}
+                  </span>
                 </div>
                 <div className="flex items-center gap-3">
                   <FaCalendar className="text-green-500 flex-shrink-0" />
-                  <span className="text-gray-500 font-light">ปีที่เริ่มดำเนินการ</span>
-                  <span className="text-gray-900 font-light">{ethnicGroup.startYear}</span>
+                  <span className="text-gray-500 font-light">
+                    ปีที่เริ่มดำเนินการ
+                  </span>
+                  <span className="text-gray-900 font-light">
+                    {ethnicGroup.startYear}
+                  </span>
                 </div>
               </div>
             </div>
@@ -151,29 +177,49 @@ export default function EthnicGroupDetails() {
           {/* Content Sections */}
           <section className="space-y-12">
             <div className="print-avoid-break">
-              <h3 className="text-xl font-normal mb-6 text-gray-900">ประวัติ</h3>
-              <p className="text-gray-700 leading-relaxed font-light text-lg">{ethnicGroup.history}</p>
+              <h3 className="text-xl font-normal mb-6 text-gray-900">
+                ประวัติ
+              </h3>
+              <p className="text-gray-700 leading-relaxed font-light text-lg">
+                {ethnicGroup.history}
+              </p>
             </div>
-            
+
             <div className="print-avoid-break">
-              <h3 className="text-xl font-normal mb-6 text-gray-900">ที่มาของกิจกรรม</h3>
-              <p className="text-gray-700 leading-relaxed font-light text-lg">{ethnicGroup.activityOrigin}</p>
+              <h3 className="text-xl font-normal mb-6 text-gray-900">
+                ที่มาของกิจกรรม
+              </h3>
+              <p className="text-gray-700 leading-relaxed font-light text-lg">
+                {ethnicGroup.activityOrigin}
+              </p>
             </div>
-            
+
             <div className="print-avoid-break">
-              <h3 className="text-xl font-normal mb-6 text-gray-900">รายละเอียดกิจกรรม</h3>
-              <p className="text-gray-700 leading-relaxed font-light text-lg">{ethnicGroup.activityDetails}</p>
+              <h3 className="text-xl font-normal mb-6 text-gray-900">
+                รายละเอียดกิจกรรม
+              </h3>
+              <p className="text-gray-700 leading-relaxed font-light text-lg">
+                {ethnicGroup.activityDetails}
+              </p>
             </div>
-            
+
             <div className="print-avoid-break">
-              <h3 className="text-xl font-normal mb-6 text-gray-900">แนวทางการจัดงานแบบปลอดเหล้า</h3>
-              <p className="text-gray-700 leading-relaxed font-light text-lg">{ethnicGroup.alcoholFreeApproach}</p>
+              <h3 className="text-xl font-normal mb-6 text-gray-900">
+                แนวทางการจัดงานแบบปลอดเหล้า
+              </h3>
+              <p className="text-gray-700 leading-relaxed font-light text-lg">
+                {ethnicGroup.alcoholFreeApproach}
+              </p>
             </div>
-            
+
             {ethnicGroup.results && (
               <div className="print-avoid-break">
-                <h3 className="text-xl font-normal mb-6 text-gray-900">ผลลัพธ์</h3>
-                <p className="text-gray-700 leading-relaxed font-light text-lg">{ethnicGroup.results}</p>
+                <h3 className="text-xl font-normal mb-6 text-gray-900">
+                  ผลลัพธ์
+                </h3>
+                <p className="text-gray-700 leading-relaxed font-light text-lg">
+                  {ethnicGroup.results}
+                </p>
               </div>
             )}
           </section>
@@ -181,7 +227,9 @@ export default function EthnicGroupDetails() {
           {/* Additional Images */}
           {ethnicGroup.images && ethnicGroup.images.length > 1 && (
             <section>
-              <h2 className="text-2xl font-normal mb-8 text-gray-900">รูปภาพประกอบเพิ่มเติม</h2>
+              <h2 className="text-2xl font-normal mb-8 text-gray-900">
+                รูปภาพประกอบเพิ่มเติม
+              </h2>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {ethnicGroup.images.slice(1).map((img) => (
                   <div
@@ -189,9 +237,9 @@ export default function EthnicGroupDetails() {
                     className="aspect-square rounded-xl overflow-hidden bg-gray-100 cursor-pointer transition-transform duration-200 hover:scale-105"
                     onClick={() => handleImageClick(img.url)}
                   >
-                    <img 
-                      src={img.url} 
-                      alt="รูปภาพประกอบ" 
+                    <img
+                      src={img.url}
+                      alt="รูปภาพประกอบ"
                       className="w-full h-full object-cover"
                     />
                   </div>
@@ -203,13 +251,15 @@ export default function EthnicGroupDetails() {
           {/* Files and Links - Hidden in print */}
           {(ethnicGroup.videoLink || ethnicGroup.fileUrl) && (
             <section className="no-print">
-              <h2 className="text-2xl font-normal mb-8 text-gray-900">ไฟล์และลิงก์ที่เกี่ยวข้อง</h2>
+              <h2 className="text-2xl font-normal mb-8 text-gray-900">
+                ไฟล์และลิงก์ที่เกี่ยวข้อง
+              </h2>
               <div className="flex flex-wrap gap-4">
                 {ethnicGroup.videoLink && (
-                  <a 
-                    href={ethnicGroup.videoLink} 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
+                  <a
+                    href={ethnicGroup.videoLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 bg-green-50 text-green-700 px-6 py-3 rounded-xl hover:bg-green-100 transition-colors duration-200 font-light"
                   >
                     <FaVideo />
@@ -217,9 +267,9 @@ export default function EthnicGroupDetails() {
                   </a>
                 )}
                 {ethnicGroup.fileUrl && (
-                  <a 
-                    href={ethnicGroup.fileUrl} 
-                    download 
+                  <a
+                    href={ethnicGroup.fileUrl}
+                    download
                     className="inline-flex items-center gap-2 bg-green-50 text-green-700 px-6 py-3 rounded-xl hover:bg-green-100 transition-colors duration-200 font-light"
                   >
                     <FaFileAlt />
@@ -229,11 +279,41 @@ export default function EthnicGroupDetails() {
               </div>
             </section>
           )}
-
+          {/* Author Information */}
+          <section className="rounded-xl p-0 no-print">
+            <h3 className="text-sm font-light text-gray-500 mb-4">
+              Recorder Information
+            </h3>
+            <div className="flex items-center gap-4">
+              <div className="flex-shrink-0">
+                {ethnicGroup.user.image ? (
+                  <img
+                    src={ethnicGroup.user.image}
+                    alt={`${ethnicGroup.user.firstName} ${ethnicGroup.user.lastName}`}
+                    className="w-12 h-12 rounded-full object-cover border-2 border-green-200"
+                  />
+                ) : (
+                  <div className="w-12 h-12 rounded-full bg-green-100 border-2 border-green-200 flex items-center justify-center">
+                    <FaUser className="text-green-600 text-lg" />
+                  </div>
+                )}
+              </div>
+              <div>
+                <p className="font-light text-gray-900">
+                  {ethnicGroup.user.firstName} {ethnicGroup.user.lastName}
+                </p>
+                <p className="text-sm text-gray-500">
+                  {ethnicGroup.user.email}
+                </p>
+              </div>
+            </div>
+          </section>
           {/* View Count - Hidden in print */}
           <div className="flex justify-end items-center text-gray-500 pt-8 no-print">
             <FaEye className="mr-2" />
-            <p className="font-light">เข้าชมทั้งหมด {ethnicGroup.viewCount} ครั้ง</p>
+            <p className="font-light">
+              เข้าชมทั้งหมด {ethnicGroup.viewCount} ครั้ง
+            </p>
           </div>
         </div>
       </div>
@@ -248,18 +328,18 @@ export default function EthnicGroupDetails() {
         styles={{
           body: { padding: 0 },
           content: {
-            borderRadius: '1rem',
-            overflow: 'hidden',
-            border: 'none'
-          }
+            borderRadius: "1rem",
+            overflow: "hidden",
+            border: "none",
+          },
         }}
         centered
       >
         {selectedImage && (
           <div className="relative aspect-auto max-h-[90vh] overflow-hidden">
-            <img 
-              src={selectedImage} 
-              alt="รูปภาพขยาย" 
+            <img
+              src={selectedImage}
+              alt="รูปภาพขยาย"
               className="w-full h-full object-contain"
             />
           </div>

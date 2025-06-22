@@ -69,7 +69,7 @@ export const Footer: React.FC = () => {
       {items.slice(0, 2).map((item) => (
         <li key={item.id} className="transition-colors duration-200">
           <Link href={`/components/${path}/${item.id}`} className="hover:text-green-300 block">
-            <span className="font-light">{item.name}</span>
+            <span className="font-light text-sm">{item.name}</span>
             <span className="text-xs text-green-300 block">
               {item.category.name} | {item.province}
             </span>
@@ -84,7 +84,7 @@ export const Footer: React.FC = () => {
       {policies.slice(0, 2).map((policy) => (
         <li key={policy.id} className="transition-colors duration-200">
           <Link href={`/components/public-policy/${policy.id}`} className="hover:text-green-300 block">
-            <span className="font-light">{policy.name}</span>
+            <span className="font-light text-sm ">{policy.name}</span>
             <span className="text-xs text-green-300 block">
               {policy.level} | {policy.province}
             </span>
@@ -115,27 +115,27 @@ export const Footer: React.FC = () => {
       <div className="container mx-auto px-4">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
         <div>
-        <h3 className="text-base font-light mb-3 border-b border-green-400 pb-1">งานบุญประเพณีล่าสุด</h3>
-        <div className="text-xs font-light text-green-200 mb-3">Latest Traditions</div>
+        <h3 className="text-lg font-bold mb-3 border-b border-green-400 pb-1">งานบุญประเพณีล่าสุด</h3>
+        <div className="text-xs text-green-200 mb-3">Latest Traditions</div>
         {renderLatestItems(data.traditions, 'traditions')}
         </div>
         <div>
-        <h3 className="text-base font-light mb-3 border-b border-green-400 pb-1">นโยบายสาธารณะล่าสุด</h3>
-        <div className="text-xs font-light text-green-200 mb-3">Latest Public Policies</div>
+        <h3 className="text-lg font-bold mb-3 border-b border-green-400 pb-1">นโยบายสาธารณะล่าสุด</h3>
+        <div className="text-xs text-green-200 mb-3">Latest Public Policies</div>
         {renderPolicyItems(data.policies)}
         </div>
         <div>
-        <h3 className="text-base font-light mb-3 border-b border-green-400 pb-1">กลุ่มชาติพันธุ์ล่าสุด</h3>
-        <div className="text-xs font-light text-green-200 mb-3">Latest Ethnic Groups</div>
+        <h3 className="text-lg font-bold mb-3 border-b border-green-400 pb-1">กลุ่มชาติพันธุ์ล่าสุด</h3>
+        <div className="text-xs text-green-200 mb-3">Latest Ethnic Groups</div>
         {renderLatestItems(data.ethnicGroups, 'ethnic-group')}
         </div>
         <div>
-        <h3 className="text-base font-light mb-3 border-b border-green-400 pb-1">กิจกรรมสร้างสรรค์ล่าสุด</h3>
-        <div className="text-xs font-light text-green-200 mb-3">Latest Creative Activities</div>
+        <h3 className="text-lg font-bold mb-3 border-b border-green-400 pb-1">กิจกรรมสร้างสรรค์ล่าสุด</h3>
+        <div className="text-xs text-green-200 mb-3">Latest Creative Activities</div>
         {renderLatestItems(data.creativeActivities, 'creative-activity')}
         </div>
       </div>
-      <div className="border-t border-green-600 mt-8 pt-4 text-center text-xs font-light text-green-200">
+      <div className="border-t border-green-600 mt-8 pt-4 text-center text-sm text-green-200">
         <p>© 2024 มูลนิธิเครือข่ายพลังสังคม. All rights reserved.</p>
       </div>
       </div>

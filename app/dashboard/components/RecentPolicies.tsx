@@ -17,9 +17,9 @@ export default function RecentPolicies({ data }: RecentPoliciesProps) {
   const levelMap: Record<PolicyData['level'], LevelInfo> = {
     NATIONAL: { name: 'ระดับประเทศ', icon: <FaFlagUsa className="text-red-500" /> },
     HEALTH_REGION: { name: 'ระดับเขตสุขภาพ', icon: <FaHospital className="text-pink-500" /> },  
-    PROVINCIAL: { name: 'ระดับจังหวัด', icon: <FaLandmark className="text-blue-500" /> },
+    PROVINCIAL: { name: 'ระดับจังหวัด', icon: <FaLandmark className="text-green-500" /> },
     DISTRICT: { name: 'ระดับอำเภอ', icon: <FaCity className="text-green-500" /> },
-    SUB_DISTRICT: { name: 'ระดับตำบล', icon: <FaBuilding className="text-yellow-500" /> },
+    SUB_DISTRICT: { name: 'ระดับตำบล', icon: <FaBuilding className="text-green-500" /> },
     VILLAGE: { name: 'ระดับหมู่บ้าน', icon: <FaHome className="text-purple-500" /> },
   };
 
@@ -43,7 +43,7 @@ export default function RecentPolicies({ data }: RecentPoliciesProps) {
                 </svg>
               </div>
               <div className="timeline-end timeline-box">
-                <h3 className="font-bold text-lg">{policy.name}</h3>
+                <h3 className="font-bold text-md">{policy.name}</h3>
                 <p className="flex items-center mt-2">
                   {levelMap[policy.level].icon}
                   <span className="ml-2">{levelMap[policy.level].name}</span>

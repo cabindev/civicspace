@@ -81,8 +81,8 @@ export default function EthnicGroupDetails() {
       <div className="max-w-5xl mx-auto px-6 lg:px-8 pt-24 pb-16">
         <div className="flex justify-between items-center mb-12">
           <Link href="/components/ethnic-group" className="inline-block" data-back-button>
-           <div className="text-gray-600 hover:text-green-600 transition-colors duration-200 flex items-center gap-2 text-base md:text-lg font-medium">
-              <FaHome className="text-lg md:text-xl" />
+            <div className="text-gray-600 hover:text-green-600 transition-colors duration-200 flex items-center gap-2 text-base md:text-lg font-medium">
+              <FaHome className="text-green-500 text-lg md:text-xl" />
               กลับสู่หน้ารวมกลุ่มชาติพันธุ์
             </div>
           </Link>

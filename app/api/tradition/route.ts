@@ -33,10 +33,10 @@ export async function POST(request: NextRequest) {
       village: formData.get('village') as string || null,
       coordinatorName: formData.get('coordinatorName') as string || null,
       phone: formData.get('phone') as string || null,
-      history: formData.get('history') as string,
-      alcoholFreeApproach: formData.get('alcoholFreeApproach') as string,
+      history: formData.get('history') as string || null,
+      alcoholFreeApproach: formData.get('alcoholFreeApproach') as string || null,
       results: formData.get('results') as string || null,
-      startYear: parseInt(formData.get('startYear') as string),
+      startYear: formData.get('startYear') ? parseInt(formData.get('startYear') as string) : null,
       videoLink: formData.get('videoLink') as string || null,
       category: {
         connect: { id: formData.get('categoryId') as string }
@@ -95,13 +95,13 @@ export async function POST(request: NextRequest) {
 
     // Create notification for new tradition
     
-    // await prisma.notification.create({
-    //   data: {
-    //     userId: user.id,
-    //     activityId: tradition.id,
-    //     activityType: 'tradition',
-    //   }
-    // });
+    await prisma.notification.create({
+      data: {
+        userId: user.id,
+        activityId: tradition.id,
+        activityType: 'tradition',
+      }
+    });
 
     revalidatePath('/api/tradition');
     return NextResponse.json(tradition, { status: 201 });

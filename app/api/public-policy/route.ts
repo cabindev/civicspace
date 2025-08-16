@@ -78,13 +78,13 @@ export async function POST(request: NextRequest) {
 
     // Create notification
 
-    // await prisma.notification.create({
-    //   data: {
-    //     userId: user.id,
-    //     activityId: policy.id,
-    //     activityType: 'publicPolicy',
-    //   }
-    // });
+    await prisma.notification.create({
+      data: {
+        userId: user.id,
+        activityId: policy.id,
+        activityType: 'publicPolicy',
+      }
+    });
 
     revalidatePath('/api/public-policy');
     return NextResponse.json(policy, { status: 201 });

@@ -136,15 +136,15 @@ export async function PUT(
 
     // Create notification for update
 
-    // if (currentPolicy) {
-    //   await prisma.notification.create({
-    //     data: {
-    //       userId: currentPolicy.userId,
-    //       activityId: params.id,
-    //       activityType: 'publicPolicy_updated',
-    //     }
-    //   });
-    // }
+    if (currentPolicy) {
+      await prisma.notification.create({
+        data: {
+          userId: currentPolicy.userId,
+          activityId: params.id,
+          activityType: 'publicPolicy_updated',
+        }
+      });
+    }
 
     const finalUpdatedPolicy = await prisma.publicPolicy.findUnique({
       where: { id: params.id },

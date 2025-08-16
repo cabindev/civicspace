@@ -68,10 +68,10 @@ model Tradition {
   village             String?
   coordinatorName     String?
   phone               String?
-  history             String            @db.Text
-  alcoholFreeApproach String            @db.Text
+  history             String?            @db.Text
+  alcoholFreeApproach String?            @db.Text
   results             String?           @db.Text
-  startYear           Int
+  startYear           Int?
   images              Image[]
   videoLink           String?
   policyFileUrl       String?

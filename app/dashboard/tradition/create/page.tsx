@@ -34,10 +34,10 @@ interface FormValues {
   village?: string;
   coordinatorName: string;
   phone: string;
-  history: string;
-  alcoholFreeApproach: string;
+  history?: string;
+  alcoholFreeApproach?: string;
   results?: string;
-  startYear: number;
+  startYear?: number;
   images?: UploadFile[];
   videoLink?: string;
   policyFile?: UploadFile;
@@ -278,21 +278,18 @@ export default function CreateTradition() {
 
           <Col xs={24} lg={12}>
             <Card title="รายละเอียด" className="mb-4">
-              {renderFormItem("history", "ประวัติของงานเบื้องต้น", 
-                <TextArea rows={4} />,
-                [{ required: true, message: "กรุณากรอกประวัติของงาน" }]
+              {renderFormItem("history", "ประวัติของงานเบื้องต้น ?", 
+                <TextArea rows={4} />
               )}
 
-              {renderFormItem("alcoholFreeApproach", "ประวัติแนวทางการจัดงานแบบปลอดเหล้า", 
-                <TextArea rows={4} />,
-                [{ required: true, message: "กรุณากรอกแนวทางการจัดงานแบบปลอดเหล้า" }]
+              {renderFormItem("alcoholFreeApproach", "ประวัติแนวทางการจัดงานแบบปลอดเหล้า ?", 
+                <TextArea rows={4} />
               )}
 
               {renderFormItem("results", "ผลลัพธ์จากการดำเนินงาน", <TextArea rows={4} />)}
 
-              {renderFormItem("startYear", "ปีที่เริ่มดำเนินการให้ปลอดเหล้า (พ.ศ.)", 
-                <InputNumber min={2400} max={2600} className="w-full" />,
-                [{ required: true, message: "กรุณากรอกปีที่เริ่มดำเนินการ" }]
+              {renderFormItem("startYear", "ปีที่เริ่มดำเนินการให้ปลอดเหล้า (พ.ศ.) ?", 
+                <InputNumber min={2400} max={2600} className="w-full" />
               )}
 
               {renderFormItem("images", "รูปภาพประกอบ", 

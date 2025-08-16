@@ -1,3 +1,4 @@
+//app/dashboard/users/[id]/page.tsx - หน้านี้แสดงรายละเอียดของผู้ใช้แต่ละคน
 'use client';
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';

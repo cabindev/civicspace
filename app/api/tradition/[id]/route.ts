@@ -133,15 +133,15 @@ export async function PUT(
 
     // Create notification for updated tradition
 
-    // if (currentTradition) {
-    //   await prisma.notification.create({
-    //     data: {
-    //       userId: currentTradition.userId,
-    //       activityId: params.id,
-    //       activityType: 'tradition_updated',
-    //     }
-    //   });
-    // }
+    if (currentTradition) {
+      await prisma.notification.create({
+        data: {
+          userId: currentTradition.userId,
+          activityId: params.id,
+          activityType: 'tradition_updated',
+        }
+      });
+    }
 
     return NextResponse.json(updatedTradition);
   } catch (error) {

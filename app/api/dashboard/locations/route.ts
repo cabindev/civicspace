@@ -27,23 +27,24 @@ export async function GET() {
     const allData = [...traditionData, ...policyData, ...ethnicData, ...creativeData];
 
     // Extract unique regions
-    const regions = [...new Set(allData.map(item => item.type).filter(Boolean))].sort();
+    const regionSet = new Set(allData.map(item => item.type).filter(Boolean));
+    const regions = Array.from(regionSet).sort();
 
     // Extract unique provinces
-    const provinces = [...new Set(allData.map(item => item.province).filter(Boolean))].sort();
+    const provinceSet = new Set(allData.map(item => item.province).filter(Boolean));
+    const provinces = Array.from(provinceSet).sort();
 
     // Create region-province mapping
     const regionProvinceMap: Record<string, string[]> = {};
     
     regions.forEach(region => {
-      const provincesInRegion = [
-        ...new Set(
-          allData
-            .filter(item => item.type === region)
-            .map(item => item.province)
-            .filter(Boolean)
-        )
-      ].sort();
+      const provinceSetInRegion = new Set(
+        allData
+          .filter(item => item.type === region)
+          .map(item => item.province)
+          .filter(Boolean)
+      );
+      const provincesInRegion = Array.from(provinceSetInRegion).sort();
       
       regionProvinceMap[region] = provincesInRegion;
     });

@@ -31,7 +31,8 @@ export async function GET() {
       ...activityTypes.map(t => t.type)
     ];
 
-    const uniqueTypes = [...new Set(allTypes)].filter(Boolean).sort();
+    const typeSet = new Set(allTypes);
+    const uniqueTypes = Array.from(typeSet).filter(Boolean).sort();
 
     return NextResponse.json({
       traditionTypes: traditionTypes.map(t => t.type),

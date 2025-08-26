@@ -4,7 +4,8 @@
 import { useState, useEffect } from 'react';
 import { Spin } from 'antd';
 import Link from 'next/link';
-import axios from 'axios';
+// Server Actions
+import { getTraditions } from '@/app/lib/actions/tradition/get';
 import { FaCalendar, FaMapMarkerAlt, FaImage } from 'react-icons/fa';
 import Navbar from '../Navbar';
 import Pagination from '../Pagination';
@@ -32,8 +33,12 @@ export default function TraditionList() {
   useEffect(() => {
     const fetchTraditions = async () => {
       try {
-        const response = await axios.get('/api/tradition');
-        setTraditions(response.data);
+        const result = await getTraditions();
+        if (result.success) {
+          setTraditions(result.data);
+        } else {
+          console.error('Failed to fetch traditions:', result.error);
+        }
       } catch (error) {
         console.error('Failed to fetch traditions:', error);
       } finally {
@@ -88,10 +93,8 @@ export default function TraditionList() {
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex flex-col items-center justify-center">
-                      <FaImage className="text-4xl text-gray-400 mb-2" />
-                      <p className="text-gray-500 font-light text-sm">ไม่มีรูปภาพ</p>
-                      <p className="text-gray-400 font-light text-xs">{tradition.category.name}</p>
+                    <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                      <FaImage className="text-2xl text-gray-400" />
                     </div>
                   )}
                 </div>
@@ -128,11 +131,11 @@ export default function TraditionList() {
         {/* Empty State */}
         {currentTraditions.length === 0 && (
           <div className="text-center py-16">
-            <div className="w-24 h-24 mx-auto mb-6 bg-gray-100 rounded-full flex items-center justify-center">
-              <FaImage className="text-4xl text-gray-400" />
+            <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
+              <FaImage className="text-2xl text-gray-400" />
             </div>
-            <h3 className="text-xl font-normal text-gray-900 mb-2">ไม่พบงานบุญประเพณี</h3>
-            <p className="text-gray-500 font-light">ยังไม่มีข้อมูลงานบุญประเพณีในระบบ</p>
+            <h3 className="text-lg font-normal text-gray-900 mb-2">ไม่พบงานบุญประเพณี</h3>
+            <p className="text-sm text-gray-500 font-light">ยังไม่มีข้อมูลงานบุญประเพณีในระบบ</p>
           </div>
         )}
 

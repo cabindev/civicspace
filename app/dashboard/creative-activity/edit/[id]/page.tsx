@@ -1,13 +1,17 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useTransition } from 'react';
 import { Form, Input, Select, InputNumber, Upload, Button, message, Card, Col, Row } from 'antd';
 import { UploadOutlined, LinkOutlined } from '@ant-design/icons';
-import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import { data } from '@/app/data/regions';
 import type { UploadFile } from 'antd/es/upload/interface';
 import imageCompression from 'browser-image-compression';
+
+// Server Actions
+import { getCreativeCategories } from '@/app/lib/actions/creative-category/get';
+import { getCreativeActivityById } from '@/app/lib/actions/creative-activity/get';
+import { updateCreativeActivity } from '@/app/lib/actions/creative-activity/put';
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -60,8 +64,12 @@ export default function EditCreativeActivity({ params }: { params: { id: string 
 
   const fetchCategories = useCallback(async () => {
     try {
-      const response = await axios.get<CreativeCategory[]>('/api/creative-category');
-      setCategories(response.data);
+      const result = await getCreativeCategories();
+      if (result.success) {
+        setCategories(result.data);
+      } else {
+        message.error('ไม่สามารถโหลดประเภทกิจกรรมสร้างสรรค์ได้');
+      }
     } catch (error) {
       message.error('ไม่สามารถโหลดประเภทกิจกรรมสร้างสรรค์ได้');
     }
@@ -69,8 +77,12 @@ export default function EditCreativeActivity({ params }: { params: { id: string 
 
   const fetchActivityData = useCallback(async () => {
     try {
-      const response = await axios.get(`/api/creative-activity/${params.id}`);
-      const activityData = response.data;
+      const result = await getCreativeActivityById(params.id);
+      if (!result.success) {
+        message.error('ไม่สามารถโหลดข้อมูลกิจกรรมได้');
+        return;
+      }
+      const activityData = result.data;
       form.setFieldsValue({
         ...activityData,
         location: `${activityData.district}, ${activityData.amphoe}, ${activityData.province}`,
@@ -207,10 +219,14 @@ export default function EditCreativeActivity({ params }: { params: { id: string 
         formData.append('removeReportFile', 'true');
       }
   
-      await axios.put(`/api/creative-activity/${params.id}`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
-      message.success('แก้ไขข้อมูลกิจกรรมสร้างสรรค์สำเร็จ');
+      const result = await updateCreativeActivity(params.id, { success: true, data: null }, formData);
+      
+      if (result.success) {
+        message.success('แก้ไขข้อมูลกิจกรรมสร้างสรรค์สำเร็จ');
+      } else {
+        message.error(result.error || 'ไม่สามารถแก้ไขข้อมูลกิจกรรมสร้างสรรค์ได้');
+        return;
+      }
       router.push('/dashboard/creative-activity');
     } catch (error) {
       console.error('Error updating creative activity:', error);

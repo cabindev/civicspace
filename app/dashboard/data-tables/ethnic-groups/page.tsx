@@ -1,10 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 import { Space, Button } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { FilePdfOutlined, EyeOutlined } from '@ant-design/icons';
 import DataTableEthnicGroup from '@/app/components/shared/DataTable-ethnic-group';
+
+// Server Actions
+import { getEthnicGroups } from '@/app/lib/actions/ethnic-group/get';
 
 // Interfaces
 interface EthnicGroup {
@@ -42,21 +45,27 @@ interface EthnicGroup {
 export default function EthnicGroupPage() {
   const [data, setData] = useState<EthnicGroup[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
     fetchData();
   }, []);
 
   const fetchData = async () => {
-    try {
-      const response = await fetch('/api/ethnic-group');
-      const result = await response.json();
-      setData(result);
-    } catch (error) {
-      console.error('Error fetching data:', error);
-    } finally {
-      setLoading(false);
-    }
+    startTransition(async () => {
+      try {
+        const result = await getEthnicGroups();
+        if (result.success) {
+          setData(result.data);
+        } else {
+          console.error('Error fetching data:', result.error);
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        setLoading(false);
+      }
+    });
   };
 
   const handleOpenFile = (url: string | null | undefined): void => {
@@ -88,7 +97,7 @@ export default function EthnicGroupPage() {
       width: 150,
     },
     {
-      title: 'ประเภท',
+      title: 'ภาค',
       dataIndex: 'type',
       key: 'type',
       width: 120,
@@ -169,8 +178,10 @@ export default function EthnicGroupPage() {
           {record.fileUrl && (
             <Button 
               type="link" 
+              size="small"
               icon={<FilePdfOutlined />} 
               onClick={() => handleOpenFile(record.fileUrl)}
+              className="text-green-600 hover:text-green-700 text-xs font-light"
             >
               ดูไฟล์
             </Button>
@@ -178,8 +189,10 @@ export default function EthnicGroupPage() {
           {record.videoLink && (
             <Button 
               type="link" 
+              size="small"
               icon={<EyeOutlined />} 
               onClick={() => handleOpenVideo(record.videoLink)}
+              className="text-green-600 hover:text-green-700 text-xs font-light"
             >
               วิดีโอ
             </Button>

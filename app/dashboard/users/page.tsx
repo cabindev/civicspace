@@ -1,12 +1,16 @@
 'use client'
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useTransition } from 'react';
 import { Table, Switch, message, Avatar, Card, List, Typography, Space, Tag } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import axios from 'axios';
 import { useMediaQuery } from 'react-responsive';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import NotificationBadge from '@/app/components/NotificationBadge';
+
+// Server Actions
+import { getUsers } from '@/app/lib/actions/users/get';
+import { updateUserRole } from '@/app/lib/actions/users/put';
+import { deleteUser } from '@/app/lib/actions/users/delete';
 
 const { Text } = Typography;
 
@@ -22,6 +26,7 @@ interface User {
 export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isPending, startTransition] = useTransition();
   const isMobile = useMediaQuery({ maxWidth: 768 });
   const { data: session } = useSession();
 
@@ -30,37 +35,56 @@ export default function UsersPage() {
   }, []);
 
   const fetchUsers = async () => {
-    try {
-      const response = await axios.get('/api/users');
-      setUsers(response.data);
-      setLoading(false);
-    } catch (error) {
-      console.error('Failed to fetch users:', error);
-      message.error('Failed to load users');
-      setLoading(false);
-    }
+    startTransition(async () => {
+      try {
+        const result = await getUsers();
+        if (result.success) {
+          setUsers(result.data);
+        } else {
+          console.error('Failed to fetch users:', result.error);
+          message.error('Failed to load users');
+        }
+      } catch (error) {
+        console.error('Failed to fetch users:', error);
+        message.error('Failed to load users');
+      } finally {
+        setLoading(false);
+      }
+    });
   };
 
   const toggleUserRole = async (userId: number, newRole: 'ADMIN' | 'MEMBER') => {
-    try {
-      await axios.put(`/api/users/${userId}`, { role: newRole });
-      message.success('User role updated successfully');
-      fetchUsers();
-    } catch (error) {
-      console.error('Failed to update user role:', error);
-      message.error('Failed to update user role');
-    }
+    startTransition(async () => {
+      try {
+        const result = await updateUserRole(userId, newRole);
+        if (result.success) {
+          message.success('User role updated successfully');
+          await fetchUsers();
+        } else {
+          message.error(result.error || 'Failed to update user role');
+        }
+      } catch (error) {
+        console.error('Failed to update user role:', error);
+        message.error('Failed to update user role');
+      }
+    });
   };
 
   const handleDelete = async (userId: number) => {
-    try {
-      await axios.delete(`/api/users/${userId}`);
-      message.success('User deleted successfully');
-      fetchUsers();
-    } catch (error) {
-      console.error('Failed to delete user:', error);
-      message.error('Failed to delete user');
-    }
+    startTransition(async () => {
+      try {
+        const result = await deleteUser(userId);
+        if (result.success) {
+          message.success('User deleted successfully');
+          await fetchUsers();
+        } else {
+          message.error(result.error || 'Failed to delete user');
+        }
+      } catch (error) {
+        console.error('Failed to delete user:', error);
+        message.error('Failed to delete user');
+      }
+    });
   };
 
   // Sort users with SUPER_ADMIN first

@@ -265,7 +265,7 @@ export default function DataTablePublicPolicy({
 
  return (
    <div className="space-y-4 p-4">
-     <Title level={2} className="text-green-800">{title}</Title>
+     <Title level={2} className="text-green-800 text-sm font-light">{title}</Title>
      
      <div className="flex flex-col space-y-4">
        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
@@ -324,15 +324,17 @@ export default function DataTablePublicPolicy({
        <Space className="justify-end">
          <Button 
            icon={<DownloadOutlined />} 
+           size="small"
            onClick={exportToExcel}
-           className="bg-green-500 text-white hover:bg-green-600"
+           className="bg-green-500 text-white hover:bg-green-600 text-xs font-light"
          >
            Export Excel
          </Button>
          <Button 
            icon={<DownloadOutlined />} 
+           size="small"
            onClick={exportToCSV}
-           className="bg-blue-500 text-white hover:bg-blue-600"
+           className="bg-green-600 text-white hover:bg-green-700 text-xs font-light"
          >
            Export CSV
          </Button>

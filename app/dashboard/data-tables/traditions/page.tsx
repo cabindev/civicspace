@@ -1,11 +1,14 @@
 // app/dashboard/data-tables/traditions/page.tsx
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 import { Space, Tag, Button } from 'antd';
 import { FilePdfOutlined, EyeOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import DataTable from '@/app/components/shared/DataTable-Tradition';
+
+// Server Actions
+import { getTraditions } from '@/app/lib/actions/tradition/get';
 
 interface Tradition {
   id: string;
@@ -36,21 +39,27 @@ interface Tradition {
 export default function TraditionsPage() {
   const [data, setData] = useState<Tradition[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
     fetchData();
   }, []);
 
   const fetchData = async () => {
-    try {
-      const response = await fetch('/api/tradition');
-      const result = await response.json();
-      setData(result);
-    } catch (error) {
-      console.error('Error fetching data:', error);
-    } finally {
-      setLoading(false);
-    }
+    startTransition(async () => {
+      try {
+        const result = await getTraditions();
+        if (result.success) {
+          setData(result.data);
+        } else {
+          console.error('Error fetching data:', result.error);
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        setLoading(false);
+      }
+    });
   };
 
   const openPolicyFile = (url: string) => {
@@ -175,8 +184,10 @@ export default function TraditionsPage() {
           {record.policyFileUrl && (
             <Button 
               type="link" 
+              size="small"
               icon={<FilePdfOutlined />} 
               onClick={() => openPolicyFile(record.policyFileUrl)}
+              className="text-green-600 hover:text-green-700 text-xs font-light"
             >
               ดูไฟล์
             </Button>
@@ -184,8 +195,10 @@ export default function TraditionsPage() {
           {record.videoLink && (
             <Button 
               type="link" 
+              size="small"
               icon={<EyeOutlined />} 
               onClick={() => window.open(record.videoLink, '_blank')}
+              className="text-green-600 hover:text-green-700 text-xs font-light"
             >
               วิดีโอ
             </Button>

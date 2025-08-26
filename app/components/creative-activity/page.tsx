@@ -4,7 +4,8 @@
 import { useState, useEffect } from 'react';
 import { Spin } from 'antd';
 import Link from 'next/link';
-import axios from 'axios';
+// Server Actions
+import { getCreativeActivities } from '@/app/lib/actions/creative-activity/get';
 import { FaCalendar, FaMapMarkerAlt, FaUser, FaPhone, FaImage } from 'react-icons/fa';
 import Navbar from '../Navbar';
 import Pagination from '../Pagination';
@@ -32,8 +33,12 @@ export default function CreativeActivityList() {
   useEffect(() => {
     const fetchActivities = async () => {
       try {
-        const response = await axios.get('/api/creative-activity');
-        setActivities(response.data);
+        const result = await getCreativeActivities();
+        if (result.success) {
+          setActivities(result.data);
+        } else {
+          console.error('Failed to fetch creative activities:', result.error);
+        }
       } catch (error) {
         console.error('Failed to fetch creative activities:', error);
       } finally {

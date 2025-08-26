@@ -1,8 +1,10 @@
 // app/components/NotificationBadge.tsx
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useTransition } from 'react';
 import { Badge } from 'antd';
-import axios from 'axios';
+
+// Server Actions
+import { getNotifications } from '@/app/lib/actions/notifications/get';
 
 interface NotificationBadgeProps {
   userId: number;
@@ -11,14 +13,21 @@ interface NotificationBadgeProps {
 
 export default function NotificationBadge({ userId, children }: NotificationBadgeProps) {
   const [count, setCount] = useState(0);
+  const [isPending, startTransition] = useTransition();
 
   const fetchNotifications = async () => {
-    try {
-      const response = await axios.get(`/api/notifications?userId=${userId}`);
-      setCount(response.data.length);
-    } catch (error) {
-      console.error('Failed to fetch notifications:', error);
-    }
+    startTransition(async () => {
+      try {
+        const result = await getNotifications(userId);
+        if (result.success) {
+          setCount(result.data.length);
+        } else {
+          console.error('Failed to fetch notifications:', result.error);
+        }
+      } catch (error) {
+        console.error('Failed to fetch notifications:', error);
+      }
+    });
   };
 
   useEffect(() => {

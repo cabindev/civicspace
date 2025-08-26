@@ -4,7 +4,8 @@
 import React, { useState, useEffect } from 'react';
 import { Spin } from 'antd';
 import Link from 'next/link';
-import axios from 'axios';
+// Server Actions
+import { getEthnicGroups } from '@/app/lib/actions/ethnic-group/get';
 import { FaCalendar, FaMapMarkerAlt, FaImage } from 'react-icons/fa';
 import Navbar from '../Navbar';
 import Pagination from '../Pagination';
@@ -28,8 +29,12 @@ export default function EthnicGroupList() {
   useEffect(() => {
     const fetchEthnicGroups = async () => {
       try {
-        const response = await axios.get('/api/ethnic-group');
-        setEthnicGroups(response.data);
+        const result = await getEthnicGroups();
+        if (result.success) {
+          setEthnicGroups(result.data);
+        } else {
+          console.error('Failed to fetch ethnic groups:', result.error);
+        }
       } catch (error) {
         console.error('Failed to fetch ethnic groups:', error);
       } finally {

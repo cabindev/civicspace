@@ -153,68 +153,68 @@ export default function DataTableCreativeActivities({
       key={item.id}
     >
       <div className="border-b pb-3 mb-3">
-        <h3 className="text-lg font-bold text-green-800">{item.name}</h3>
-        <div className="text-sm text-gray-500">
+        <h3 className="text-sm font-light text-green-800">{item.name}</h3>
+        <div className="text-xs font-light text-gray-500">
           {item.category.name} - {item.subCategory.name}
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-2 mb-3">
         <div>
-          <div className="text-gray-500 text-sm">ประเภท</div>
-          <div>{item.type}</div>
+          <div className="text-gray-500 text-xs font-light">ประเภท</div>
+          <div className="text-xs font-light">{item.type}</div>
         </div>
         <div>
-          <div className="text-gray-500 text-sm">ปีที่เริ่ม</div>
-          <div>{item.startYear}</div>
+          <div className="text-gray-500 text-xs font-light">ปีที่เริ่ม</div>
+          <div className="text-xs font-light">{item.startYear}</div>
         </div>
         <div>
-          <div className="text-gray-500 text-sm">จังหวัด</div>
-          <div>{item.province}</div>
+          <div className="text-gray-500 text-xs font-light">จังหวัด</div>
+          <div className="text-xs font-light">{item.province}</div>
         </div>
         <div>
-          <div className="text-gray-500 text-sm">อำเภอ</div>
-          <div>{item.amphoe}</div>
+          <div className="text-gray-500 text-xs font-light">อำเภอ</div>
+          <div className="text-xs font-light">{item.amphoe}</div>
         </div>
         <div>
-          <div className="text-gray-500 text-sm">ตำบล</div>
-          <div>{item.district}</div>
+          <div className="text-gray-500 text-xs font-light">ตำบล</div>
+          <div className="text-xs font-light">{item.district}</div>
         </div>
         {item.village && (
           <div>
-            <div className="text-gray-500 text-sm">หมู่บ้าน</div>
-            <div>{item.village}</div>
+            <div className="text-gray-500 text-xs font-light">หมู่บ้าน</div>
+            <div className="text-xs font-light">{item.village}</div>
           </div>
         )}
       </div>
 
       {item.coordinatorName && (
         <div className="mb-3">
-          <div className="text-gray-500 text-sm">ผู้ประสานงาน</div>
-          <div>{item.coordinatorName}</div>
-          {item.phone && <div className="text-sm">{item.phone}</div>}
+          <div className="text-gray-500 text-xs font-light">ผู้ประสานงาน</div>
+          <div className="text-xs font-light">{item.coordinatorName}</div>
+          {item.phone && <div className="text-xs font-light">{item.phone}</div>}
         </div>
       )}
 
       <div className="mb-3">
-        <div className="text-gray-500 text-sm">รายละเอียด</div>
-        <div className="text-sm whitespace-pre-wrap">{item.description}</div>
+        <div className="text-gray-500 text-xs font-light">รายละเอียด</div>
+        <div className="text-xs font-light whitespace-pre-wrap">{item.description}</div>
       </div>
 
       <div className="mb-3">
-        <div className="text-gray-500 text-sm">สรุป</div>
-        <div className="text-sm whitespace-pre-wrap">{item.summary}</div>
+        <div className="text-gray-500 text-xs font-light">สรุป</div>
+        <div className="text-xs font-light whitespace-pre-wrap">{item.summary}</div>
       </div>
 
       {item.results && (
         <div className="mb-3">
-          <div className="text-gray-500 text-sm">ผลที่เกิดขึ้น</div>
-          <div className="text-sm whitespace-pre-wrap">{item.results}</div>
+          <div className="text-gray-500 text-xs font-light">ผลที่เกิดขึ้น</div>
+          <div className="text-xs font-light whitespace-pre-wrap">{item.results}</div>
         </div>
       )}
 
       <div className="flex justify-between items-center">
-        <div className="text-sm text-gray-500">
+        <div className="text-xs font-light text-gray-500">
           จำนวนการเข้าชม: {item.viewCount}
         </div>
         <Space>
@@ -243,7 +243,7 @@ export default function DataTableCreativeActivities({
 
   return (
     <div className="space-y-4 p-4">
-      <Title level={2} className="text-green-800">{title}</Title>
+      <Title level={2} className="text-green-800 text-sm font-light">{title}</Title>
       
       <div className="flex flex-col space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-6 gap-4">
@@ -299,15 +299,17 @@ export default function DataTableCreativeActivities({
         <Space className="justify-end">
           <Button 
             icon={<DownloadOutlined />} 
+            size="small"
             onClick={exportToExcel}
-            className="bg-green-500 text-white hover:bg-green-600"
+            className="bg-green-500 text-white hover:bg-green-600 text-xs font-light"
           >
             Export Excel
           </Button>
           <Button 
             icon={<DownloadOutlined />} 
+            size="small"
             onClick={exportToCSV}
-            className="bg-blue-500 text-white hover:bg-blue-600"
+            className="bg-green-600 text-white hover:bg-green-700 text-xs font-light"
           >
             Export CSV
           </Button>

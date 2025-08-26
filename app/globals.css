@@ -105,3 +105,27 @@
     @apply border-b border-gray-200 last:border-b-0;
   }
 }
+
+/* Auto-filled form styling - สีเขียวสำหรับช่องที่ถูก autofill */
+.auto-filled .ant-input,
+.auto-filled .ant-input-number-input,
+.auto-filled .ant-select-selector,
+.auto-filled .ant-picker-input input {
+  background-color: #e6f7e6 !important;
+  border-color: #10b981 !important;
+}
+
+.auto-filled .ant-select-selector:hover,
+.auto-filled .ant-input:hover,
+.auto-filled .ant-input-number-input:hover {
+  background-color: #d1f2d1 !important;
+  border-color: #059669 !important;
+}
+
+.auto-filled .ant-input:focus,
+.auto-filled .ant-input-number-input:focus,
+.auto-filled .ant-select-selector:focus {
+  background-color: #d1f2d1 !important;
+  border-color: #10b981 !important;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2) !important;
+}

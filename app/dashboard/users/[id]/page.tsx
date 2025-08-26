@@ -1,39 +1,53 @@
 //app/dashboard/users/[id]/page.tsx - หน้านี้แสดงรายละเอียดของผู้ใช้แต่ละคน
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useTransition } from 'react';
 import { useParams } from 'next/navigation';
 import { useMediaQuery } from 'react-responsive';
 import { Spin, Typography } from 'antd';
-import axios from 'axios';
 import { UserProfile } from '../components/UserProfile';
 import { ActivityStats } from '../components/ActivityStats';
 import { ActivityTabs } from '../components/ActivityTabs';
 import { UserDetails } from '../types/user';
 
+// Server Actions
+import { getUserById } from '@/app/lib/actions/users/get';
+
 export default function UserDetailPage() {
   const params = useParams();
   const [loading, setLoading] = useState(true);
+  const [isPending, startTransition] = useTransition();
   const [userDetails, setUserDetails] = useState<UserDetails | null>(null);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const isMobile = useMediaQuery({ maxWidth: 768 });
 
   const fetchUserDetails = async () => {
-    try {
-      const response = await axios.get(`/api/users/${params.id}`);
-      setUserDetails(response.data);
-      setLoading(false);
-    } catch (error) {
-      console.error('Failed to fetch user details:', error);
-      setLoading(false);
-    }
+    if (!params.id) return;
+    
+    startTransition(async () => {
+      try {
+        const result = await getUserById(Number(params.id));
+        if (result.success) {
+          setUserDetails(result.data);
+        } else {
+          console.error('Failed to fetch user details:', result.error);
+        }
+      } catch (error) {
+        console.error('Failed to fetch user details:', error);
+      } finally {
+        setLoading(false);
+      }
+    });
   };
 
   const fetchNotifications = async () => {
     if (!userDetails?.user.id) return;
     
     try {
-      const response = await axios.get(`/api/notifications?userId=${userDetails.user.id}`);
-      setNotifications(response.data);
+      const { getNotifications } = await import('@/app/lib/actions/notifications/get');
+      const result = await getNotifications(userDetails.user.id);
+      if (result.success) {
+        setNotifications(result.data);
+      }
     } catch (error) {
       console.error('Failed to fetch notifications:', error);
     }
@@ -48,7 +62,8 @@ export default function UserDetailPage() {
       fetchNotifications();
       const markNotificationsAsRead = async () => {
         try {
-          await axios.patch(`/api/notifications/${userDetails.user.id}`);
+          const { markNotificationsAsRead } = await import('@/app/lib/actions/notifications/put');
+          await markNotificationsAsRead(userDetails.user.id);
           fetchNotifications();
         } catch (error) {
           console.error('Failed to mark notifications as read:', error);

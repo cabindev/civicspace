@@ -1,11 +1,14 @@
 // app/dashboard/data-tables/public-policies/page.tsx
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 import { Space, Tag, Button } from 'antd';
 import { FilePdfOutlined, EyeOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import DataTablePublicPolicy from '@/app/components/shared/DataTable-public-policies';
+
+// Server Actions
+import { getPublicPolicies } from '@/app/lib/actions/public-policy/get';
 
 // Interfaces
 interface PublicPolicy {
@@ -74,21 +77,27 @@ const contentTypeMap: Record<string, string> = {
 export default function PublicPoliciesPage() {
   const [data, setData] = useState<PublicPolicy[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
     fetchData();
   }, []);
 
   const fetchData = async () => {
-    try {
-      const response = await fetch('/api/public-policy');
-      const result = await response.json();
-      setData(result);
-    } catch (error) {
-      console.error('Error fetching data:', error);
-    } finally {
-      setLoading(false);
-    }
+    startTransition(async () => {
+      try {
+        const result = await getPublicPolicies();
+        if (result.success) {
+          setData(result.data);
+        } else {
+          console.error('Error fetching data:', result.error);
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        setLoading(false);
+      }
+    });
   };
 
   const handleOpenPolicyFile = (url: string | null | undefined): void => {
@@ -125,14 +134,9 @@ export default function PublicPoliciesPage() {
         </Tag>
       ),
     },
+
     {
-      title: 'เขตสุขภาพ',
-      dataIndex: 'healthRegion',
-      key: 'healthRegion',
-      width: 120,
-    },
-    {
-      title: 'ประเภท',
+      title: 'ภาค',
       dataIndex: 'type',
       key: 'type',
       width: 120,
@@ -204,8 +208,10 @@ export default function PublicPoliciesPage() {
           {record.policyFileUrl && (
             <Button 
               type="link" 
+              size="small"
               icon={<FilePdfOutlined />} 
               onClick={() => handleOpenPolicyFile(record.policyFileUrl)}
+              className="text-green-600 hover:text-green-700 text-xs font-light"
             >
               ดูไฟล์
             </Button>
@@ -213,8 +219,10 @@ export default function PublicPoliciesPage() {
           {record.videoLink && (
             <Button 
               type="link" 
+              size="small"
               icon={<EyeOutlined />} 
               onClick={() => handleOpenVideoLink(record.videoLink)}
+              className="text-green-600 hover:text-green-700 text-xs font-light"
             >
               วิดีโอ
             </Button>

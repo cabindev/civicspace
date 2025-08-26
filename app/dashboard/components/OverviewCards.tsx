@@ -1,3 +1,4 @@
+// app/dashboard/components/OverviewCards.tsx
 import { FaUser, FaPalette, FaLandmark, FaScroll, FaUsers,FaLayerGroup } from 'react-icons/fa';
 import { OverviewData } from '@/app/types/types';
 import { ReactNode } from 'react';
@@ -17,8 +18,8 @@ const Card = ({ title, value, icon }: CardProps) => (
     <div className="card-body flex flex-row items-center">
       {icon}
       <div className="ml-4">
-        <h2 className="card-title">{title}</h2>
-        <p className="text-2xl font-bold">{value}</p>
+        <h2 className="card-title text-sm font-light">{title}</h2>
+        <p className="text-xl font-normal">{value}</p>
       </div>
     </div>
   </div>

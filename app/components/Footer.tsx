@@ -2,8 +2,13 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import axios from 'axios';
 import { seppuri } from '../fonts';
+
+// Server Actions
+import { getLatestTraditions } from '@/app/lib/actions/tradition/get';
+import { getLatestPublicPolicies } from '@/app/lib/actions/public-policy/get';
+import { getLatestEthnicGroups } from '@/app/lib/actions/ethnic-group/get';
+import { getLatestCreativeActivities } from '@/app/lib/actions/creative-activity/get';
 
 interface LatestItem {
   id: string;
@@ -38,19 +43,19 @@ export const Footer: React.FC = () => {
 
     const fetchLatestData = async () => {
       try {
-        const [traditions, policies, ethnicGroups, activities] = await Promise.all([
-          axios.get('/api/home/tradition'),
-          axios.get('/api/home/public-policy'),
-          axios.get('/api/home/ethnic-group'),
-          axios.get('/api/home/creative-activity')
+        const [traditionsResult, policiesResult, ethnicGroupsResult, activitiesResult] = await Promise.all([
+          getLatestTraditions(5),
+          getLatestPublicPolicies(5),
+          getLatestEthnicGroups(5),
+          getLatestCreativeActivities(5)
         ]);
 
         if (isMounted) {
           setData({
-            traditions: traditions.data,
-            policies: policies.data,
-            ethnicGroups: ethnicGroups.data,
-            creativeActivities: activities.data
+            traditions: traditionsResult.success ? traditionsResult.data : [],
+            policies: policiesResult.success ? policiesResult.data : [],
+            ethnicGroups: ethnicGroupsResult.success ? ethnicGroupsResult.data : [],
+            creativeActivities: activitiesResult.success ? activitiesResult.data : []
           });
           setIsLoading(false);
         }

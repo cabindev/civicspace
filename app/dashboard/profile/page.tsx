@@ -1,29 +1,34 @@
 'use client'
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useTransition } from 'react';
 import Link from 'next/link';
 import { FaUser, FaEnvelope, FaFileAlt, FaUsers, FaCog, FaLandmark, FaPalette } from 'react-icons/fa';
 import { UserData } from '@/app/types/types';
 
+// Server Actions
+import { getProfile } from '@/app/lib/actions/profile/get';
+
 export default function ProfilePage() {
   const [userData, setUserData] = useState<UserData | null>(null);
+  const [isPending, startTransition] = useTransition();
 
-  useEffect(() => {
-    const fetchUserData = async () => {
+  const fetchUserData = useCallback(async () => {
+    startTransition(async () => {
       try {
-        const response = await fetch('/api/profile');
-        if (response.ok) {
-          const data = await response.json();
-          setUserData(data);
+        const result = await getProfile();
+        if (result.success) {
+          setUserData(result.data);
         } else {
-          console.error('Failed to fetch user data');
+          console.error('Failed to fetch user data:', result.error);
         }
       } catch (error) {
         console.error('Error fetching user data:', error);
       }
-    };
-
-    fetchUserData();
+    });
   }, []);
+
+  useEffect(() => {
+    fetchUserData();
+  }, [fetchUserData]);
 
   if (!userData) {
     return <div>Loading...</div>;

@@ -1,15 +1,18 @@
 // app/dashboard/tradition/create/page.tsx
 'use client'
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useTransition } from 'react';
 import { Form, Input, Select, InputNumber, Upload, Button, message, Card, Col, Row } from 'antd';
 import { UploadOutlined, LinkOutlined } from '@ant-design/icons';
-import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import { data } from '@/app/data/regions';
 import { UploadFile } from 'antd/es/upload';
 import { Radio, Space } from 'antd';
 import imageCompression from 'browser-image-compression';
+
+// Server Actions
+import { getTraditionCategories } from '@/app/lib/actions/tradition-category/get';
+import { createTradition } from '@/app/lib/actions/tradition/post';
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -53,6 +56,7 @@ export default function CreateTradition() {
   const [form] = Form.useForm<FormValues>();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [isPending, startTransition] = useTransition();
   const [categories, setCategories] = useState<TraditionCategory[]>([]);
   const [fileList, setFileList] = useState<UploadFile[]>([]);
   const [policyFile, setPolicyFile] = useState<UploadFile[]>([]);
@@ -67,8 +71,12 @@ export default function CreateTradition() {
 
   const fetchCategories = async () => {
     try {
-      const response = await axios.get<TraditionCategory[]>('/api/tradition-category');
-      setCategories(response.data);
+      const result = await getTraditionCategories();
+      if (result.success) {
+        setCategories(result.data);
+      } else {
+        message.error('ไม่สามารถโหลดประเภทงานบุญประเพณีได้');
+      }
     } catch (error) {
       message.error('ไม่สามารถโหลดประเภทงานบุญประเพณีได้');
     }
@@ -181,12 +189,14 @@ export default function CreateTradition() {
         throw new Error(`กรุณากรอกข้อมูลให้ครบทุกข้อ: ${missingFields.join(', ')}`);
       }
   
-      await axios.post('/api/tradition', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      const result = await createTradition(formData);
       
-      message.success('สร้างข้อมูลงานบุญประเพณีสำเร็จ');
-      router.push('/dashboard/tradition');
+      if (result.success) {
+        message.success('สร้างข้อมูลงานบุญประเพณีสำเร็จ');
+        router.push('/dashboard/tradition');
+      } else {
+        message.error(result.error || 'ไม่สามารถสร้างข้อมูลงานบุญประเพณีได้');
+      }
     } catch (error) {
       console.error('Error creating tradition:', error);
       if (error instanceof Error) {
@@ -214,13 +224,6 @@ export default function CreateTradition() {
 
   return (
     <div className="container mx-auto p-4">
-      <style jsx global>{`
-        .auto-filled .ant-input,
-        .auto-filled .ant-input-number-input,
-        .auto-filled .ant-select-selector {
-          background-color: #e6f7e6 !important;
-        }
-      `}</style>
       <h1 className="text-2xl font-bold mb-4">สร้างงานบุญประเพณีใหม่</h1>
       <Form<FormValues> form={form} layout="vertical" onFinish={onFinish}>
         <Row gutter={[16, 16]}>
@@ -278,17 +281,17 @@ export default function CreateTradition() {
 
           <Col xs={24} lg={12}>
             <Card title="รายละเอียด" className="mb-4">
-              {renderFormItem("history", "ประวัติของงานเบื้องต้น ?", 
+              {renderFormItem("history", "ประวัติของงานเบื้องต้น", 
                 <TextArea rows={4} />
               )}
 
-              {renderFormItem("alcoholFreeApproach", "ประวัติแนวทางการจัดงานแบบปลอดเหล้า ?", 
+              {renderFormItem("alcoholFreeApproach", "ประวัติแนวทางการจัดงานแบบปลอดเหล้า", 
                 <TextArea rows={4} />
               )}
 
               {renderFormItem("results", "ผลลัพธ์จากการดำเนินงาน", <TextArea rows={4} />)}
 
-              {renderFormItem("startYear", "ปีที่เริ่มดำเนินการให้ปลอดเหล้า (พ.ศ.) ?", 
+              {renderFormItem("startYear", "ปีที่เริ่มดำเนินการให้ปลอดเหล้า (พ.ศ.)", 
                 <InputNumber min={2400} max={2600} className="w-full" />
               )}
 
@@ -366,7 +369,7 @@ export default function CreateTradition() {
   </div>
 </Card>
         <Form.Item className="text-center">
-          <Button type="primary" htmlType="submit" loading={loading}>
+          <Button type="primary" htmlType="submit" loading={isPending || loading}>
             สร้างงานบุญประเพณี
           </Button>
         </Form.Item>

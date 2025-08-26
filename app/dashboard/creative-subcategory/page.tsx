@@ -1,11 +1,14 @@
 //dashboard/creative-subcategory/page.tsx
 'use client'
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useTransition } from 'react';
 import { Table, Button, message, Modal, Space, Typography } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import Link from 'next/link';
-import axios from 'axios';
+
+// Server Actions
+import { getCreativeSubCategories } from '@/app/lib/actions/creative-subcategory/get';
+import { deleteCreativeSubCategory } from '@/app/lib/actions/creative-subcategory/delete';
 
 const { Title } = Typography;
 
@@ -23,39 +26,42 @@ export default function CreativeSubcategoryList() {
   const [loading, setLoading] = useState(true);
   const [selectedSubcategory, setSelectedSubcategory] = useState<CreativeSubcategory | null>(null);
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
     fetchSubcategories();
   }, []);
 
   const fetchSubcategories = async () => {
-    try {
-      const response = await axios.get('/api/creative-subcategory');
-      setSubcategories(response.data);
-    } catch (error) {
-      console.error('Error fetching subcategories:', error);
-      message.error('ไม่สามารถโหลดข้อมูลหมวดหมู่ย่อยได้');
-    } finally {
-      setLoading(false);
-    }
+    startTransition(async () => {
+      try {
+        const result = await getCreativeSubCategories();
+        if (result.success) {
+          setSubcategories(result.data);
+        } else {
+          message.error('ไม่สามารถโหลดข้อมูลหมวดหมู่ย่อยได้');
+        }
+      } catch (error) {
+        console.error('Error fetching subcategories:', error);
+        message.error('ไม่สามารถโหลดข้อมูลหมวดหมู่ย่อยได้');
+      } finally {
+        setLoading(false);
+      }
+    });
   };
 
   const handleDelete = async (id: string) => {
     try {
-      await axios.delete(`/api/creative-subcategory/${id}`);
-      message.success('ลบหมวดหมู่ย่อยสำเร็จ');
-      fetchSubcategories();
+      const result = await deleteCreativeSubCategory(id);
+      if (result.success) {
+        message.success('ลบหมวดหมู่ย่อยสำเร็จ');
+        fetchSubcategories();
+      } else {
+        message.error(result.error || 'ไม่สามารถลบหมวดหมู่ย่อยได้');
+      }
     } catch (error) {
       console.error('Error deleting subcategory:', error);
-      if (axios.isAxiosError(error) && error.response) {
-        if (error.response.status === 400) {
-          message.error('ไม่สามารถลบหมวดหมู่ย่อยนี้ได้เนื่องจากมีกิจกรรมสร้างสรรค์ที่ใช้หมวดหมู่ย่อยนี้อยู่');
-        } else {
-          message.error('ไม่สามารถลบหมวดหมู่ย่อยได้');
-        }
-      } else {
-        message.error('เกิดข้อผิดพลาดในการลบหมวดหมู่ย่อย');
-      }
+      message.error('ไม่สามารถลบหมวดหมู่ย่อยได้');
     } finally {
       setIsDeleteModalVisible(false);
     }

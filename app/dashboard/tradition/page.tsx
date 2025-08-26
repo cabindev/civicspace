@@ -1,11 +1,14 @@
 'use client'
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useTransition } from 'react';
 import { Table, Button, Spin, message, Modal, Space, Typography, Card, Avatar } from 'antd';
 import { EyeOutlined, EditOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import Link from 'next/link';
-import axios from 'axios';
 import { useMediaQuery } from 'react-responsive';
+
+// Server Actions
+import { getTraditions } from '@/app/lib/actions/tradition/get';
+import { deleteTradition } from '@/app/lib/actions/tradition/delete';
 
 const { Title, Text } = Typography;
 
@@ -25,6 +28,7 @@ interface Tradition {
 export default function TraditionList() {
   const [traditions, setTraditions] = useState<Tradition[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isPending, startTransition] = useTransition();
   const [selectedTradition, setSelectedTradition] = useState<Tradition | null>(null);
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
   const isMobile = useMediaQuery({ maxWidth: 768 });
@@ -34,28 +38,42 @@ export default function TraditionList() {
   }, []);
 
   const fetchTraditions = async () => {
-    try {
-      const response = await axios.get('/api/tradition');
-      // เรียงลำดับข้อมูลตาม createdAt จากใหม่ไปเก่า
-      const sortedTraditions = response.data.sort((a: Tradition, b: Tradition) => 
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-      );
-      setTraditions(sortedTraditions);
-    } catch (error) {
-      message.error('ไม่สามารถโหลดข้อมูลงานบุญประเพณีได้');
-    } finally {
-      setLoading(false);
-    }
+    startTransition(async () => {
+      try {
+        const result = await getTraditions();
+        if (result.success) {
+          // เรียงลำดับข้อมูลตาม createdAt จากใหม่ไปเก่า
+          const sortedTraditions = result.data.sort((a: Tradition, b: Tradition) => 
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          );
+          setTraditions(sortedTraditions);
+        } else {
+          message.error(result.error || 'ไม่สามารถโหลดข้อมูลงานบุญประเพณีได้');
+        }
+      } catch (error) {
+        console.error('Error fetching traditions:', error);
+        message.error('ไม่สามารถโหลดข้อมูลงานบุญประเพณีได้');
+      } finally {
+        setLoading(false);
+      }
+    });
   };
 
   const handleDelete = async (id: string) => {
-    try {
-      await axios.delete(`/api/tradition/${id}`);
-      message.success('ลบข้อมูลงานบุญประเพณีสำเร็จ');
-      fetchTraditions();
-    } catch (error) {
-      message.error('ไม่สามารถลบข้อมูลงานบุญประเพณีได้');
-    }
+    startTransition(async () => {
+      try {
+        const result = await deleteTradition(id);
+        if (result.success) {
+          message.success('ลบข้อมูลงานบุญประเพณีสำเร็จ');
+          await fetchTraditions();
+        } else {
+          message.error(result.error || 'ไม่สามารถลบข้อมูลงานบุญประเพณีได้');
+        }
+      } catch (error) {
+        console.error('Error deleting tradition:', error);
+        message.error('ไม่สามารถลบข้อมูลงานบุญประเพณีได้');
+      }
+    });
   };
 
   const showDeleteModal = (tradition: Tradition) => {

@@ -26,15 +26,15 @@ export default function RecentPolicies({ data }: RecentPoliciesProps) {
   return (
     <div className="card bg-base-100 shadow-xl">
       <div className="card-body">
-        <h2 className="card-title flex items-center mb-4">
-          <FaFileSignature className="mr-2 text-2xl text-green-600" />
+        <h2 className="card-title flex items-center mb-4 text-sm font-light">
+          <FaFileSignature className="mr-2 text-xl text-green-600" />
           Public-Policy / นโยบายสาธารณะล่าสุด
         </h2>
         <ul className="timeline timeline-vertical">
           {data.map((policy, index) => (
             <li key={policy.name}>
               {index > 0 && <hr />}
-              <div className="timeline-start">
+              <div className="timeline-start text-xs font-light">
                 {format(new Date(policy.signingDate), 'd MMM yyyy', { locale: th })}
               </div>
               <div className="timeline-middle">
@@ -43,12 +43,12 @@ export default function RecentPolicies({ data }: RecentPoliciesProps) {
                 </svg>
               </div>
               <div className="timeline-end timeline-box">
-                <h3 className="font-bold text-md">{policy.name}</h3>
-                <p className="flex items-center mt-2">
+                <h3 className="text-sm font-light">{policy.name}</h3>
+                <p className="flex items-center mt-2 text-xs font-light">
                   {levelMap[policy.level].icon}
                   <span className="ml-2">{levelMap[policy.level].name}</span>
                 </p>
-                <p className="flex items-center mt-2">
+                <p className="flex items-center mt-2 text-xs font-light">
                   <FaMapMarkerAlt className="mr-2 text-red-500" />
                   {`${policy.district}, ${policy.amphoe}, ${policy.province}`}
                 </p>

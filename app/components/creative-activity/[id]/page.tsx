@@ -4,7 +4,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import axios from 'axios';
+// Server Actions
+import { getCreativeActivityById } from '@/app/lib/actions/creative-activity/get';
+import { incrementCreativeActivityViewCount } from '@/app/lib/actions/creative-activity/put';
 import { FaUser, FaPhone, FaCalendar, FaEye, FaVideo, FaFilePdf, FaMapMarkerAlt, FaHome, FaTag, FaGlobe, FaListUl, FaImage } from 'react-icons/fa';
 import { Modal, Spin } from 'antd';
 import Navbar from '../../Navbar';
@@ -47,14 +49,21 @@ export default function CreativeActivityDetails() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   const fetchActivityDetails = useCallback(async () => {
-    if (!id) return;
+    if (!id || typeof id !== 'string') return;
 
     try {
       setLoading(true);
-      const response = await axios.get(`/api/creative-activity/${id}`);
-      setActivity(response.data);
       
-      await axios.put(`/api/creative-activity/${id}`, { action: 'incrementViewCount' });
+      // Get creative activity data
+      const result = await getCreativeActivityById(id);
+      if (result.success) {
+        setActivity(result.data);
+        
+        // Increment view count
+        await incrementCreativeActivityViewCount(id);
+      } else {
+        console.error('Failed to fetch creative activity details:', result.error);
+      }
     } catch (error) {
       console.error('Failed to fetch creative activity details:', error);
     } finally {

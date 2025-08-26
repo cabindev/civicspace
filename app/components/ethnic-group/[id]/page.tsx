@@ -4,7 +4,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import axios from 'axios';
+// Server Actions
+import { getEthnicGroupById } from '@/app/lib/actions/ethnic-group/get';
+import { incrementEthnicGroupViewCount } from '@/app/lib/actions/ethnic-group/put';
 import { FaCalendar, FaEye, FaVideo, FaFileAlt, FaMapMarkerAlt, FaUser, FaHistory, FaHome, FaTag, FaImage } from 'react-icons/fa';
 import { Modal, Spin } from 'antd';
 import Navbar from '../../Navbar';
@@ -45,15 +47,21 @@ export default function EthnicGroupDetails() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   const fetchEthnicGroupDetails = useCallback(async () => {
-    if (!id) return;
+    if (!id || typeof id !== 'string') return;
 
     try {
       setLoading(true);
-      const response = await axios.get(`/api/ethnic-group/${id}`);
-      setEthnicGroup(response.data);
       
-      // Increment view count
-      await axios.put(`/api/ethnic-group/${id}`, { action: 'incrementViewCount' });
+      // Get ethnic group data
+      const result = await getEthnicGroupById(id);
+      if (result.success) {
+        setEthnicGroup(result.data);
+        
+        // Increment view count
+        await incrementEthnicGroupViewCount(id);
+      } else {
+        console.error('Failed to fetch ethnic group details:', result.error);
+      }
     } catch (error) {
       console.error('Failed to fetch ethnic group details:', error);
     } finally {

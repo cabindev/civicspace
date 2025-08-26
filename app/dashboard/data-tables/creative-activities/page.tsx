@@ -1,11 +1,14 @@
 //app/dashboard/data-tables/creative-activities/page.tsx
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 import { Space, Button } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { FilePdfOutlined, EyeOutlined } from '@ant-design/icons';
 import DataTableCreativeActivities from '@/app/components/shared/DataTable-creative-activities';
+
+// Server Actions
+import { getCreativeActivities } from '@/app/lib/actions/creative-activity/get';
 
 // Interfaces
 interface CreativeActivity {
@@ -46,21 +49,27 @@ interface CreativeActivity {
 export default function CreativeActivitiesPage() {
   const [data, setData] = useState<CreativeActivity[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
     fetchData();
   }, []);
 
   const fetchData = async () => {
-    try {
-      const response = await fetch('/api/creative-activity');
-      const result = await response.json();
-      setData(result);
-    } catch (error) {
-      console.error('Error fetching data:', error);
-    } finally {
-      setLoading(false);
-    }
+    startTransition(async () => {
+      try {
+        const result = await getCreativeActivities();
+        if (result.success) {
+          setData(result.data);
+        } else {
+          console.error('Error fetching data:', result.error);
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        setLoading(false);
+      }
+    });
   };
 
   const handleOpenFile = (url: string | null | undefined): void => {
@@ -92,7 +101,7 @@ export default function CreativeActivitiesPage() {
       width: 150,
     },
     {
-      title: 'ประเภท',
+      title: 'ภาค',
       dataIndex: 'type',
       key: 'type',
       width: 120,
@@ -170,8 +179,10 @@ export default function CreativeActivitiesPage() {
           {record.reportFileUrl && (
             <Button 
               type="link" 
+              size="small"
               icon={<FilePdfOutlined />} 
               onClick={() => handleOpenFile(record.reportFileUrl)}
+              className="text-green-600 hover:text-green-700 text-xs font-light"
             >
               ดูรายงาน
             </Button>
@@ -179,8 +190,10 @@ export default function CreativeActivitiesPage() {
           {record.videoLink && (
             <Button 
               type="link" 
+              size="small"
               icon={<EyeOutlined />} 
               onClick={() => handleOpenVideo(record.videoLink)}
+              className="text-green-600 hover:text-green-700 text-xs font-light"
             >
               วิดีโอ
             </Button>

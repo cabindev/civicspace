@@ -1,16 +1,13 @@
 // app/components/Search.tsx
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { FaSearch } from 'react-icons/fa';
 import { debounce } from 'lodash';
 
-interface AutocompleteResult {
-  id: string;
-  name: string;
-  type: 'tradition' | 'publicPolicy' | 'ethnicGroup' | 'creativeActivity';
-}
+// Server Actions
+import { getAutocompleteResults, type AutocompleteResult } from '@/app/lib/actions/search/autocomplete';
 
 const typeMapping = {
   tradition: 'งานบุญประเพณี',
@@ -24,6 +21,7 @@ export function Search() {
   const [suggestions, setSuggestions] = useState<AutocompleteResult[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isPending, startTransition] = useTransition();
   
   const router = useRouter();
   const searchRef = useRef<HTMLDivElement>(null);
@@ -37,19 +35,23 @@ export function Search() {
       }
 
       setIsLoading(true);
-      try {
-        const response = await fetch(`/api/autocomplete?q=${encodeURIComponent(query)}&limit=5`);
-        if (response.ok) {
-          const data = await response.json();
-          setSuggestions(data.results);
-          setShowSuggestions(true);
+      startTransition(async () => {
+        try {
+          const result = await getAutocompleteResults(query, 5);
+          if (result.success && result.data) {
+            setSuggestions(result.data);
+            setShowSuggestions(true);
+          } else {
+            console.error('Search error:', result.error);
+            setSuggestions([]);
+          }
+        } catch (error) {
+          console.error('Search error:', error);
+          setSuggestions([]);
+        } finally {
+          setIsLoading(false);
         }
-      } catch (error) {
-        console.error('Search error:', error);
-        setSuggestions([]);
-      } finally {
-        setIsLoading(false);
-      }
+      });
     }, 300),
     []
   );

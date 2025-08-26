@@ -1,12 +1,16 @@
 //app/dashboard/profile/edit/[id]/page.tsx
 'use client'
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { FaUser, FaCamera, FaArrowLeft, FaCheck } from 'react-icons/fa';
 import { Spin, message } from 'antd';
 import { UserData } from '@/app/types/types';
 import imageCompression from 'browser-image-compression';
+
+// Server Actions
+import { getProfile } from '@/app/lib/actions/profile/get';
+import { updateProfile } from '@/app/lib/actions/profile/put';
 
 export default function EditProfilePage({ params }: { params: { id: string } }) {
   const [userData, setUserData] = useState<UserData | null>(null);
@@ -17,27 +21,29 @@ export default function EditProfilePage({ params }: { params: { id: string } }) 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [compressing, setCompressing] = useState(false);
+  const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
   const fetchUserData = useCallback(async () => {
-    try {
-      setLoading(true);
-      const response = await fetch('/api/profile');
-      if (response.ok) {
-        const data = await response.json();
-        setUserData(data);
-        setFirstName(data.firstName || '');
-        setLastName(data.lastName || '');
-        setPreviewImage(data.image || null);
-      } else {
-        message.error('ไม่สามารถโหลดข้อมูลผู้ใช้ได้');
+    startTransition(async () => {
+      try {
+        setLoading(true);
+        const result = await getProfile();
+        if (result.success) {
+          setUserData(result.data);
+          setFirstName(result.data.firstName || '');
+          setLastName(result.data.lastName || '');
+          setPreviewImage(result.data.image || null);
+        } else {
+          message.error('ไม่สามารถโหลดข้อมูลผู้ใช้ได้');
+        }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+        message.error('เกิดข้อผิดพลาดในการโหลดข้อมูล');
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error('Error fetching user data:', error);
-      message.error('เกิดข้อผิดพลาดในการโหลดข้อมูล');
-    } finally {
-      setLoading(false);
-    }
+    });
   }, []);
 
   useEffect(() => {
@@ -134,17 +140,13 @@ export default function EditProfilePage({ params }: { params: { id: string } }) 
     }
 
     try {
-      const response = await fetch(`/api/profile/${params.id}`, {
-        method: 'PUT',
-        body: formData,
-      });
-
-      if (response.ok) {
+      const result = await updateProfile(parseInt(params.id), formData);
+      
+      if (result.success) {
         message.success('บันทึกข้อมูลเรียบร้อยแล้ว');
         router.push('/dashboard/profile');
       } else {
-        const error = await response.json();
-        message.error(error.message || 'ไม่สามารถบันทึกข้อมูลได้');
+        message.error(result.error || 'ไม่สามารถบันทึกข้อมูลได้');
       }
     } catch (error) {
       console.error('Error updating profile:', error);

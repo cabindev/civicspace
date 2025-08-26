@@ -4,7 +4,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import axios from 'axios';
+// Server Actions
+import { getTraditionById } from '@/app/lib/actions/tradition/get';
+import { incrementTraditionViewCount } from '@/app/lib/actions/tradition/put';
 import { FaUser, FaPhone, FaCalendar, FaEye, FaVideo, FaFilePdf, FaMapMarkerAlt, FaHome, FaTag, FaGlobe, FaImage } from 'react-icons/fa';
 import { Spin, Modal } from 'antd';
 import Navbar from '../../Navbar';
@@ -50,15 +52,21 @@ export default function TraditionDetails() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   const fetchTraditionDetails = useCallback(async () => {
-    if (!id) return;
+    if (!id || typeof id !== 'string') return;
 
     try {
       setLoading(true);
-      const response = await axios.get(`/api/tradition/${id}`);
-      setTradition(response.data);
       
-      // Increment view count using PUT
-      await axios.put(`/api/tradition/${id}`, { action: 'incrementViewCount' });
+      // Get tradition data
+      const result = await getTraditionById(id);
+      if (result.success) {
+        setTradition(result.data);
+        
+        // Increment view count
+        await incrementTraditionViewCount(id);
+      } else {
+        console.error('Failed to fetch tradition details:', result.error);
+      }
     } catch (error) {
       console.error('Failed to fetch tradition details:', error);
     } finally {

@@ -1,10 +1,14 @@
 //dashboard/creative-subcategory/edit/[id]/page.tsx
 'use client'
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useTransition } from 'react';
 import { Form, Input, Select, Button, message } from 'antd';
-import axios from 'axios';
 import { useRouter } from 'next/navigation';
+
+// Server Actions
+import { getCreativeCategories } from '@/app/lib/actions/creative-category/get';
+import { getCreativeSubCategoryById } from '@/app/lib/actions/creative-subcategory/get';
+import { updateCreativeSubCategory } from '@/app/lib/actions/creative-subcategory/put';
 
 const { Option } = Select;
 
@@ -18,6 +22,7 @@ export default function EditCreativeSubcategory({ params }: { params: { id: stri
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState<CreativeCategory[]>([]);
+  const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
     fetchCategories();
@@ -25,19 +30,29 @@ export default function EditCreativeSubcategory({ params }: { params: { id: stri
   }, []);
 
   const fetchCategories = async () => {
-    try {
-      const response = await axios.get<CreativeCategory[]>('/api/creative-category');
-      setCategories(response.data);
-    } catch (error) {
-      console.error('Error fetching categories:', error);
-      message.error('ไม่สามารถโหลดข้อมูลประเภทกิจกรรมสร้างสรรค์ได้');
-    }
+    startTransition(async () => {
+      try {
+        const result = await getCreativeCategories();
+        if (result.success) {
+          setCategories(result.data);
+        } else {
+          message.error('ไม่สามารถโหลดข้อมูลประเภทกิจกรรมสร้างสรรค์ได้');
+        }
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+        message.error('ไม่สามารถโหลดข้อมูลประเภทกิจกรรมสร้างสรรค์ได้');
+      }
+    });
   };
 
   const fetchSubcategoryData = async () => {
     try {
-      const response = await axios.get(`/api/creative-subcategory/${params.id}`);
-      form.setFieldsValue(response.data);
+      const result = await getCreativeSubCategoryById(params.id);
+      if (result.success) {
+        form.setFieldsValue(result.data);
+      } else {
+        message.error('ไม่สามารถโหลดข้อมูลหมวดหมู่ย่อยได้');
+      }
     } catch (error) {
       console.error('Error fetching subcategory data:', error);
       message.error('ไม่สามารถโหลดข้อมูลหมวดหมู่ย่อยได้');
@@ -47,9 +62,17 @@ export default function EditCreativeSubcategory({ params }: { params: { id: stri
   const onFinish = async (values: { name: string; categoryId: string }) => {
     setLoading(true);
     try {
-      await axios.put(`/api/creative-subcategory/${params.id}`, values);
-      message.success('แก้ไขหมวดหมู่ย่อยสำเร็จ');
-      router.push('/dashboard/creative-subcategory');
+      const formData = new FormData();
+      formData.append('name', values.name);
+      formData.append('categoryId', values.categoryId);
+      
+      const result = await updateCreativeSubCategory(params.id, formData);
+      if (result.success) {
+        message.success('แก้ไขหมวดหมู่ย่อยสำเร็จ');
+        router.push('/dashboard/creative-subcategory');
+      } else {
+        message.error(result.error || 'ไม่สามารถแก้ไขหมวดหมู่ย่อยได้');
+      }
     } catch (error) {
       console.error('Error updating creative subcategory:', error);
       message.error('ไม่สามารถแก้ไขหมวดหมู่ย่อยได้');

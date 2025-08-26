@@ -102,7 +102,7 @@ const DashboardFilters = ({ onFilterChange, loading = false, initialFilters }: D
       <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
         <div className="flex flex-col md:flex-row gap-4 flex-1">
           <div className="flex flex-col">
-            <label className="text-sm font-medium text-gray-700 mb-1">
+            <label className="text-xs font-light text-gray-600 mb-1">
               เลือกปี (พ.ศ.)
             </label>
             <Select
@@ -120,7 +120,7 @@ const DashboardFilters = ({ onFilterChange, loading = false, initialFilters }: D
           </div>
 
           <div className="flex flex-col">
-            <label className="text-sm font-medium text-gray-700 mb-1">
+            <label className="text-xs font-light text-gray-600 mb-1">
               เลือกภูมิภาค
             </label>
             <Select
@@ -143,6 +143,7 @@ const DashboardFilters = ({ onFilterChange, loading = false, initialFilters }: D
             icon={<ReloadOutlined />} 
             onClick={handleReset}
             disabled={loading}
+            className="text-xs font-light"
           >
             รีเซ็ต
           </Button>

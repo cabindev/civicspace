@@ -1,15 +1,19 @@
 // app/dashboard/tradition/edit/[id]/page.tsx
 'use client'
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useTransition } from 'react';
 import { Form, Input, Select, InputNumber, Upload, Button, message, Card, Col, Row } from 'antd';
 import { UploadOutlined, LinkOutlined } from '@ant-design/icons';
-import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import { data } from '@/app/data/regions';
 import type { UploadFile } from 'antd/es/upload/interface';
 import imageCompression from 'browser-image-compression';
 import { Radio, Space } from 'antd';
+
+// Server Actions
+import { getTraditionCategories } from '@/app/lib/actions/tradition-category/get';
+import { getTraditionById } from '@/app/lib/actions/tradition/get';
+import { updateTradition } from '@/app/lib/actions/tradition/put';
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -53,6 +57,7 @@ export default function EditTradition({ params }: { params: { id: string } }) {
   const [form] = Form.useForm<FormValues>();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [isPending, startTransition] = useTransition();
   const [categories, setCategories] = useState<TraditionCategory[]>([]);
   const [fileList, setFileList] = useState<UploadFile[]>([]);
   const [policyFile, setPolicyFile] = useState<UploadFile[]>([]);
@@ -60,8 +65,12 @@ export default function EditTradition({ params }: { params: { id: string } }) {
 
   const fetchCategories = useCallback(async () => {
     try {
-      const response = await axios.get<TraditionCategory[]>('/api/tradition-category');
-      setCategories(response.data);
+      const result = await getTraditionCategories();
+      if (result.success) {
+        setCategories(result.data);
+      } else {
+        message.error('ไม่สามารถโหลดประเภทงานบุญประเพณีได้');
+      }
     } catch (error) {
       message.error('ไม่สามารถโหลดประเภทงานบุญประเพณีได้');
     }
@@ -69,33 +78,37 @@ export default function EditTradition({ params }: { params: { id: string } }) {
 
   const fetchTraditionData = useCallback(async () => {
     try {
-      const response = await axios.get(`/api/tradition/${params.id}`);
-      const traditionData = response.data;
-      form.setFieldsValue({
-        ...traditionData,
-        location: `${traditionData.district}, ${traditionData.amphoe}, ${traditionData.province}`,
-        hasPolicy: traditionData.hasPolicy || false,
-        hasAnnouncement: traditionData.hasAnnouncement || false,
-        hasInspector: traditionData.hasInspector || false,
-        hasMonitoring: traditionData.hasMonitoring || false,
-        hasCampaign: traditionData.hasCampaign || false,
-        hasAlcoholPromote: traditionData.hasAlcoholPromote || false,
-      });
-      if (traditionData.images) {
-        setFileList(traditionData.images.map((image: any) => ({
-          uid: image.id,
-          name: image.url.split('/').pop(),
-          status: 'done',
-          url: image.url,
-        })));
-      }
-      if (traditionData.policyFileUrl) {
-        setPolicyFile([{
-          uid: '-1',
-          name: traditionData.policyFileUrl.split('/').pop(),
-          status: 'done',
-          url: traditionData.policyFileUrl,
-        }]);
+      const result = await getTraditionById(params.id);
+      if (result.success) {
+        const traditionData = result.data;
+        form.setFieldsValue({
+          ...traditionData,
+          location: `${traditionData.district}, ${traditionData.amphoe}, ${traditionData.province}`,
+          hasPolicy: traditionData.hasPolicy || false,
+          hasAnnouncement: traditionData.hasAnnouncement || false,
+          hasInspector: traditionData.hasInspector || false,
+          hasMonitoring: traditionData.hasMonitoring || false,
+          hasCampaign: traditionData.hasCampaign || false,
+          hasAlcoholPromote: traditionData.hasAlcoholPromote || false,
+        });
+        if (traditionData.images) {
+          setFileList(traditionData.images.map((image: any) => ({
+            uid: image.id,
+            name: image.url.split('/').pop(),
+            status: 'done',
+            url: image.url,
+          })));
+        }
+        if (traditionData.policyFileUrl) {
+          setPolicyFile([{
+            uid: '-1',
+            name: traditionData.policyFileUrl.split('/').pop(),
+            status: 'done',
+            url: traditionData.policyFileUrl,
+          }]);
+        }
+      } else {
+        message.error(result.error || 'ไม่สามารถโหลดข้อมูลงานบุญประเพณีได้');
       }
     } catch (error) {
       console.error('Error fetching tradition data:', error);
@@ -166,7 +179,7 @@ export default function EditTradition({ params }: { params: { id: string } }) {
   };
 
   const onFinish = async (values: FormValues) => {
-    setLoading(true);
+    startTransition(async () => {
     try {
       const formData = new FormData();
       Object.entries(values).forEach(([key, value]) => {
@@ -196,17 +209,19 @@ export default function EditTradition({ params }: { params: { id: string } }) {
         formData.append('removePolicyFile', 'true');
       }
   
-      await axios.put(`/api/tradition/${params.id}`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
-      message.success('แก้ไขข้อมูลงานบุญประเพณีสำเร็จ');
-      router.push('/dashboard/tradition');
+      const result = await updateTradition(params.id, { success: true }, formData);
+      
+      if (result.success) {
+        message.success('แก้ไขข้อมูลงานบุญประเพณีสำเร็จ');
+        router.push('/dashboard/tradition');
+      } else {
+        message.error(result.error || 'ไม่สามารถแก้ไขข้อมูลงานบุญประเพณีได้');
+      }
     } catch (error) {
       console.error('Error updating tradition:', error);
       message.error('ไม่สามารถแก้ไขข้อมูลงานบุญประเพณีได้');
-    } finally {
-      setLoading(false);
     }
+    });
   };
 
   return (
@@ -366,7 +381,7 @@ export default function EditTradition({ params }: { params: { id: string } }) {
           </div>
         </Card>
         <Form.Item className="text-center">
-          <Button type="primary" htmlType="submit" loading={loading}>
+          <Button type="primary" htmlType="submit" loading={isPending || loading}>
             บันทึกการแก้ไข
           </Button>
         </Form.Item>

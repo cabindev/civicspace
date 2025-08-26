@@ -1,9 +1,12 @@
 'use client'
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useTransition } from 'react';
 import { Form, Input, Button, message, Select } from 'antd';
-import axios from 'axios';
 import { useRouter } from 'next/navigation';
+
+// Server Actions
+import { getCreativeCategories } from '@/app/lib/actions/creative-category/get';
+import { createCreativeSubCategory } from '@/app/lib/actions/creative-subcategory/post';
 
 const { Option } = Select;
 
@@ -17,27 +20,42 @@ export default function CreateCreativeSubCategory() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState<CreativeCategory[]>([]);
+  const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
     fetchCategories();
   }, []);
 
   const fetchCategories = async () => {
-    try {
-      const response = await axios.get<CreativeCategory[]>('/api/creative-category');
-      setCategories(response.data);
-    } catch (error) {
-      console.error('Error fetching creative categories:', error);
-      message.error('ไม่สามารถโหลดประเภทกิจกรรมสร้างสรรค์ได้');
-    }
+    startTransition(async () => {
+      try {
+        const result = await getCreativeCategories();
+        if (result.success) {
+          setCategories(result.data);
+        } else {
+          message.error('ไม่สามารถโหลดประเภทกิจกรรมสร้างสรรค์ได้');
+        }
+      } catch (error) {
+        console.error('Error fetching creative categories:', error);
+        message.error('ไม่สามารถโหลดประเภทกิจกรรมสร้างสรรค์ได้');
+      }
+    });
   };
 
   const onFinish = async (values: { name: string; categoryId: string }) => {
     setLoading(true);
     try {
-      await axios.post('/api/creative-subcategory', values);
-      message.success('สร้างหมวดหมู่ย่อยกิจกรรมสร้างสรรค์สำเร็จ');
-      router.push('/dashboard/creative-subcategory');
+      const formData = new FormData();
+      formData.append('name', values.name);
+      formData.append('categoryId', values.categoryId);
+      
+      const result = await createCreativeSubCategory(formData);
+      if (result.success) {
+        message.success('สร้างหมวดหมู่ย่อยกิจกรรมสร้างสรรค์สำเร็จ');
+        router.push('/dashboard/creative-subcategory');
+      } else {
+        message.error(result.error || 'ไม่สามารถสร้างหมวดหมู่ย่อยกิจกรรมสร้างสรรค์ได้');
+      }
     } catch (error) {
       console.error('Error creating creative sub-category:', error);
       message.error('ไม่สามารถสร้างหมวดหมู่ย่อยกิจกรรมสร้างสรรค์ได้');

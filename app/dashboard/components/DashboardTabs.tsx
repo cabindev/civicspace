@@ -50,7 +50,7 @@ const DashboardTabs = ({
   const [isFilterExpanded, setIsFilterExpanded] = useState(false);
 
   const getTabLabel = (key: string, text: string, count: number) => (
-    <span className={`flex items-center ${activeTab === key ? 'font-semibold text-green-600' : ''}`}>
+    <span className={`flex items-center ${activeTab === key ? 'font-light text-green-600' : 'font-light text-gray-700'}`}>
       {text}
       <span className="ml-2 px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full min-w-0">
         {count.toLocaleString()}
@@ -165,7 +165,7 @@ const DashboardTabs = ({
             type={hasActiveFilters ? "primary" : "default"}
             icon={<FilterOutlined />}
             onClick={() => setIsFilterExpanded(!isFilterExpanded)}
-            className={`mb-4 ${hasActiveFilters ? 'bg-green-500 border-green-500' : ''}`}
+            className={`mb-4 text-xs font-light ${hasActiveFilters ? 'bg-green-500 border-green-500' : ''}`}
           >
             ตัวกรองข้อมูล
             {isFilterExpanded ? <UpOutlined className="ml-2" /> : <DownOutlined className="ml-2" />}

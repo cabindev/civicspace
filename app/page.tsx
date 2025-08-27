@@ -4,7 +4,28 @@ import { NavMenu } from './components/NavMenu';
 import { Footer } from './components/Footer';
 import { UserGreeting } from './components/UserGreeting';
 
-export default function Home() {
+// Server Actions
+import { getLatestTraditions } from '@/app/lib/actions/tradition/get';
+import { getLatestPublicPolicies } from '@/app/lib/actions/public-policy/get';
+import { getLatestEthnicGroups } from '@/app/lib/actions/ethnic-group/get';
+import { getLatestCreativeActivities } from '@/app/lib/actions/creative-activity/get';
+
+export default async function Home() {
+  // Pre-fetch footer data on server-side to avoid client-side POST requests
+  const footerData = await Promise.all([
+    getLatestTraditions(5),
+    getLatestPublicPolicies(5),
+    getLatestEthnicGroups(5),
+    getLatestCreativeActivities(5)
+  ]);
+
+  const footerProps = {
+    traditions: footerData[0].success ? footerData[0].data : [],
+    policies: footerData[1].success ? footerData[1].data : [],
+    ethnicGroups: footerData[2].success ? footerData[2].data : [],
+    creativeActivities: footerData[3].success ? footerData[3].data : []
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-green-400 to-green-600">
       <header className="p-4 flex items-center relative">
@@ -45,7 +66,7 @@ export default function Home() {
         </div>
       </main>
 
-      <Footer />
+      <Footer initialData={footerProps} />
     </div>
   );
 }

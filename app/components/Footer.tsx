@@ -24,21 +24,36 @@ interface LatestPublicPolicy {
   province: string;
 }
 
-export const Footer: React.FC = () => {
+interface FooterProps {
+  initialData?: {
+    traditions: LatestItem[];
+    policies: LatestPublicPolicy[];
+    ethnicGroups: LatestItem[];
+    creativeActivities: LatestItem[];
+  };
+}
+
+export const Footer: React.FC<FooterProps> = ({ initialData }) => {
   const [data, setData] = useState<{
     traditions: LatestItem[];
     policies: LatestPublicPolicy[];
     ethnicGroups: LatestItem[];
     creativeActivities: LatestItem[];
-  }>({
+  }>(initialData || {
     traditions: [],
     policies: [],
     ethnicGroups: [],
     creativeActivities: []
   });
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(!initialData);
 
   useEffect(() => {
+    // Only fetch data if initialData is not provided
+    if (initialData) {
+      setIsLoading(false);
+      return;
+    }
+
     let isMounted = true;
 
     const fetchLatestData = async () => {
@@ -67,7 +82,7 @@ export const Footer: React.FC = () => {
 
     fetchLatestData();
     return () => { isMounted = false };
-  }, []);
+  }, [initialData]);
 
   const renderLatestItems = (items: LatestItem[], path: string) => (
     <ul className="space-y-2">

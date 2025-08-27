@@ -1,12 +1,12 @@
-// app/components/public-policy/[id]/components/PublicPolicyDetailClient.tsx
+// app/components/public-policy/components/PublicPolicyDetailClient.tsx
 'use client'
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { FaCalendar, FaEye, FaVideo, FaFilePdf, FaMapMarkerAlt, FaHome, FaTag, FaUser, FaGlobe, FaListUl, FaImage } from 'react-icons/fa';
+import { FaCalendar, FaEye, FaVideo, FaFilePdf, FaMapMarkerAlt, FaHome, FaTag, FaUser, FaGlobe, FaListUl } from 'react-icons/fa';
 import { Modal } from 'antd';
-import Navbar from '../../../Navbar';
-import PrintPage from '../../../PrintPage';
+import Navbar from '../../Navbar';
+import PrintPage from '../../PrintPage';
 
 interface PublicPolicy {
   id: string;
@@ -91,12 +91,20 @@ export default function PublicPolicyDetailClient({ policy }: PublicPolicyDetailC
       <Navbar />
       
       <div className="max-w-5xl mx-auto px-6 lg:px-8 pt-24 pb-16">
-        <Link href="/components/public-policy" className="inline-block mb-12">
-          <div className="text-gray-600 hover:text-green-600 transition-colors duration-200 flex items-center gap-2 text-sm font-medium">
-            <FaHome className="text-sm" />
-            กลับสู่หน้ารวมนโยบายสาธารณะ
-          </div>
-        </Link>
+        <div className="flex justify-between items-center mb-12">
+          <Link
+            href="/components/public-policy"
+            className="inline-block"
+            data-back-button
+          >
+            <div className="text-gray-600 hover:text-green-600 transition-colors duration-200 flex items-center gap-2 text-base md:text-lg font-medium">
+              <FaHome className="text-green-500 text-lg md:text-xl" />
+              กลับสู่หน้ารวมนโยบายสาธารณะ
+            </div>
+          </Link>
+
+          <PrintPage showText={true} iconSize="md" />
+        </div>
         
         {/* Hero Section */}
         <div className="mb-16">
@@ -239,13 +247,10 @@ export default function PublicPolicyDetailClient({ policy }: PublicPolicyDetailC
             </section>
           )}
 
-          {/* Print and View Count */}
-          <div className="flex justify-between items-center pt-8 border-t border-gray-100">
-            <PrintPage />
-            <div className="flex items-center text-gray-500">
-              <FaEye className="mr-2" />
-              <p className="font-light">เข้าชมทั้งหมด {policy.viewCount} ครั้ง</p>
-            </div>
+          {/* View Count */}
+          <div className="flex justify-end items-center text-gray-500 pt-8">
+            <FaEye className="mr-2" />
+            <p className="font-light">เข้าชมทั้งหมด {policy.viewCount} ครั้ง</p>
           </div>
         </div>
       </div>

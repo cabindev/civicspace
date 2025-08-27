@@ -1,7 +1,7 @@
 // app/components/public-policy/[id]/page.tsx
 import { notFound } from 'next/navigation';
 import { getPublicPolicyById, incrementViewCount } from '@/app/lib/actions/public-policy/get';
-import PublicPolicyDetailClient from './components/PublicPolicyDetailClient';
+import PublicPolicyDetailClient from '../components/PublicPolicyDetailClient';
 
 interface PageProps {
   params: {

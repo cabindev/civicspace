@@ -1,11 +1,11 @@
-# ModSecurity whitelist for all Next.js component pages
+# ModSecurity whitelist for all Next.js application paths
 <IfModule mod_security2.c>
     # Disable problematic rules for all component groups
     SecRuleRemoveById 210710
     SecRuleRemoveById 214930
     
     # Allow common content types for Next.js
-    SecRule REQUEST_HEADERS:Content-Type "^(application/json|text/plain|multipart/form-data)" \
+    SecRule REQUEST_HEADERS:Content-Type "^(application/json|text/plain|multipart/form-data|application/x-www-form-urlencoded)" \
         "phase:1,allow,ctl:ruleEngine=DetectionOnly,id:999001"
     
     # Whitelist all component paths (traditions, ethnic-group, creative-activity, public-policy)
@@ -15,6 +15,22 @@
     # Also whitelist dashboard paths
     SecRule REQUEST_URI "^/dashboard/(traditions|ethnic-group|creative-activity|public-policy)" \
         "phase:1,allow,ctl:ruleEngine=DetectionOnly,id:999004"
+    
+    # Whitelist Next.js internal paths
+    SecRule REQUEST_URI "^/_next/" \
+        "phase:1,allow,ctl:ruleEngine=DetectionOnly,id:999008"
+    
+    # Whitelist API routes and auth
+    SecRule REQUEST_URI "^/api/" \
+        "phase:1,allow,ctl:ruleEngine=DetectionOnly,id:999009"
+    
+    # Allow Server Actions and form submissions
+    SecRule REQUEST_METHOD "POST" \
+        "phase:1,allow,ctl:ruleEngine=DetectionOnly,id:999010"
+        
+    # Allow all Next.js pages (broad whitelist)
+    SecRule REQUEST_URI "^/(components|dashboard|api|auth|_next)" \
+        "phase:1,allow,ctl:ruleEngine=DetectionOnly,id:999011"
 </IfModule>
 
 # Allow Next.js routing for all paths

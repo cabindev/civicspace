@@ -1,7 +1,17 @@
-# ModSecurity whitelist for all components paths
+# ModSecurity whitelist for all components paths and Next.js internals
 <IfModule mod_security.c>
     # Disable ModSecurity for all component groups
     <LocationMatch "^/components/(traditions|ethnic-group|creative-activity|public-policy)">
+        SecRuleEngine Off
+    </LocationMatch>
+    
+    # Disable for Next.js internal paths
+    <LocationMatch "^/_next/">
+        SecRuleEngine Off
+    </LocationMatch>
+    
+    # Disable for API routes
+    <LocationMatch "^/api/">
         SecRuleEngine Off
     </LocationMatch>
     
@@ -28,4 +38,17 @@
     # Whitelist all component paths
     SecRule REQUEST_URI "^/components/(traditions|ethnic-group|creative-activity|public-policy)" \
         "phase:1,allow,ctl:ruleEngine=DetectionOnly,id:999002"
+    
+    # Whitelist Next.js internals and Server Actions
+    SecRule REQUEST_URI "^/_next/" \
+        "phase:1,allow,ctl:ruleEngine=DetectionOnly,id:999005"
+    
+    # Whitelist API routes
+    SecRule REQUEST_URI "^/api/" \
+        "phase:1,allow,ctl:ruleEngine=DetectionOnly,id:999006"
+    
+    # Allow Server Actions (Next.js form submissions)
+    SecRule REQUEST_METHOD "POST" \
+        "chain,phase:1,allow,ctl:ruleEngine=DetectionOnly,id:999007"
+    SecRule REQUEST_HEADERS:Next-Action "!@eq 0"
 </IfModule>

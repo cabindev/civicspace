@@ -1,14 +1,22 @@
-# ModSecurity whitelist for Next.js API routes and pages
+# ModSecurity whitelist for all Next.js component pages
 <IfModule mod_security2.c>
-    # Disable problematic rules for Next.js pages
+    # Disable problematic rules for all component groups
     SecRuleRemoveById 210710
     SecRuleRemoveById 214930
     
     # Allow common content types for Next.js
     SecRule REQUEST_HEADERS:Content-Type "^(application/json|text/plain|multipart/form-data)" \
         "phase:1,allow,ctl:ruleEngine=DetectionOnly,id:999001"
+    
+    # Whitelist all component paths (traditions, ethnic-group, creative-activity, public-policy)
+    SecRule REQUEST_URI "^/components/(traditions|ethnic-group|creative-activity|public-policy)" \
+        "phase:1,allow,ctl:ruleEngine=DetectionOnly,id:999003"
+    
+    # Also whitelist dashboard paths
+    SecRule REQUEST_URI "^/dashboard/(traditions|ethnic-group|creative-activity|public-policy)" \
+        "phase:1,allow,ctl:ruleEngine=DetectionOnly,id:999004"
 </IfModule>
 
-# Allow Next.js routing
+# Allow Next.js routing for all paths
 RewriteEngine On
 RewriteBase /

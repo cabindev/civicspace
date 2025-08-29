@@ -1,27 +1,31 @@
-# ModSecurity whitelist for components/traditions paths
+# ModSecurity whitelist for all components paths
 <IfModule mod_security.c>
-    # Disable ModSecurity for traditions components
-    <LocationMatch "^/components/traditions">
+    # Disable ModSecurity for all component groups
+    <LocationMatch "^/components/(traditions|ethnic-group|creative-activity|public-policy)">
         SecRuleEngine Off
     </LocationMatch>
     
-    # Or disable specific rules
+    # Or disable specific rules for all components
     SecRuleRemoveById 210710
     SecRuleRemoveById 214930
     
-    # Allow text/plain content type for traditions
-    <LocationMatch "^/components/traditions">
+    # Allow text/plain content type for all component groups
+    <LocationMatch "^/components/(traditions|ethnic-group|creative-activity|public-policy)">
         SecRule REQUEST_HEADERS:Content-Type "text/plain" "phase:1,allow,ctl:ruleEngine=off,id:999001"
     </LocationMatch>
 </IfModule>
 
-# Alternative approach - disable for specific paths
-<Files ~ "^/components/traditions">
+# Alternative approach - disable for all component paths
+<Files ~ "^/components/">
     SecRuleEngine Off
 </Files>
 
-# For cPanel ModSecurity
+# For cPanel ModSecurity - disable problematic rules globally
 <IfModule mod_security2.c>
     SecRuleRemoveById 210710
     SecRuleRemoveById 214930
+    
+    # Whitelist all component paths
+    SecRule REQUEST_URI "^/components/(traditions|ethnic-group|creative-activity|public-policy)" \
+        "phase:1,allow,ctl:ruleEngine=DetectionOnly,id:999002"
 </IfModule>

@@ -1,38 +1,34 @@
-# ModSecurity whitelist for all Next.js application paths
-<IfModule mod_security2.c>
-    # Disable problematic rules for all component groups
-    SecRuleRemoveById 210710
-    SecRuleRemoveById 214930
-    
-    # Allow common content types for Next.js
-    SecRule REQUEST_HEADERS:Content-Type "^(application/json|text/plain|multipart/form-data|application/x-www-form-urlencoded)" \
-        "phase:1,allow,ctl:ruleEngine=DetectionOnly,id:999001"
-    
-    # Whitelist all component paths (traditions, ethnic-group, creative-activity, public-policy)
-    SecRule REQUEST_URI "^/components/(traditions|ethnic-group|creative-activity|public-policy)" \
-        "phase:1,allow,ctl:ruleEngine=DetectionOnly,id:999003"
-    
-    # Also whitelist dashboard paths
-    SecRule REQUEST_URI "^/dashboard/(traditions|ethnic-group|creative-activity|public-policy)" \
-        "phase:1,allow,ctl:ruleEngine=DetectionOnly,id:999004"
-    
-    # Whitelist Next.js internal paths
-    SecRule REQUEST_URI "^/_next/" \
-        "phase:1,allow,ctl:ruleEngine=DetectionOnly,id:999008"
-    
-    # Whitelist API routes and auth
-    SecRule REQUEST_URI "^/api/" \
-        "phase:1,allow,ctl:ruleEngine=DetectionOnly,id:999009"
-    
-    # Allow Server Actions and form submissions
-    SecRule REQUEST_METHOD "POST" \
-        "phase:1,allow,ctl:ruleEngine=DetectionOnly,id:999010"
-        
-    # Allow all Next.js pages (broad whitelist)
-    SecRule REQUEST_URI "^/(components|dashboard|api|auth|_next)" \
-        "phase:1,allow,ctl:ruleEngine=DetectionOnly,id:999011"
-</IfModule>
-
-# Allow Next.js routing for all paths
+# Basic Next.js routing - ModSecurity rules managed at server level
 RewriteEngine On
 RewriteBase /
+
+# Standard file serving
+<IfModule mod_mime.c>
+    AddType application/javascript .js
+    AddType text/css .css
+</IfModule>
+
+# Enable compression
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/plain
+    AddOutputFilterByType DEFLATE text/html
+    AddOutputFilterByType DEFLATE text/xml
+    AddOutputFilterByType DEFLATE text/css
+    AddOutputFilterByType DEFLATE application/xml
+    AddOutputFilterByType DEFLATE application/xhtml+xml
+    AddOutputFilterByType DEFLATE application/rss+xml
+    AddOutputFilterByType DEFLATE application/javascript
+    AddOutputFilterByType DEFLATE application/x-javascript
+</IfModule>
+
+# Cache static assets
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+    ExpiresByType image/png "access plus 1 month"
+    ExpiresByType image/jpg "access plus 1 month"
+    ExpiresByType image/jpeg "access plus 1 month"
+    ExpiresByType image/gif "access plus 1 month"
+    ExpiresByType image/svg+xml "access plus 1 month"
+</IfModule>

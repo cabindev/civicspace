@@ -40,8 +40,3 @@ next-env.d.ts
 !/public/uploads/.gitkeep
 /public/img/*
 !/public/img/.gitkeep
-/public1/uploads/*
-!/public1/uploads/.gitkeep
-/public1/img/*
-!/public1/img/.gitkeep
-/public1/

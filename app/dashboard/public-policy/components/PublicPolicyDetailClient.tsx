@@ -3,6 +3,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { FaCalendar, FaEye, FaVideo, FaFilePdf, FaMapMarkerAlt, FaEdit, FaHome, FaTag, FaGlobe, FaListUl } from 'react-icons/fa';
 import { Modal } from 'antd';
 
@@ -31,6 +32,7 @@ interface PublicPolicyDetailClientProps {
 
 export default function PublicPolicyDetailClient({ policy }: PublicPolicyDetailClientProps) {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
 
   const getPolicyLevelText = (level: string) => {
     const levels: Record<string, string> = {
@@ -81,6 +83,11 @@ export default function PublicPolicyDetailClient({ policy }: PublicPolicyDetailC
     setSelectedImage(url);
   };
 
+  const handleImageError = (url: string) => {
+    setImageErrors(prev => new Set(Array.from(prev).concat(url)));
+    console.warn('Failed to load image:', url);
+  };
+
   return (
     <div className="min-h-screen bg-white">
       <div className="max-w-5xl mx-auto px-6 lg:px-8 pt-8 pb-16">
@@ -93,13 +100,18 @@ export default function PublicPolicyDetailClient({ policy }: PublicPolicyDetailC
         
         {/* Hero Section */}
         <div className="mb-16">
-          <div className="aspect-[16/9] rounded-2xl overflow-hidden bg-gray-100 mb-6">
-            {policy.images && policy.images.length > 0 ? (
-              <img
+          <div className="aspect-[16/9] rounded-2xl overflow-hidden bg-gray-100 mb-6 relative max-w-3xl mx-auto">
+            {policy.images && policy.images.length > 0 && !imageErrors.has(policy.images[0].url) ? (
+              <Image
                 src={policy.images[0].url}
                 alt={policy.name}
-                className="w-full h-full object-cover cursor-pointer"
+                fill
+                className="object-cover cursor-pointer"
                 onClick={() => handleImageClick(policy.images[0].url)}
+                onError={() => handleImageError(policy.images?.[0]?.url || '')}
+                style={{ imageRendering: 'crisp-edges' }}
+                quality={100}
+                unoptimized
               />
             ) : (
               <div className="w-full h-full bg-gray-100 flex items-center justify-center">
@@ -107,7 +119,7 @@ export default function PublicPolicyDetailClient({ policy }: PublicPolicyDetailC
               </div>
             )}
           </div>
-          <h1 className="text-2xl md:text-3xl font-normal text-gray-900 leading-tight">
+          <h1 className="text-xl md:text-2xl font-normal text-gray-900 leading-tight">
             {policy.name}
           </h1>
         </div>
@@ -116,7 +128,7 @@ export default function PublicPolicyDetailClient({ policy }: PublicPolicyDetailC
         <div className="space-y-16">
           {/* General Information */}
           <section>
-            <h2 className="text-2xl font-normal mb-8 text-gray-900">ข้อมูลทั่วไป</h2>
+            <h2 className="text-xl font-normal mb-6 text-gray-900">ข้อมูลทั่วไป</h2>
             <div className="grid md:grid-cols-2 gap-x-16 gap-y-6">
               <div className="space-y-6">
                 <div className="flex items-center gap-3">
@@ -178,16 +190,23 @@ export default function PublicPolicyDetailClient({ policy }: PublicPolicyDetailC
             <section>
               <h2 className="text-2xl font-normal mb-8 text-gray-900">รูปภาพประกอบเพิ่มเติม</h2>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {policy.images.slice(1).map((img) => (
+                {policy.images.slice(1)
+                  .filter(img => !imageErrors.has(img.url))
+                  .map((img) => (
                   <div
                     key={img.id}
-                    className="aspect-square rounded-xl overflow-hidden bg-gray-100 cursor-pointer transition-transform duration-200 hover:scale-105 border border-green-100 hover:border-green-300"
+                    className="aspect-square rounded-xl overflow-hidden bg-gray-100 cursor-pointer transition-transform duration-200 hover:scale-105 border border-green-100 hover:border-green-300 relative"
                     onClick={() => handleImageClick(img.url)}
                   >
-                    <img 
-                      src={img.url} 
-                      alt="รูปภาพประกอบ" 
-                      className="w-full h-full object-cover"
+                    <Image
+                      src={img.url}
+                      alt="รูปภาพประกอบ"
+                      fill
+                      className="object-cover"
+                      onError={() => handleImageError(img.url)}
+                      style={{ imageRendering: 'crisp-edges' }}
+                      quality={100}
+                      unoptimized
                     />
                   </div>
                 ))}
@@ -261,10 +280,11 @@ export default function PublicPolicyDetailClient({ policy }: PublicPolicyDetailC
       >
         {selectedImage && (
           <div className="relative aspect-auto max-h-[90vh] overflow-hidden">
-            <img 
-              src={selectedImage} 
-              alt="รูปภาพขยาย" 
+            <img
+              src={selectedImage}
+              alt="รูปภาพขยาย"
               className="w-full h-full object-contain"
+              style={{ imageRendering: 'crisp-edges' }}
             />
           </div>
         )}

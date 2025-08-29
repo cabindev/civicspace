@@ -1,6 +1,6 @@
 // app/dashboard/creative-activity/[id]/page.tsx
 import { notFound } from 'next/navigation';
-import CreativeActivityDetailClient from './components/CreativeActivityDetailClient';
+import CreativeActivityDetailClient from '../components/CreativeActivityDetailClient';
 import { getCreativeActivityById, incrementCreativeActivityViewCount } from '@/app/lib/actions/creative-activity/get';
 
 interface PageProps {

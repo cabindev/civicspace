@@ -10,6 +10,7 @@ import { getProfile } from '@/app/lib/actions/profile/get';
 export default function ProfilePage() {
   const [userData, setUserData] = useState<UserData | null>(null);
   const [isPending, startTransition] = useTransition();
+  const [imageError, setImageError] = useState(false);
 
   const fetchUserData = useCallback(async () => {
     startTransition(async () => {
@@ -25,6 +26,11 @@ export default function ProfilePage() {
       }
     });
   }, []);
+
+  const handleImageError = () => {
+    setImageError(true);
+    console.warn('Failed to load profile image');
+  };
 
   useEffect(() => {
     fetchUserData();
@@ -47,11 +53,18 @@ export default function ProfilePage() {
         <div className="bg-white rounded-lg shadow-xl overflow-hidden mb-6">
           <div className="flex flex-col md:flex-row">
             <div className="w-full md:w-48 h-48 relative">
-              <img
-                className="w-full h-full object-cover"
-                src={userData.image || "/default-avatar.png"}
-                alt={`${userData.firstName} ${userData.lastName}`}
-              />
+              {userData.image && !imageError ? (
+                <img
+                  className="w-full h-full object-cover"
+                  src={userData.image}
+                  alt={`${userData.firstName} ${userData.lastName}`}
+                  onError={handleImageError}
+                />
+              ) : (
+                <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                  <FaUser className="text-6xl text-gray-400" />
+                </div>
+              )}
             </div>
             <div className="p-6 md:p-8 flex-grow">
               <div className="uppercase tracking-wide text-sm text-green-500 font-semibold">{userData.role}</div>

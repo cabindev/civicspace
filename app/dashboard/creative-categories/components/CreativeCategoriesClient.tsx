@@ -177,22 +177,27 @@ export default function CreativeCategoriesClient({ initialCategories }: Creative
       title: 'การดำเนินการ',
       key: 'action',
       render: (_: any, record: CreativeCategory) => (
-        <>
+        <div className="flex gap-2">
           <Button 
             icon={<EditOutlined />} 
             onClick={() => showModal('edit', record)} 
-            className="mr-2 bg-green-600 hover:bg-green-700 text-white border-green-600 hover:border-green-700" 
+            size="small"
+            className="bg-green-600 hover:bg-green-700 text-white border-green-600 hover:border-green-700" 
           />
           <Popconfirm
             title="คุณแน่ใจหรือไม่ที่จะลบประเภทนี้?"
             onConfirm={() => handleDelete(record.id, true)}
             okText="ใช่"
             cancelText="ไม่"
-            okButtonProps={{ className: 'bg-green-600 hover:bg-green-700 border-green-600 hover:border-green-700' }}
+            okButtonProps={{ className: 'bg-red-500 hover:bg-red-600' }}
           >
-            <Button icon={<DeleteOutlined />} danger />
+            <Button 
+              icon={<DeleteOutlined />} 
+              danger 
+              size="small"
+            />
           </Popconfirm>
-        </>
+        </div>
       ),
     },
   ];
@@ -212,22 +217,27 @@ export default function CreativeCategoriesClient({ initialCategories }: Creative
       title: 'การดำเนินการ',
       key: 'action',
       render: (_: any, record: CreativeSubCategory) => (
-        <>
+        <div className="flex gap-2">
           <Button 
             icon={<EditOutlined />} 
             onClick={() => showModal('edit', record)} 
-            className="mr-2 bg-green-600 hover:bg-green-700 text-white border-green-600 hover:border-green-700" 
+            size="small"
+            className="bg-green-600 hover:bg-green-700 text-white border-green-600 hover:border-green-700" 
           />
           <Popconfirm
             title="คุณแน่ใจหรือไม่ที่จะลบหมวดหมู่ย่อยนี้?"
             onConfirm={() => handleDelete(record.id, false)}
             okText="ใช่"
             cancelText="ไม่"
-            okButtonProps={{ className: 'bg-green-600 hover:bg-green-700 border-green-600 hover:border-green-700' }}
+            okButtonProps={{ className: 'bg-red-500 hover:bg-red-600' }}
           >
-            <Button icon={<DeleteOutlined />} danger />
+            <Button 
+              icon={<DeleteOutlined />} 
+              danger 
+              size="small"
+            />
           </Popconfirm>
-        </>
+        </div>
       ),
     },
   ];

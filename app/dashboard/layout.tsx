@@ -38,6 +38,7 @@ export default function DashboardLayout({
   const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
   const [openKeys, setOpenKeys] = useState<string[]>([]);
   const [isMobile, setIsMobile] = useState(false);
+  const [imageError, setImageError] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
   const { data: session, status } = useSession();
@@ -140,6 +141,11 @@ const menuItems = [
     setOpenKeys(keys);
   };
 
+  const handleImageError = () => {
+    setImageError(true);
+    console.warn('Failed to load user avatar');
+  };
+
   const userMenuItems = [
     {
       key: '0',
@@ -222,14 +228,15 @@ const menuItems = [
         <div className="flex items-center">
         <Dropdown menu={{ items: userMenuItems }} trigger={["click"]}>
               <div className="flex items-center cursor-pointer mr-4">
-                {session.user?.image ? (
+                {session.user?.image && !imageError ? (
                   <img
                     src={session.user.image}
                     alt="User Avatar"
                     className="w-10 h-10 rounded-full object-cover"
+                    onError={handleImageError}
                   />
                 ) : (
-                  <Avatar icon={<UserOutlined />} className="rounded-full" style={{ width: 32, height: 32 }} />
+                  <Avatar icon={<UserOutlined />} className="rounded-full" style={{ width: 40, height: 40 }} />
                 )}
                 {/* <span className="ml-2 hidden md:inline text-foreground">{session.user?.firstName}</span> */}
               </div>

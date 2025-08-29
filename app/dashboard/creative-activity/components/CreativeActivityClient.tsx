@@ -34,6 +34,7 @@ export default function CreativeActivityClient({ initialActivities }: CreativeAc
   const [selectedActivity, setSelectedActivity] = useState<CreativeActivity | null>(null);
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
   const isMobile = useMediaQuery({ maxWidth: 768 });
 
   const fetchActivities = async () => {
@@ -76,6 +77,11 @@ export default function CreativeActivityClient({ initialActivities }: CreativeAc
   const showDeleteModal = (activity: CreativeActivity) => {
     setSelectedActivity(activity);
     setIsDeleteModalVisible(true);
+  };
+
+  const handleImageError = (url: string) => {
+    setImageErrors(prev => new Set(Array.from(prev).concat(url)));
+    console.warn('Failed to load image:', url);
   };
 
   const columns = [
@@ -166,11 +172,12 @@ export default function CreativeActivityClient({ initialActivities }: CreativeAc
   const MobileCard = ({ activity, index }: { activity: CreativeActivity; index: number }) => (
     <div className="card bg-base-100 shadow-xl mb-4 border border-green-100">
       <figure className="h-48">
-        {activity.images && activity.images.length > 0 ? (
+        {activity.images && activity.images.length > 0 && !imageErrors.has(activity.images[0].url) ? (
           <img
             src={activity.images[0].url}
             alt={activity.name}
             className="w-full h-full object-cover"
+            onError={() => handleImageError(activity.images?.[0]?.url || '')}
           />
         ) : (
           <div className="w-full h-full bg-green-50 flex items-center justify-center text-green-600">

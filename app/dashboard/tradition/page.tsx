@@ -31,6 +31,7 @@ export default function TraditionList() {
   const [isPending, startTransition] = useTransition();
   const [selectedTradition, setSelectedTradition] = useState<Tradition | null>(null);
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
+  const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
   const isMobile = useMediaQuery({ maxWidth: 768 });
 
   useEffect(() => {
@@ -79,6 +80,11 @@ export default function TraditionList() {
   const showDeleteModal = (tradition: Tradition) => {
     setSelectedTradition(tradition);
     setIsDeleteModalVisible(true);
+  };
+
+  const handleImageError = (url: string) => {
+    setImageErrors(prev => new Set(Array.from(prev).concat(url)));
+    console.warn('Failed to load image:', url);
   };
 
   const columns = [
@@ -154,11 +160,12 @@ export default function TraditionList() {
   const MobileCard = ({ tradition, index }: { tradition: Tradition; index: number }) => (
     <div className="card bg-base-100 shadow-xl mb-4 border border-green-100">
       <figure className="h-48">
-        {tradition.images && tradition.images.length > 0 ? (
+        {tradition.images && tradition.images.length > 0 && !imageErrors.has(tradition.images[0].url) ? (
           <img
             src={tradition.images[0].url}
             alt={tradition.name}
             className="w-full h-full object-cover"
+            onError={() => handleImageError(tradition.images?.[0]?.url || '')}
           />
         ) : (
           <div className="w-full h-full bg-green-50 flex items-center justify-center text-green-600">

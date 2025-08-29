@@ -37,6 +37,7 @@ interface PublicPolicyDetailClientProps {
 
 export default function PublicPolicyDetailClient({ policy }: PublicPolicyDetailClientProps) {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
 
   const getPolicyLevelText = (level: string) => {
     const levels: Record<string, string> = {
@@ -86,6 +87,15 @@ export default function PublicPolicyDetailClient({ policy }: PublicPolicyDetailC
     setSelectedImage(url);
   };
 
+  const handleImageError = (url: string) => {
+    setImageErrors(prev => {
+      const next = new Set(prev);
+      next.add(url);
+      return next;
+    });
+    console.warn('Failed to load image:', url);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
@@ -109,12 +119,13 @@ export default function PublicPolicyDetailClient({ policy }: PublicPolicyDetailC
         {/* Hero Section */}
         <div className="mb-16">
           <div className="aspect-[16/9] rounded-2xl overflow-hidden bg-gray-100 mb-6">
-            {policy.images && policy.images.length > 0 ? (
+            {policy.images && policy.images.length > 0 && !imageErrors.has(policy.images[0].url) ? (
               <img
                 src={policy.images[0].url}
                 alt={policy.name}
                 className="w-full h-full object-cover cursor-pointer"
                 onClick={() => handleImageClick(policy.images[0].url)}
+                onError={() => handleImageError(policy.images[0].url)}
               />
             ) : (
               <div className="w-full h-full bg-gray-100 flex items-center justify-center">
@@ -200,7 +211,9 @@ export default function PublicPolicyDetailClient({ policy }: PublicPolicyDetailC
             <section>
               <h2 className="text-2xl font-normal mb-8 text-gray-900">รูปภาพประกอบเพิ่มเติม</h2>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {policy.images.slice(1).map((img) => (
+                {policy.images.slice(1)
+                  .filter(img => !imageErrors.has(img.url))
+                  .map((img) => (
                   <div
                     key={img.id}
                     className="aspect-square rounded-xl overflow-hidden bg-gray-100 cursor-pointer transition-transform duration-200 hover:scale-105 border border-green-100 hover:border-green-300"
@@ -210,6 +223,7 @@ export default function PublicPolicyDetailClient({ policy }: PublicPolicyDetailC
                       src={img.url} 
                       alt="รูปภาพประกอบ" 
                       className="w-full h-full object-cover"
+                      onError={() => handleImageError(img.url)}
                     />
                   </div>
                 ))}

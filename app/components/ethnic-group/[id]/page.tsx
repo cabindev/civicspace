@@ -1,8 +1,8 @@
 //app/components/ethnic-group/[id]/page.tsx
 'use client'
 
-import React, { useState, useEffect, useCallback } from 'react';
-import { useParams } from 'next/navigation';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 // Server Actions
 import { getEthnicGroupById } from '@/app/lib/actions/ethnic-group/get';
@@ -11,6 +11,7 @@ import { FaCalendar, FaEye, FaVideo, FaFileAlt, FaMapMarkerAlt, FaUser, FaHistor
 import { Modal, Spin } from 'antd';
 import Navbar from '../../Navbar';
 import PrintPage from '../../PrintPage';
+import NotFoundPage from '../../NotFoundPage';
 
 interface EthnicGroup {
   id: string;
@@ -42,32 +43,53 @@ interface EthnicGroup {
 
 export default function EthnicGroupDetails() {
   const { id } = useParams();
+  const router = useRouter();
   const [ethnicGroup, setEthnicGroup] = useState<EthnicGroup | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [notFound, setNotFound] = useState(false);
+  const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
+  const viewCountUpdated = useRef(false);
 
   const fetchEthnicGroupDetails = useCallback(async () => {
-    if (!id || typeof id !== 'string') return;
+    if (!id || typeof id !== 'string') {
+      setNotFound(true);
+      setLoading(false);
+      return;
+    }
 
     try {
       setLoading(true);
       
       // Get ethnic group data
       const result = await getEthnicGroupById(id);
-      if (result.success) {
+      if (result.success && result.data) {
         setEthnicGroup(result.data);
         
-        // Increment view count
-        await incrementEthnicGroupViewCount(id);
+        // Increment view count only once
+        if (!viewCountUpdated.current) {
+          await incrementEthnicGroupViewCount(id);
+          viewCountUpdated.current = true;
+        }
       } else {
         console.error('Failed to fetch ethnic group details:', result.error);
+        setNotFound(true);
+        // Redirect to ethnic groups list after 3 seconds
+        setTimeout(() => {
+          router.push('/components/ethnic-group');
+        }, 3000);
       }
     } catch (error) {
       console.error('Failed to fetch ethnic group details:', error);
+      setNotFound(true);
+      // Redirect to ethnic groups list after 3 seconds
+      setTimeout(() => {
+        router.push('/components/ethnic-group');
+      }, 3000);
     } finally {
       setLoading(false);
     }
-  }, [id]);
+  }, [id, router]);
 
   useEffect(() => {
     fetchEthnicGroupDetails();
@@ -75,6 +97,15 @@ export default function EthnicGroupDetails() {
 
   const handleImageClick = (url: string) => {
     setSelectedImage(url);
+  };
+
+  const handleImageError = (url: string) => {
+    setImageErrors(prev => {
+      const next = new Set(prev);
+      next.add(url);
+      return next;
+    });
+    console.warn('Failed to load image:', url);
   };
 
   if (loading) {
@@ -85,8 +116,17 @@ export default function EthnicGroupDetails() {
     );
   }
 
-  if (!ethnicGroup) {
-    return <div className="text-center text-2xl mt-10 text-gray-900">ไม่พบข้อมูลกลุ่มชาติพันธุ์</div>;
+  if (notFound || !ethnicGroup) {
+    return (
+      <NotFoundPage
+        title="ไม่พบข้อมูลกลุ่มชาติพันธุ์"
+        description="กลุ่มชาติพันธุ์ที่คุณกำลังหาไม่มีอยู่ในระบบ หรืออาจถูกลบออกไปแล้ว"
+        backUrl="/components/ethnic-group"
+        backText="กลับสู่หน้ารวมกลุ่มชาติพันธุ์"
+        buttonColor="purple"
+        isDashboard={false}
+      />
+    );
   }
 
   return (
@@ -111,11 +151,12 @@ export default function EthnicGroupDetails() {
         {/* Hero Section */}
         <div className="mb-16">
           <div className="aspect-[16/9] rounded-2xl overflow-hidden bg-gray-100 mb-6">
-            {ethnicGroup.images && ethnicGroup.images.length > 0 ? (
+            {ethnicGroup.images && ethnicGroup.images.length > 0 && !imageErrors.has(ethnicGroup.images[0].url) ? (
               <img
                 src={ethnicGroup.images[0].url}
                 alt={ethnicGroup.name}
                 className="w-full h-full object-cover"
+                onError={() => handleImageError(ethnicGroup.images[0].url)}
               />
             ) : (
               <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex flex-col items-center justify-center">
@@ -239,7 +280,9 @@ export default function EthnicGroupDetails() {
                 รูปภาพประกอบเพิ่มเติม
               </h2>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {ethnicGroup.images.slice(1).map((img) => (
+                {ethnicGroup.images.slice(1)
+                  .filter(img => !imageErrors.has(img.url))
+                  .map((img) => (
                   <div
                     key={img.id}
                     className="aspect-square rounded-xl overflow-hidden bg-gray-100 cursor-pointer transition-transform duration-200 hover:scale-105"
@@ -249,6 +292,7 @@ export default function EthnicGroupDetails() {
                       src={img.url}
                       alt="รูปภาพประกอบ"
                       className="w-full h-full object-cover"
+                      onError={() => handleImageError(img.url)}
                     />
                   </div>
                 ))}

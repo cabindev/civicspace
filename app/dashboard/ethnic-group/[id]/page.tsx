@@ -1,6 +1,6 @@
 // app/dashboard/ethnic-group/[id]/page.tsx
 import { notFound } from 'next/navigation';
-import EthnicGroupDetailClient from './components/EthnicGroupDetailClient';
+import EthnicGroupDetailClient from '../components/EthnicGroupDetailClient';
 import { getEthnicGroupById, incrementEthnicGroupViewCount } from '@/app/lib/actions/ethnic-group/get';
 
 interface PageProps {

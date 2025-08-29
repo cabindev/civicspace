@@ -32,6 +32,7 @@ export default function EthnicGroupClient({ initialEthnicGroups }: EthnicGroupCl
   const [selectedEthnicGroup, setSelectedEthnicGroup] = useState<EthnicGroup | null>(null);
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
   const isMobile = useMediaQuery({ maxWidth: 768 });
 
   const fetchEthnicGroups = async () => {
@@ -74,6 +75,11 @@ export default function EthnicGroupClient({ initialEthnicGroups }: EthnicGroupCl
   const showDeleteModal = (ethnicGroup: EthnicGroup) => {
     setSelectedEthnicGroup(ethnicGroup);
     setIsDeleteModalVisible(true);
+  };
+
+  const handleImageError = (url: string) => {
+    setImageErrors(prev => new Set(Array.from(prev).concat(url)));
+    console.warn('Failed to load image:', url);
   };
 
   const columns = [
@@ -149,11 +155,12 @@ export default function EthnicGroupClient({ initialEthnicGroups }: EthnicGroupCl
   const MobileCard = ({ ethnicGroup, index }: { ethnicGroup: EthnicGroup; index: number }) => (
     <div className="card bg-base-100 shadow-xl mb-4 border border-green-100">
       <figure className="h-48">
-        {ethnicGroup.images && ethnicGroup.images.length > 0 ? (
+        {ethnicGroup.images && ethnicGroup.images.length > 0 && !imageErrors.has(ethnicGroup.images[0].url) ? (
           <img
             src={ethnicGroup.images[0].url}
             alt={ethnicGroup.name}
             className="w-full h-full object-cover"
+            onError={() => handleImageError(ethnicGroup.images?.[0]?.url || '')}
           />
         ) : (
           <div className="w-full h-full bg-green-50 flex items-center justify-center text-green-600">

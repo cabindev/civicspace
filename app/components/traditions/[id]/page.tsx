@@ -207,9 +207,9 @@ export default function TraditionDetails() {
           {/* Content Sections */}
           <section className="space-y-12">
             <div>
-              <h3 className="text-xl font-normal mb-6 text-gray-900">
+              <h2 className="text-2xl font-light mb-8 text-gray-900">
                 แนวทางการจัดงานแบบปลอดเหล้า
-              </h3>
+              </h2>
               <p className="text-gray-700 leading-relaxed font-light text-lg">
                 {tradition.alcoholFreeApproach}
               </p>
@@ -217,9 +217,9 @@ export default function TraditionDetails() {
 
             {tradition.results && (
               <div>
-                <h3 className="text-xl font-normal mb-6 text-gray-900">
+                <h2 className="text-2xl font-light mb-8 text-gray-900">
                   ผลลัพธ์
-                </h3>
+                </h2>
                 <p className="text-gray-700 leading-relaxed font-light text-lg">
                   {tradition.results}
                 </p>
@@ -227,9 +227,9 @@ export default function TraditionDetails() {
             )}
 
             <div>
-              <h3 className="text-xl font-normal mb-6 text-gray-900">
+              <h2 className="text-2xl font-light mb-8 text-gray-900">
                 ประวัติของงาน
-              </h3>
+              </h2>
               <p className="text-gray-700 leading-relaxed font-light text-lg">
                 {tradition.history}
               </p>

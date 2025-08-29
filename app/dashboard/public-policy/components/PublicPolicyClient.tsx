@@ -33,6 +33,7 @@ export default function PublicPolicyClient({ initialPolicies }: PublicPolicyClie
   const [selectedPolicy, setSelectedPolicy] = useState<PublicPolicy | null>(null);
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
   const isMobile = useMediaQuery({ maxWidth: 768 });
 
   const fetchPolicies = async () => {
@@ -75,6 +76,11 @@ export default function PublicPolicyClient({ initialPolicies }: PublicPolicyClie
   const showDeleteModal = (policy: PublicPolicy) => {
     setSelectedPolicy(policy);
     setIsDeleteModalVisible(true);
+  };
+
+  const handleImageError = (url: string) => {
+    setImageErrors(prev => new Set(Array.from(prev).concat(url)));
+    console.warn('Failed to load image:', url);
   };
 
   const columns = [
@@ -161,11 +167,12 @@ export default function PublicPolicyClient({ initialPolicies }: PublicPolicyClie
   const MobileCard = ({ policy, index }: { policy: PublicPolicy; index: number }) => (
     <div className="card bg-base-100 shadow-xl mb-4 border border-green-100">
       <figure className="h-48">
-        {policy.images && policy.images.length > 0 ? (
+        {policy.images && policy.images.length > 0 && !imageErrors.has(policy.images[0].url) ? (
           <img
             src={policy.images[0].url}
             alt={policy.name}
             className="w-full h-full object-cover"
+            onError={() => handleImageError(policy.images?.[0]?.url || '')}
           />
         ) : (
           <div className="w-full h-full bg-green-50 flex items-center justify-center text-green-600">

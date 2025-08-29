@@ -25,6 +25,7 @@ export default function EthnicGroupList() {
   const [ethnicGroups, setEthnicGroups] = useState<EthnicGroup[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
+  const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     const fetchEthnicGroups = async () => {
@@ -55,6 +56,11 @@ export default function EthnicGroupList() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const handleImageError = (url: string) => {
+    setImageErrors(prev => new Set(Array.from(prev).concat(url)));
+    console.warn('Failed to load image:', url);
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen bg-white">
@@ -83,11 +89,12 @@ export default function EthnicGroupList() {
             <Link href={`/components/ethnic-group/${group.id}`} key={group.id}>
               <div className="bg-white rounded-2xl overflow-hidden transition-transform duration-200 hover:scale-105 cursor-pointer">
                 <div className="aspect-[16/9] relative">
-                  {group.images && group.images.length > 0 ? (
+                  {group.images && group.images.length > 0 && !imageErrors.has(group.images[0].url) ? (
                     <img
                       src={group.images[0].url}
                       alt={group.name}
                       className="w-full h-full object-cover"
+                      onError={() => handleImageError(group.images?.[0]?.url || '')}
                     />
                   ) : (
                     <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex flex-col items-center justify-center">

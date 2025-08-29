@@ -29,6 +29,7 @@ export default function TraditionList() {
   const [traditions, setTraditions] = useState<Tradition[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
+  const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     const fetchTraditions = async () => {
@@ -56,6 +57,11 @@ export default function TraditionList() {
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleImageError = (url: string) => {
+    setImageErrors(prev => new Set(Array.from(prev).concat(url)));
+    console.warn('Failed to load image:', url);
   };
 
   if (loading) {
@@ -86,11 +92,12 @@ export default function TraditionList() {
             <Link href={`/components/traditions/${tradition.id}`} key={tradition.id}>
               <div className="bg-white rounded-2xl overflow-hidden transition-transform duration-200 hover:scale-105 cursor-pointer">
                 <div className="aspect-[16/9] relative">
-                  {tradition.images && tradition.images.length > 0 ? (
+                  {tradition.images && tradition.images.length > 0 && !imageErrors.has(tradition.images[0].url) ? (
                     <img
                       src={tradition.images[0].url}
                       alt={tradition.name}
                       className="w-full h-full object-cover"
+                      onError={() => handleImageError(tradition.images?.[0]?.url || '')}
                     />
                   ) : (
                     <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">

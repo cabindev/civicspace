@@ -1,6 +1,6 @@
 // app/dashboard/public-policy/[id]/page.tsx
 import { notFound } from 'next/navigation';
-import PublicPolicyDetailClient from './components/PublicPolicyDetailClient';
+import PublicPolicyDetailClient from '../components/PublicPolicyDetailClient';
 import { getPublicPolicyById, incrementViewCount } from '@/app/lib/actions/public-policy/get';
 
 interface PageProps {

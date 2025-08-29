@@ -37,6 +37,7 @@ export default function PublicPolicyList() {
   const [policies, setPolicies] = useState<PublicPolicy[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
+  const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     const fetchPolicies = async () => {
@@ -64,6 +65,11 @@ export default function PublicPolicyList() {
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleImageError = (url: string) => {
+    setImageErrors(prev => new Set(Array.from(prev).concat(url)));
+    console.warn('Failed to load image:', url);
   };
 
   if (loading) {
@@ -94,11 +100,12 @@ export default function PublicPolicyList() {
             <Link href={`/components/public-policy/${policy.id}`} key={policy.id}>
               <div className="bg-white rounded-2xl overflow-hidden transition-transform duration-200 hover:scale-105 cursor-pointer">
                 <div className="aspect-[16/9] relative">
-                  {policy.images && policy.images.length > 0 ? (
+                  {policy.images && policy.images.length > 0 && !imageErrors.has(policy.images[0].url) ? (
                     <img
                       src={policy.images[0].url}
                       alt={policy.name}
                       className="w-full h-full object-cover"
+                      onError={() => handleImageError(policy.images?.[0]?.url || '')}
                     />
                   ) : (
                     <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">

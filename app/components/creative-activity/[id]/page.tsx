@@ -1,8 +1,8 @@
 //app/components/creative-activity/[id]/page.tsx
 'use client'
 
-import React, { useState, useEffect, useCallback } from 'react';
-import { useParams } from 'next/navigation';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 // Server Actions
 import { getCreativeActivityById } from '@/app/lib/actions/creative-activity/get';
@@ -11,6 +11,7 @@ import { FaUser, FaPhone, FaCalendar, FaEye, FaVideo, FaFilePdf, FaMapMarkerAlt,
 import { Modal, Spin } from 'antd';
 import Navbar from '../../Navbar';
 import PrintPage from '../../PrintPage';
+import NotFoundPage from '../../NotFoundPage';
 
 interface CreativeActivity {
   id: string;
@@ -44,32 +45,53 @@ interface CreativeActivity {
 
 export default function CreativeActivityDetails() {
   const { id } = useParams();
+  const router = useRouter();
   const [activity, setActivity] = useState<CreativeActivity | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [notFound, setNotFound] = useState(false);
+  const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
+  const viewCountUpdated = useRef(false);
 
   const fetchActivityDetails = useCallback(async () => {
-    if (!id || typeof id !== 'string') return;
+    if (!id || typeof id !== 'string') {
+      setNotFound(true);
+      setLoading(false);
+      return;
+    }
 
     try {
       setLoading(true);
       
       // Get creative activity data
       const result = await getCreativeActivityById(id);
-      if (result.success) {
+      if (result.success && result.data) {
         setActivity(result.data);
         
-        // Increment view count
-        await incrementCreativeActivityViewCount(id);
+        // Increment view count only once
+        if (!viewCountUpdated.current) {
+          await incrementCreativeActivityViewCount(id);
+          viewCountUpdated.current = true;
+        }
       } else {
         console.error('Failed to fetch creative activity details:', result.error);
+        setNotFound(true);
+        // Redirect to creative activities list after 3 seconds
+        setTimeout(() => {
+          router.push('/components/creative-activity');
+        }, 3000);
       }
     } catch (error) {
       console.error('Failed to fetch creative activity details:', error);
+      setNotFound(true);
+      // Redirect to creative activities list after 3 seconds
+      setTimeout(() => {
+        router.push('/components/creative-activity');
+      }, 3000);
     } finally {
       setLoading(false);
     }
-  }, [id]);
+  }, [id, router]);
 
   useEffect(() => {
     fetchActivityDetails();
@@ -77,6 +99,15 @@ export default function CreativeActivityDetails() {
 
   const handleImageClick = (url: string) => {
     setSelectedImage(url);
+  };
+
+  const handleImageError = (url: string) => {
+    setImageErrors(prev => {
+      const next = new Set(prev);
+      next.add(url);
+      return next;
+    });
+    console.warn('Failed to load image:', url);
   };
 
   if (loading) {
@@ -87,8 +118,17 @@ export default function CreativeActivityDetails() {
     );
   }
 
-  if (!activity) {
-    return <div className="text-center text-2xl mt-10 text-gray-900">ไม่พบข้อมูลกิจกรรมสร้างสรรค์</div>;
+  if (notFound || !activity) {
+    return (
+      <NotFoundPage
+        title="ไม่พบข้อมูลกิจกรรมสร้างสรรค์"
+        description="กิจกรรมสร้างสรรค์ที่คุณกำลังหาไม่มีอยู่ในระบบ หรืออาจถูกลบออกไปแล้ว"
+        backUrl="/components/creative-activity"
+        backText="กลับสู่หน้ารวมกิจกรรมสร้างสรรค์"
+        buttonColor="orange"
+        isDashboard={false}
+      />
+    );
   }
 
   return (
@@ -113,11 +153,12 @@ export default function CreativeActivityDetails() {
         {/* Hero Section */}
         <div className="mb-16">
           <div className="aspect-[16/9] rounded-2xl overflow-hidden bg-gray-100 mb-6">
-            {activity.images && activity.images.length > 0 ? (
+            {activity.images && activity.images.length > 0 && !imageErrors.has(activity.images[0].url) ? (
               <img
                 src={activity.images[0].url}
                 alt={activity.name}
                 className="w-full h-full object-cover"
+                onError={() => handleImageError(activity.images[0].url)}
               />
             ) : (
               <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex flex-col items-center justify-center">
@@ -245,7 +286,9 @@ export default function CreativeActivityDetails() {
                 รูปภาพประกอบเพิ่มเติม
               </h2>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {activity.images.slice(1).map((img) => (
+                {activity.images.slice(1)
+                  .filter(img => !imageErrors.has(img.url))
+                  .map((img) => (
                   <div
                     key={img.id}
                     className="aspect-square rounded-xl overflow-hidden bg-gray-100 cursor-pointer transition-transform duration-200 hover:scale-105"
@@ -255,6 +298,7 @@ export default function CreativeActivityDetails() {
                       src={img.url}
                       alt="รูปภาพประกอบ"
                       className="w-full h-full object-cover"
+                      onError={() => handleImageError(img.url)}
                     />
                   </div>
                 ))}

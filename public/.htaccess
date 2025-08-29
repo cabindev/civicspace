@@ -1,0 +1,14 @@
+# ModSecurity whitelist for Next.js API routes and pages
+<IfModule mod_security2.c>
+    # Disable problematic rules for Next.js pages
+    SecRuleRemoveById 210710
+    SecRuleRemoveById 214930
+    
+    # Allow common content types for Next.js
+    SecRule REQUEST_HEADERS:Content-Type "^(application/json|text/plain|multipart/form-data)" \
+        "phase:1,allow,ctl:ruleEngine=DetectionOnly,id:999001"
+</IfModule>
+
+# Allow Next.js routing
+RewriteEngine On
+RewriteBase /

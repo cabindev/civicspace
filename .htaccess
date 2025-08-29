@@ -1,34 +1,4 @@
-# ModSecurity whitelist for all components paths and Next.js internals
-<IfModule mod_security.c>
-    # Disable ModSecurity for all component groups
-    <LocationMatch "^/components/(traditions|ethnic-group|creative-activity|public-policy)">
-        SecRuleEngine Off
-    </LocationMatch>
-    
-    # Disable for Next.js internal paths
-    <LocationMatch "^/_next/">
-        SecRuleEngine Off
-    </LocationMatch>
-    
-    # Disable for API routes
-    <LocationMatch "^/api/">
-        SecRuleEngine Off
-    </LocationMatch>
-    
-    # Or disable specific rules for all components
-    SecRuleRemoveById 210710
-    SecRuleRemoveById 214930
-    
-    # Allow text/plain content type for all component groups
-    <LocationMatch "^/components/(traditions|ethnic-group|creative-activity|public-policy)">
-        SecRule REQUEST_HEADERS:Content-Type "text/plain" "phase:1,allow,ctl:ruleEngine=off,id:999001"
-    </LocationMatch>
-</IfModule>
-
-# Alternative approach - disable for all component paths
-<Files ~ "^/components/">
-    SecRuleEngine Off
-</Files>
+# ModSecurity whitelist - simplified for shared hosting compatibility
 
 # For cPanel ModSecurity - disable problematic rules globally
 <IfModule mod_security2.c>
@@ -47,8 +17,10 @@
     SecRule REQUEST_URI "^/api/" \
         "phase:1,allow,ctl:ruleEngine=DetectionOnly,id:999006"
     
-    # Allow Server Actions (Next.js form submissions)
-    SecRule REQUEST_METHOD "POST" \
-        "chain,phase:1,allow,ctl:ruleEngine=DetectionOnly,id:999007"
-    SecRule REQUEST_HEADERS:Next-Action "!@eq 0"
+    # Allow common content types
+    SecRule REQUEST_HEADERS:Content-Type "^(application/json|text/plain|multipart/form-data|application/x-www-form-urlencoded)" \
+        "phase:1,allow,ctl:ruleEngine=DetectionOnly,id:999007"
 </IfModule>
+
+# Standard Next.js routing
+RewriteEngine On

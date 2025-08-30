@@ -223,8 +223,8 @@ export default function DashboardClient({ initialData, initialLocations }: Dashb
             )}
 
             {/* Dashboard Content */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <OverviewCards data={displayData.overview} />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
+              <OverviewCards data={displayData.overview} showNotifications={!isFiltered} />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
@@ -247,7 +247,8 @@ export default function DashboardClient({ initialData, initialLocations }: Dashb
                 <CreativeActivityChart data={displayData.creativeActivityChart || data.creativeActivityChart} />
               )}
               {(displayData.ethnicGroupChart || (currentFilter.dataType === 'all' && data.ethnicGroupChart)) && 
-               (currentFilter.dataType === 'all' || currentFilter.dataType === 'ethnicGroup') && (
+               (currentFilter.dataType === 'all' || currentFilter.dataType === 'ethnicGroup') &&
+               (displayData.ethnicGroupChart || data.ethnicGroupChart)?.length > 0 && (
                 <EthnicGroupChart data={displayData.ethnicGroupChart || data.ethnicGroupChart} />
               )}
             </div>

@@ -47,8 +47,9 @@ export function validateFormData(formData: FormData, requiredFields: string[]): 
   return { success: true };
 }
 
-export function extractFormDataString(formData: FormData, field: string): string {
-  return (formData.get(field) as string) || '';
+export function extractFormDataString(formData: FormData, field: string): string | null {
+  const value = formData.get(field) as string;
+  return value && value.trim() !== '' ? value.trim() : null;
 }
 
 export function extractFormDataNumber(formData: FormData, field: string): number | undefined {

@@ -293,6 +293,7 @@ export async function getDashboardRecentActivities(): Promise<ActionResult> {
       select: {
         name: true,
         type: true,
+        province: true,
         createdAt: true,
       },
     });
@@ -300,6 +301,8 @@ export async function getDashboardRecentActivities(): Promise<ActionResult> {
     const formattedActivities = recentActivities.map(activity => ({
       description: `New ${activity.type}: ${activity.name}`,
       date: activity.createdAt.toISOString(),
+      type: activity.type,
+      region: activity.province,
     }));
 
     return {
@@ -328,6 +331,7 @@ export async function getDashboardRecentPolicies(): Promise<ActionResult> {
         district: true,
         amphoe: true,
         province: true,
+        type: true,
       },
     });
 
@@ -763,7 +767,14 @@ export async function getDashboardFilteredData(dataType?: string, year?: string,
   try {
     // Initialize result object
     const result: any = {
-      overview: {},
+      overview: {
+        traditionCount: 0,
+        publicPolicyCount: 0,
+        ethnicGroupCount: 0,
+        creativeActivityCount: 0,
+        userCount: 0,
+        totalCount: 0
+      },
       recentActivities: [],
       recentPolicies: [],
       traditionChart: [],
@@ -773,7 +784,7 @@ export async function getDashboardFilteredData(dataType?: string, year?: string,
     };
 
     // Fetch data based on dataType filter
-    if (dataType === 'all' || dataType === 'tradition') {
+    if (!dataType || dataType === 'all' || dataType === 'tradition') {
       const traditions = await prisma.tradition.findMany({
         where: buildWhereClause('tradition', year, region, province),
         include: {
@@ -807,12 +818,14 @@ export async function getDashboardFilteredData(dataType?: string, year?: string,
       traditions.slice(0, 3).forEach(tradition => {
         result.recentActivities.push({
           description: `เพิ่มประเพณี: ${tradition.name}`,
-          date: tradition.createdAt
+          date: tradition.createdAt,
+          type: tradition.type,
+          region: tradition.province
         });
       });
     }
 
-    if (dataType === 'all' || dataType === 'publicPolicy') {
+    if (!dataType || dataType === 'all' || dataType === 'publicPolicy') {
       const publicPolicies = await prisma.publicPolicy.findMany({
         where: buildWhereClause('publicPolicy', year, region, province),
         include: {
@@ -844,11 +857,12 @@ export async function getDashboardFilteredData(dataType?: string, year?: string,
         level: policy.level,
         district: policy.district,
         amphoe: policy.amphoe,
-        province: policy.province
+        province: policy.province,
+        type: policy.type
       }));
     }
 
-    if (dataType === 'all' || dataType === 'ethnicGroup') {
+    if (!dataType || dataType === 'all' || dataType === 'ethnicGroup') {
       const ethnicGroups = await prisma.ethnicGroup.findMany({
         where: buildWhereClause('ethnicGroup', year, region, province),
         include: {
@@ -882,12 +896,14 @@ export async function getDashboardFilteredData(dataType?: string, year?: string,
       ethnicGroups.slice(0, 1).forEach(group => {
         result.recentActivities.push({
           description: `เพิ่มกลุ่มชาติพันธุ์: ${group.name}`,
-          date: group.createdAt
+          date: group.createdAt,
+          type: group.type,
+          region: group.province
         });
       });
     }
 
-    if (dataType === 'all' || dataType === 'creativeActivity') {
+    if (!dataType || dataType === 'all' || dataType === 'creativeActivity') {
       const creativeActivities = await prisma.creativeActivity.findMany({
         where: buildWhereClause('creativeActivity', year, region, province),
         include: {
@@ -926,7 +942,9 @@ export async function getDashboardFilteredData(dataType?: string, year?: string,
       creativeActivities.slice(0, 2).forEach(activity => {
         result.recentActivities.push({
           description: `เพิ่มกิจกรรมสร้างสรรค์: ${activity.name}`,
-          date: activity.createdAt
+          date: activity.createdAt,
+          type: activity.type,
+          region: activity.province
         });
       });
     }

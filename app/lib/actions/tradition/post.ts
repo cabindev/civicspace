@@ -27,7 +27,7 @@ export async function createTradition(formData: FormData): Promise<ActionResult>
 
     // Validate required fields
     const validation = validateFormData(formData, [
-      'name', 'district', 'amphoe', 'province', 'type', 'categoryId'
+      'name', 'district', 'amphoe', 'province', 'type', 'categoryId', 'coordinatorName'
     ]);
     if (!validation.success) {
       return validation;
@@ -40,14 +40,14 @@ export async function createTradition(formData: FormData): Promise<ActionResult>
       amphoe: extractFormDataString(formData, 'amphoe'),
       province: extractFormDataString(formData, 'province'),
       type: extractFormDataString(formData, 'type'),
-      village: extractFormDataString(formData, 'village') || null,
-      coordinatorName: extractFormDataString(formData, 'coordinatorName') || null,
-      phone: extractFormDataString(formData, 'phone') || null,
-      history: extractFormDataString(formData, 'history') || null,
-      alcoholFreeApproach: extractFormDataString(formData, 'alcoholFreeApproach') || null,
-      results: extractFormDataString(formData, 'results') || null,
-      startYear: extractFormDataNumber(formData, 'startYear') || null,
-      videoLink: extractFormDataString(formData, 'videoLink') || null,
+      village: extractFormDataString(formData, 'village'),
+      coordinatorName: extractFormDataString(formData, 'coordinatorName'),
+      phone: extractFormDataString(formData, 'phone'),
+      history: extractFormDataString(formData, 'history'),
+      alcoholFreeApproach: extractFormDataString(formData, 'alcoholFreeApproach'),
+      results: extractFormDataString(formData, 'results'),
+      startYear: extractFormDataNumber(formData, 'startYear') ?? null,
+      videoLink: extractFormDataString(formData, 'videoLink'),
       categoryId: extractFormDataString(formData, 'categoryId'),
       userId: user.id,
       // Boolean fields for tradition-specific features

@@ -21,6 +21,20 @@ export default function RecentActivities({ data }: RecentActivitiesProps) {
               {index > 0 && <hr />}
               <div className={`timeline-${index % 2 === 0 ? 'start' : 'end'} timeline-box`}>
                 <p className="text-sm font-light">{activity.description}</p>
+                {(activity.type || activity.region) && (
+                  <div className="flex flex-wrap gap-1 mt-1 mb-2">
+                    {activity.type && (
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        {activity.type}
+                      </span>
+                    )}
+                    {activity.region && (
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        {activity.region}
+                      </span>
+                    )}
+                  </div>
+                )}
                 <p className="text-xs font-light text-green-600">
                   {format(new Date(activity.date), 'd MMM yyyy HH:mm', { locale: th })}
                 </p>

@@ -148,162 +148,109 @@ const DashboardTabs = ({
           aria-label="Dashboard data type tabs"
         />
 
-        {/* Professional Filter Section */}
-        <div className="border-t border-gray-100 pt-6">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h3 className="text-base font-medium text-gray-900 flex items-center gap-2">
-                <FilterOutlined className="text-green-600" />
-                ตัวกรองข้อมูล
-              </h3>
-              <p className="text-sm text-gray-600 font-light mt-1">
-                กรองข้อมูลตามปี ภูมิภาค และจังหวัด
-              </p>
+        {/* Compact Filter Section */}
+        <div className="border-t border-gray-100 pt-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
+            <div className="flex items-center gap-2">
+              <FilterOutlined className="text-green-600" />
+              <span className="text-sm font-medium text-gray-900">ตัวกรองข้อมูล</span>
+              <span className="text-xs text-gray-500">(ปี ภูมิภาค จังหวัด)</span>
             </div>
             <Button
+              size="small"
               type={isFilterExpanded ? "primary" : "default"}
               icon={isFilterExpanded ? <UpOutlined /> : <DownOutlined />}
               onClick={() => setIsFilterExpanded((s) => !s)}
-              className={`shadow-sm ${hasActiveFilters ? 'border-green-500 text-green-600' : ''}`}
-              aria-expanded={isFilterExpanded}
-              aria-controls="dashboard-filters"
+              className={`${hasActiveFilters ? 'border-green-500 text-green-600' : ''}`}
             >
-              {isFilterExpanded ? 'ย่อตัวกรอง' : 'ขยายตัวกรอง'}
+              {isFilterExpanded ? 'ย่อ' : 'กรอง'}
             </Button>
           </div>
 
           {isFilterExpanded && (
-            <div id="dashboard-filters" className="bg-gradient-to-r from-gray-50 to-green-50 p-6 rounded-xl border border-gray-200" role="region" aria-label="Filters">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div id="dashboard-filters" className="bg-gradient-to-r from-gray-50 to-green-50 p-4 rounded-lg border border-gray-200" role="region" aria-label="Filters">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {/* Year Filter */}
-                <div className="space-y-3">
-                  <label className="block text-sm font-medium text-gray-700">
-                    ปี
-                    {filter.year !== 'all' && (
-                      <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                        {yearOptions.find(y => y.value === filter.year)?.label}
-                      </span>
-                    )}
-                  </label>
+                <div className="space-y-2">
+                  <label className="block text-xs font-medium text-gray-700">ปี</label>
                   <Select
                     value={filter.year}
                     onChange={(v) => handleFilterChange('year', v)}
-                    style={{ width: '100%', height: '40px' }}
+                    style={{ width: '100%' }}
+                    size="small"
                     loading={loading}
-                    placeholder="เลือกปีงบประมาณ"
-                    aria-label="เลือกปี"
-                    className="rounded-lg"
+                    placeholder="เลือกปี"
                     showSearch
-                    optionFilterProp="children"
                   >
                     {yearOptions.map((y) => (
-                      <Option key={y.value} value={y.value}>
-                        {y.label}
-                      </Option>
+                      <Option key={y.value} value={y.value}>{y.label}</Option>
                     ))}
                   </Select>
                 </div>
 
                 {/* Region Filter */}
-                <div className="space-y-3">
-                  <label className="block text-sm font-medium text-gray-700">
-                     ภูมิภาค
-                    {filter.region !== 'all' && (
-                      <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                        {filter.region}
-                      </span>
-                    )}
-                  </label>
+                <div className="space-y-2">
+                  <label className="block text-xs font-medium text-gray-700">ภูมิภาค</label>
                   <Select
                     value={filter.region}
                     onChange={(v) => handleFilterChange('region', v)}
-                    style={{ width: '100%', height: '40px' }}
+                    style={{ width: '100%' }}
+                    size="small"
                     loading={loading}
                     placeholder="เลือกภูมิภาค"
                     showSearch
-                    optionFilterProp="children"
-                    aria-label="เลือกภูมิภาค"
-                    className="rounded-lg"
                   >
                     <Option value="all">ทุกภูมิภาค</Option>
                     {availableRegions.map((r) => (
-                      <Option key={r} value={r}>
-                        {r}
-                      </Option>
+                      <Option key={r} value={r}>{r}</Option>
                     ))}
                   </Select>
                 </div>
 
                 {/* Province Filter */}
-                <div className="space-y-3">
-                  <label className="block text-sm font-medium text-gray-700">
-                    จังหวัด
-                    {filter.province !== 'all' && (
-                      <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
-                        {filter.province}
-                      </span>
-                    )}
-                  </label>
+                <div className="space-y-2">
+                  <label className="block text-xs font-medium text-gray-700">จังหวัด</label>
                   <Select
                     value={filter.province}
                     onChange={(v) => handleFilterChange('province', v)}
-                    style={{ width: '100%', height: '40px' }}
+                    style={{ width: '100%' }}
+                    size="small"
                     loading={loading}
                     placeholder={filter.region === 'all' ? 'เลือกภูมิภาคก่อน' : 'เลือกจังหวัด'}
                     disabled={filter.region === 'all' && !!regionProvinceMap}
                     showSearch
-                    optionFilterProp="children"
-                    aria-label="เลือกจังหวัด"
-                    className="rounded-lg"
                   >
                     <Option value="all">ทุกจังหวัด</Option>
                     {filteredProvinces.map((p) => (
-                      <Option key={p} value={p}>
-                        {p}
-                      </Option>
+                      <Option key={p} value={p}>{p}</Option>
                     ))}
                   </Select>
                 </div>
               </div>
 
-              {/* Professional Active Filter Summary */}
+              {/* Active Filter Summary */}
               {hasActiveFilters && (
-                <div className="mt-6 p-4 bg-white rounded-xl border-l-4 border-green-500 shadow-sm">
-                  <div className="flex items-start gap-3">
-                    <FilterOutlined className="text-green-600 mt-1" />
-                    <div className="flex-1">
-                      <h4 className="text-sm font-medium text-gray-900 mb-2">ตัวกรองที่ใช้งาน</h4>
-                      <div className="flex flex-wrap gap-2 mb-3">
-                        {filter.dataType !== 'all' && (
-                          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                            📊 ประเภท: {tabItems.find((t) => t.key === filter.dataType)?.key}
-                          </span>
-                        )}
-                        {filter.year !== 'all' && (
-                          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                            📅 {yearOptions.find((y) => y.value === filter.year)?.label}
-                          </span>
-                        )}
-                        {filter.region !== 'all' && (
-                          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                            🌏 {filter.region}
-                          </span>
-                        )}
-                        {filter.province !== 'all' && (
-                          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
-                            🏢 {filter.province}
-                          </span>
-                        )}
-                      </div>
-                      <div className="flex gap-2">
-                        <Button size="small" onClick={resetFilters} className="text-xs">
-                          🔄 รีเซ็ตตัวกรอง
-                        </Button>
-                        <Button size="small" type="primary" onClick={() => setIsFilterExpanded(false)} className="text-xs">
-                          ✨ ปิดตัวกรอง
-                        </Button>
-                      </div>
-                    </div>
+                <div className="mt-4 pt-3 border-t border-gray-200">
+                  <div className="flex flex-wrap gap-2 items-center">
+                    <span className="text-xs font-medium text-gray-700">ตัวกรองที่ใช้:</span>
+                    {filter.year !== 'all' && (
+                      <span className="inline-flex items-center px-2 py-1 rounded text-xs bg-green-100 text-green-800">
+                        {yearOptions.find((y) => y.value === filter.year)?.label}
+                      </span>
+                    )}
+                    {filter.region !== 'all' && (
+                      <span className="inline-flex items-center px-2 py-1 rounded text-xs bg-green-100 text-green-800">
+                        {filter.region}
+                      </span>
+                    )}
+                    {filter.province !== 'all' && (
+                      <span className="inline-flex items-center px-2 py-1 rounded text-xs bg-green-100 text-green-800">
+                        {filter.province}
+                      </span>
+                    )}
+                    <Button size="small" onClick={resetFilters} className="text-xs ml-2">
+                      รีเซ็ต
+                    </Button>
                   </div>
                 </div>
               )}

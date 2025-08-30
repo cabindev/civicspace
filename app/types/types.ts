@@ -74,6 +74,8 @@ export interface OverviewData {
 export interface RecentActivity {
   description: string;
   date: string;
+  type?: string;
+  region?: string;
 }
 
 export interface TopViewedItem {
@@ -124,7 +126,6 @@ export interface PolicyData {
   amphoe: string;
   province: string;
   type: string;
-  
 }
 
 export interface UserData {

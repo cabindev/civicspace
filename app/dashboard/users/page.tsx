@@ -159,11 +159,11 @@ export default function UsersPage() {
       key: 'name',
       render: (_, record) => (
         <Link href={`/dashboard/users/${record.id}`}>
-          {/* <NotificationBadge userId={record.id}> */}
+          <NotificationBadge userId={record.id}>
             <Text strong={record.role === 'SUPER_ADMIN'} className="cursor-pointer hover:underline">
               {`${record.firstName} ${record.lastName}`}
             </Text>
-          {/* </NotificationBadge> */}
+          </NotificationBadge>
         </Link>
       ),
     },

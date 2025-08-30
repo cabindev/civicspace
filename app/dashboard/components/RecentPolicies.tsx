@@ -48,6 +48,11 @@ export default function RecentPolicies({ data }: RecentPoliciesProps) {
                   {levelMap[policy.level].icon}
                   <span className="ml-2">{levelMap[policy.level].name}</span>
                 </p>
+                <p className="flex items-center mt-1 text-xs font-light">
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    {policy.type}
+                  </span>
+                </p>
                 <p className="flex items-center mt-2 text-xs font-light">
                   <FaMapMarkerAlt className="mr-2 text-red-500" />
                   {`${policy.district}, ${policy.amphoe}, ${policy.province}`}

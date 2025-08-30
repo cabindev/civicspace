@@ -67,22 +67,41 @@ export async function updateCreativeActivity(id: string, prevState: ActionResult
     }
 
     // Extract form data
+    const name = extractFormDataString(formData, 'name');
+    const district = extractFormDataString(formData, 'district');
+    const amphoe = extractFormDataString(formData, 'amphoe');
+    const province = extractFormDataString(formData, 'province');
+    const type = extractFormDataString(formData, 'type');
+    const description = extractFormDataString(formData, 'description');
+    const summary = extractFormDataString(formData, 'summary');
+    const categoryId = extractFormDataString(formData, 'categoryId');
+    const subCategoryId = extractFormDataString(formData, 'subCategoryId');
+
+    // Check for required string fields
+    if (!name || !district || !amphoe || !province || !type || 
+        !description || !summary || !categoryId || !subCategoryId) {
+      return {
+        success: false,
+        error: 'Required fields are missing or empty'
+      };
+    }
+
     const updateData: any = {
-      name: extractFormDataString(formData, 'name'),
-      district: extractFormDataString(formData, 'district'),
-      amphoe: extractFormDataString(formData, 'amphoe'),
-      province: extractFormDataString(formData, 'province'),
-      type: extractFormDataString(formData, 'type'),
+      name,
+      district,
+      amphoe,
+      province,
+      type,
       village: extractFormDataString(formData, 'village') || null,
       coordinatorName: extractFormDataString(formData, 'coordinatorName') || null,
       phone: extractFormDataString(formData, 'phone') || null,
-      description: extractFormDataString(formData, 'description'),
-      summary: extractFormDataString(formData, 'summary'),
+      description,
+      summary,
       results: extractFormDataString(formData, 'results') || null,
       startYear: extractFormDataNumber(formData, 'startYear'),
       videoLink: extractFormDataString(formData, 'videoLink') || null,
-      categoryId: extractFormDataString(formData, 'categoryId'),
-      subCategoryId: extractFormDataString(formData, 'subCategoryId')
+      categoryId,
+      subCategoryId
     };
 
     // Handle optional numeric fields

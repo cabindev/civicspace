@@ -81,19 +81,36 @@ export async function updateEthnicGroupDirect(id: string, formData: FormData): P
     }
 
     // Extract form data
-    const categoryId = extractFormDataString(formData, 'categoryId')!;
-    const name = extractFormDataString(formData, 'name')!;
-    const district = extractFormDataString(formData, 'district')!;
-    const amphoe = extractFormDataString(formData, 'amphoe')!;
-    const province = extractFormDataString(formData, 'province')!;
-    const type = extractFormDataString(formData, 'type')!;
+    const categoryId = extractFormDataString(formData, 'categoryId');
+    const name = extractFormDataString(formData, 'name');
+    const district = extractFormDataString(formData, 'district');
+    const amphoe = extractFormDataString(formData, 'amphoe');
+    const province = extractFormDataString(formData, 'province');
+    const type = extractFormDataString(formData, 'type');
     const village = extractFormDataString(formData, 'village');
-    const history = extractFormDataString(formData, 'history')!;
-    const activityName = extractFormDataString(formData, 'activityName')!;
-    const activityOrigin = extractFormDataString(formData, 'activityOrigin')!;
-    const activityDetails = extractFormDataString(formData, 'activityDetails')!;
-    const alcoholFreeApproach = extractFormDataString(formData, 'alcoholFreeApproach')!;
-    const startYear = extractFormDataNumber(formData, 'startYear')!;
+    const history = extractFormDataString(formData, 'history');
+    const activityName = extractFormDataString(formData, 'activityName');
+    const activityOrigin = extractFormDataString(formData, 'activityOrigin');
+    const activityDetails = extractFormDataString(formData, 'activityDetails');
+    const alcoholFreeApproach = extractFormDataString(formData, 'alcoholFreeApproach');
+    const startYear = extractFormDataNumber(formData, 'startYear');
+
+    // Check for required string fields
+    if (!categoryId || !name || !district || !amphoe || !province || !type || 
+        !history || !activityName || !activityOrigin || !activityDetails || !alcoholFreeApproach) {
+      return {
+        success: false,
+        error: 'Required fields are missing or empty'
+      };
+    }
+
+    // Check for required numeric fields
+    if (!startYear) {
+      return {
+        success: false,
+        error: 'Start year is required'
+      };
+    }
     const results = extractFormDataString(formData, 'results');
     const videoLink = extractFormDataString(formData, 'videoLink');
     const zipcode = extractFormDataNumber(formData, 'zipcode');

@@ -39,6 +39,13 @@ export async function createPublicPolicyDirect(formData: FormData): Promise<Acti
     const signingDateStr = extractFormDataString(formData, 'signingDate');
     const contentStr = extractFormDataString(formData, 'content');
     
+    if (!signingDateStr) {
+      return {
+        success: false,
+        error: 'Signing date is required'
+      };
+    }
+    
     let signingDate: Date;
     try {
       signingDate = new Date(signingDateStr);
@@ -64,17 +71,34 @@ export async function createPublicPolicyDirect(formData: FormData): Promise<Acti
       };
     }
 
+    // Extract required fields
+    const name = extractFormDataString(formData, 'name');
+    const level = extractFormDataString(formData, 'level');
+    const district = extractFormDataString(formData, 'district');
+    const amphoe = extractFormDataString(formData, 'amphoe');
+    const province = extractFormDataString(formData, 'province');
+    const type = extractFormDataString(formData, 'type');
+    const summary = extractFormDataString(formData, 'summary');
+
+    // Check for required fields
+    if (!name || !level || !district || !amphoe || !province || !type || !summary) {
+      return {
+        success: false,
+        error: 'Required fields are missing or empty'
+      };
+    }
+
     const policyData: any = {
-      name: extractFormDataString(formData, 'name'),
+      name,
       signingDate: signingDate,
-      level: extractFormDataString(formData, 'level'),
-      district: extractFormDataString(formData, 'district'),
-      amphoe: extractFormDataString(formData, 'amphoe'),
-      province: extractFormDataString(formData, 'province'),
-      type: extractFormDataString(formData, 'type'),
+      level,
+      district,
+      amphoe,
+      province,
+      type,
       village: extractFormDataString(formData, 'village') || null,
       content: content,
-      summary: extractFormDataString(formData, 'summary'),
+      summary,
       results: extractFormDataString(formData, 'results') || null,
       videoLink: extractFormDataString(formData, 'videoLink') || null,
       userId: user.id
@@ -199,6 +223,13 @@ export async function createPublicPolicy(formData: FormData): Promise<ActionResu
     const signingDateStr = extractFormDataString(formData, 'signingDate');
     const contentStr = extractFormDataString(formData, 'content');
     
+    if (!signingDateStr) {
+      return {
+        success: false,
+        error: 'Signing date is required'
+      };
+    }
+    
     let signingDate: Date;
     try {
       signingDate = new Date(signingDateStr);
@@ -224,18 +255,35 @@ export async function createPublicPolicy(formData: FormData): Promise<ActionResu
       };
     }
 
+    // Extract required fields
+    const name = extractFormDataString(formData, 'name');
+    const level = extractFormDataString(formData, 'level');
+    const district = extractFormDataString(formData, 'district');
+    const amphoe = extractFormDataString(formData, 'amphoe');
+    const province = extractFormDataString(formData, 'province');
+    const type = extractFormDataString(formData, 'type');
+    const summary = extractFormDataString(formData, 'summary');
+
+    // Check for required fields
+    if (!name || !level || !district || !amphoe || !province || !type || !summary) {
+      return {
+        success: false,
+        error: 'Required fields are missing or empty'
+      };
+    }
+
     const policyData = {
-      name: extractFormDataString(formData, 'name'),
+      name,
       signingDate: signingDate,
-      level: extractFormDataString(formData, 'level') as any,
+      level: level as any,
       healthRegion: extractFormDataString(formData, 'healthRegion') || null,
-      district: extractFormDataString(formData, 'district'),
-      amphoe: extractFormDataString(formData, 'amphoe'),
-      province: extractFormDataString(formData, 'province'),
-      type: extractFormDataString(formData, 'type'),
+      district,
+      amphoe,
+      province,
+      type,
       village: extractFormDataString(formData, 'village') || null,
       content: content,
-      summary: extractFormDataString(formData, 'summary'),
+      summary,
       results: extractFormDataString(formData, 'results') || null,
       videoLink: extractFormDataString(formData, 'videoLink') || null,
       userId: user.id

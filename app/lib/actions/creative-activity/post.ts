@@ -35,22 +35,41 @@ export async function createCreativeActivity(formData: FormData): Promise<Action
     }
 
     // Extract form data
+    const name = extractFormDataString(formData, 'name');
+    const district = extractFormDataString(formData, 'district');
+    const amphoe = extractFormDataString(formData, 'amphoe');
+    const province = extractFormDataString(formData, 'province');
+    const type = extractFormDataString(formData, 'type');
+    const description = extractFormDataString(formData, 'description');
+    const summary = extractFormDataString(formData, 'summary');
+    const categoryId = extractFormDataString(formData, 'categoryId');
+    const subCategoryId = extractFormDataString(formData, 'subCategoryId');
+
+    // Check for required string fields
+    if (!name || !district || !amphoe || !province || !type || 
+        !description || !summary || !categoryId || !subCategoryId) {
+      return {
+        success: false,
+        error: 'Required fields are missing or empty'
+      };
+    }
+
     const activityData = {
-      name: extractFormDataString(formData, 'name') || '',
-      district: extractFormDataString(formData, 'district') || '',
-      amphoe: extractFormDataString(formData, 'amphoe') || '',
-      province: extractFormDataString(formData, 'province') || '',
-      type: extractFormDataString(formData, 'type') || '',
+      name,
+      district,
+      amphoe,
+      province,
+      type,
       village: extractFormDataString(formData, 'village'),
       coordinatorName: extractFormDataString(formData, 'coordinatorName'),
       phone: extractFormDataString(formData, 'phone'),
-      description: extractFormDataString(formData, 'description') || '',
-      summary: extractFormDataString(formData, 'summary') || '',
+      description,
+      summary,
       results: extractFormDataString(formData, 'results'),
       startYear: extractFormDataNumber(formData, 'startYear') || 0,
       videoLink: extractFormDataString(formData, 'videoLink'),
-      categoryId: extractFormDataString(formData, 'categoryId') || '',
-      subCategoryId: extractFormDataString(formData, 'subCategoryId') || '',
+      categoryId,
+      subCategoryId,
       userId: user.id
     };
 

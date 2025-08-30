@@ -36,22 +36,43 @@ export async function createEthnicGroup(formData: FormData): Promise<ActionResul
     }
 
     // Extract form data
+    const name = extractFormDataString(formData, 'name');
+    const history = extractFormDataString(formData, 'history');
+    const activityName = extractFormDataString(formData, 'activityName');
+    const activityOrigin = extractFormDataString(formData, 'activityOrigin');
+    const province = extractFormDataString(formData, 'province');
+    const amphoe = extractFormDataString(formData, 'amphoe');
+    const district = extractFormDataString(formData, 'district');
+    const type = extractFormDataString(formData, 'type');
+    const activityDetails = extractFormDataString(formData, 'activityDetails');
+    const alcoholFreeApproach = extractFormDataString(formData, 'alcoholFreeApproach');
+    const categoryId = extractFormDataString(formData, 'categoryId');
+
+    // Check for required string fields
+    if (!name || !history || !activityName || !activityOrigin || !province || 
+        !amphoe || !district || !type || !activityDetails || !alcoholFreeApproach || !categoryId) {
+      return {
+        success: false,
+        error: 'Required fields are missing or empty'
+      };
+    }
+
     const ethnicGroupData = {
-      name: extractFormDataString(formData, 'name'),
-      history: extractFormDataString(formData, 'history'),
-      activityName: extractFormDataString(formData, 'activityName'),
-      activityOrigin: extractFormDataString(formData, 'activityOrigin'),
-      province: extractFormDataString(formData, 'province'),
-      amphoe: extractFormDataString(formData, 'amphoe'),
-      district: extractFormDataString(formData, 'district'),
+      name,
+      history,
+      activityName,
+      activityOrigin,
+      province,
+      amphoe,
+      district,
       village: extractFormDataString(formData, 'village') || null,
-      type: extractFormDataString(formData, 'type'),
-      activityDetails: extractFormDataString(formData, 'activityDetails'),
-      alcoholFreeApproach: extractFormDataString(formData, 'alcoholFreeApproach'),
+      type,
+      activityDetails,
+      alcoholFreeApproach,
       startYear: extractFormDataNumber(formData, 'startYear') || 0,
       results: extractFormDataString(formData, 'results') || null,
       videoLink: extractFormDataString(formData, 'videoLink') || null,
-      categoryId: extractFormDataString(formData, 'categoryId'),
+      categoryId,
       userId: user.id
     };
 

@@ -34,21 +34,39 @@ export async function createTradition(formData: FormData): Promise<ActionResult>
     }
 
     // Extract form data
+    const name = extractFormDataString(formData, 'name');
+    const district = extractFormDataString(formData, 'district');
+    const amphoe = extractFormDataString(formData, 'amphoe');
+    const province = extractFormDataString(formData, 'province');
+    const type = extractFormDataString(formData, 'type');
+    const history = extractFormDataString(formData, 'history');
+    const alcoholFreeApproach = extractFormDataString(formData, 'alcoholFreeApproach');
+    const categoryId = extractFormDataString(formData, 'categoryId');
+
+    // Check for required string fields
+    if (!name || !district || !amphoe || !province || !type || 
+        !history || !alcoholFreeApproach || !categoryId) {
+      return {
+        success: false,
+        error: 'Required fields are missing or empty'
+      };
+    }
+
     const traditionData = {
-      name: extractFormDataString(formData, 'name'),
-      district: extractFormDataString(formData, 'district'),
-      amphoe: extractFormDataString(formData, 'amphoe'),
-      province: extractFormDataString(formData, 'province'),
-      type: extractFormDataString(formData, 'type'),
+      name,
+      district,
+      amphoe,
+      province,
+      type,
       village: extractFormDataString(formData, 'village'),
       coordinatorName: extractFormDataString(formData, 'coordinatorName'),
       phone: extractFormDataString(formData, 'phone'),
-      history: extractFormDataString(formData, 'history'),
-      alcoholFreeApproach: extractFormDataString(formData, 'alcoholFreeApproach'),
+      history,
+      alcoholFreeApproach,
       results: extractFormDataString(formData, 'results'),
       startYear: extractFormDataNumber(formData, 'startYear') ?? null,
       videoLink: extractFormDataString(formData, 'videoLink'),
-      categoryId: extractFormDataString(formData, 'categoryId'),
+      categoryId,
       userId: user.id,
       // Boolean fields for tradition-specific features
       hasPolicy: extractFormDataBoolean(formData, 'hasPolicy'),

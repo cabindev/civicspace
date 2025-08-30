@@ -24,6 +24,13 @@ export async function updateCreativeCategory(id: string, formData: FormData): Pr
 
     const name = extractFormDataString(formData, 'name');
 
+    if (!name) {
+      return {
+        success: false,
+        error: 'Category name is required'
+      };
+    }
+
     // Check if category exists
     const existingCategory = await prisma.creativeCategory.findUnique({
       where: { id }

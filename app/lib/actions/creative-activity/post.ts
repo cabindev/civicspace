@@ -36,21 +36,21 @@ export async function createCreativeActivity(formData: FormData): Promise<Action
 
     // Extract form data
     const activityData = {
-      name: extractFormDataString(formData, 'name'),
-      district: extractFormDataString(formData, 'district'),
-      amphoe: extractFormDataString(formData, 'amphoe'),
-      province: extractFormDataString(formData, 'province'),
-      type: extractFormDataString(formData, 'type'),
-      village: extractFormDataString(formData, 'village') || null,
-      coordinatorName: extractFormDataString(formData, 'coordinatorName') || null,
-      phone: extractFormDataString(formData, 'phone') || null,
-      description: extractFormDataString(formData, 'description'),
-      summary: extractFormDataString(formData, 'summary'),
-      results: extractFormDataString(formData, 'results') || null,
+      name: extractFormDataString(formData, 'name') || '',
+      district: extractFormDataString(formData, 'district') || '',
+      amphoe: extractFormDataString(formData, 'amphoe') || '',
+      province: extractFormDataString(formData, 'province') || '',
+      type: extractFormDataString(formData, 'type') || '',
+      village: extractFormDataString(formData, 'village'),
+      coordinatorName: extractFormDataString(formData, 'coordinatorName'),
+      phone: extractFormDataString(formData, 'phone'),
+      description: extractFormDataString(formData, 'description') || '',
+      summary: extractFormDataString(formData, 'summary') || '',
+      results: extractFormDataString(formData, 'results'),
       startYear: extractFormDataNumber(formData, 'startYear') || 0,
-      videoLink: extractFormDataString(formData, 'videoLink') || null,
-      categoryId: extractFormDataString(formData, 'categoryId'),
-      subCategoryId: extractFormDataString(formData, 'subCategoryId'),
+      videoLink: extractFormDataString(formData, 'videoLink'),
+      categoryId: extractFormDataString(formData, 'categoryId') || '',
+      subCategoryId: extractFormDataString(formData, 'subCategoryId') || '',
       userId: user.id
     };
 

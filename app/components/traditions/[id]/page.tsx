@@ -11,6 +11,7 @@ import { FaUser, FaPhone, FaCalendar, FaEye, FaVideo, FaFilePdf, FaMapMarkerAlt,
 import { Spin, Modal } from 'antd';
 import Navbar from '../../Navbar';
 import PrintPage from '../../PrintPage';
+import NotFoundPage from '../../NotFoundPage';
 
 interface Tradition {
   id: string;
@@ -91,7 +92,19 @@ export default function TraditionDetails() {
   }
 
   if (!tradition) {
-    return <div className="text-center text-2xl mt-10 text-gray-900">ไม่พบข้อมูลงานบุญประเพณี</div>;
+    return (
+      <NotFoundPage
+        title="ไม่พบข้อมูลงานบุญประเพณี"
+        description="ไม่สามารถค้นหาข้อมูลงานบุญประเพณีที่ต้องการได้ อาจเป็นเพราะข้อมูลถูกลบไปแล้วหรือลิงก์ไม่ถูกต้อง"
+        backUrl="/components/traditions"
+        backText="กลับสู่หน้ารวมงานบุญประเพณี"
+        buttonColor="green"
+        autoRedirect={true}
+        redirectDelay={3000}
+        isDashboard={false}
+        showDashboardLink={false}
+      />
+    );
   }
 
   return (
@@ -121,6 +134,22 @@ export default function TraditionDetails() {
                 src={tradition.images[0].url}
                 alt={tradition.name}
                 className="w-full h-full object-cover"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = 'none';
+                  const parent = target.parentElement;
+                  if (parent) {
+                    parent.innerHTML = `
+                      <div class="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex flex-col items-center justify-center">
+                        <svg class="w-16 h-16 text-gray-400 mb-4" fill="currentColor" viewBox="0 0 20 20">
+                          <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd" />
+                        </svg>
+                        <p class="text-gray-500 font-light text-lg">ไม่สามารถโหลดรูปภาพได้</p>
+                        <p class="text-gray-400 font-light text-sm">${tradition.category.name}</p>
+                      </div>
+                    `;
+                  }
+                }}
               />
             ) : (
               <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex flex-col items-center justify-center">
@@ -405,6 +434,20 @@ export default function TraditionDetails() {
                     src={tradition.user.image}
                     alt={`${tradition.user.firstName} ${tradition.user.lastName}`}
                     className="w-12 h-12 rounded-full object-cover border-2 border-green-200"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                      const parent = target.parentElement;
+                      if (parent) {
+                        parent.innerHTML = `
+                          <div class="w-12 h-12 rounded-full bg-green-100 border-2 border-green-200 flex items-center justify-center">
+                            <svg class="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                              <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                            </svg>
+                          </div>
+                        `;
+                      }
+                    }}
                   />
                 ) : (
                   <div className="w-12 h-12 rounded-full bg-green-100 border-2 border-green-200 flex items-center justify-center">

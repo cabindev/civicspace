@@ -28,6 +28,8 @@ interface PublicPolicy {
   user: {
     firstName: string;
     lastName: string;
+    image: string | null;
+    email: string;
   };
 }
 
@@ -162,13 +164,6 @@ export default function PublicPolicyDetailClient({ policy }: PublicPolicyDetailC
                   <FaGlobe className="text-green-500 flex-shrink-0" />
                   <span className="text-gray-900 font-light">{policy.type}</span>
                 </div>
-                <div className="flex items-center gap-3">
-                  <FaUser className="text-green-500 flex-shrink-0" />
-                  <span className="text-gray-500 font-light">ผู้สร้าง</span>
-                  <span className="text-gray-900 font-light">
-                    {policy.user?.firstName} {policy.user?.lastName}
-                  </span>
-                </div>
               </div>
               <div className="space-y-6">
                 <div className="flex items-center gap-3">
@@ -260,6 +255,48 @@ export default function PublicPolicyDetailClient({ policy }: PublicPolicyDetailC
               </div>
             </section>
           )}
+
+          {/* Author Information */}
+          <section className="rounded-xl p-0 no-print">
+            <h3 className="text-sm font-light text-gray-500 mb-4">
+              Recorder Information
+            </h3>
+            <div className="flex items-center gap-4">
+              <div className="flex-shrink-0">
+                {policy.user.image ? (
+                  <img
+                    src={policy.user.image}
+                    alt={`${policy.user.firstName} ${policy.user.lastName}`}
+                    className="w-12 h-12 rounded-full object-cover border-2 border-green-200"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                      const parent = target.parentElement;
+                      if (parent) {
+                        parent.innerHTML = `
+                          <div class="w-12 h-12 rounded-full bg-green-100 border-2 border-green-200 flex items-center justify-center">
+                            <svg class="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                              <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                            </svg>
+                          </div>
+                        `;
+                      }
+                    }}
+                  />
+                ) : (
+                  <div className="w-12 h-12 rounded-full bg-green-100 border-2 border-green-200 flex items-center justify-center">
+                    <FaUser className="text-green-600 text-lg" />
+                  </div>
+                )}
+              </div>
+              <div>
+                <p className="font-light text-gray-900">
+                  {policy.user.firstName} {policy.user.lastName}
+                </p>
+                <p className="text-sm text-gray-500">{policy.user.email}</p>
+              </div>
+            </div>
+          </section>
 
           {/* View Count */}
           <div className="flex justify-end items-center text-gray-500 pt-8">

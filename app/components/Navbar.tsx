@@ -5,6 +5,8 @@ import Image from 'next/image';
 import { useSession, signOut } from "next-auth/react";
 import { useRouter, usePathname } from 'next/navigation';
 import { HiMenuAlt3, HiX } from "react-icons/hi";
+import { Avatar } from 'antd';
+import { UserOutlined } from '@ant-design/icons';
 
 const Navbar: React.FC = () => {
   const { data: session } = useSession();
@@ -114,13 +116,15 @@ const Navbar: React.FC = () => {
             {session ? (
               <div className="relative hidden md:block" ref={menuRef}>
                 <button
+                  type="button"
                   onClick={() => setIsMenuOpen(!isMenuOpen)}
                   className="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2"
                 >
-                  <img
-                    className="h-8 w-8 rounded-full object-cover ring-2 ring-white shadow-sm"
-                    src={session.user?.image || "/images/default-avatar.png"}
-                    alt="Profile"
+                  <Avatar
+                    size={32}
+                    src={session.user?.image}
+                    icon={<UserOutlined />}
+                    className="ring-2 ring-white shadow-sm"
                   />
                   <span className="text-sm font-light text-black">
                     {session.user?.firstName}
@@ -134,6 +138,7 @@ const Navbar: React.FC = () => {
                       <p className="text-sm font-medium text-gray-900">{session.user?.firstName}</p>
                     </div>
                     <button
+                      type="button"
                       onClick={handleSignOut}
                       className="w-full text-left px-4 py-2 text-sm font-light text-gray-600 hover:bg-gray-50 hover:text-orange-500 transition-colors duration-200"
                     >
@@ -156,6 +161,7 @@ const Navbar: React.FC = () => {
 
             {/* Mobile Menu Button */}
             <button
+              type="button"
               onClick={toggleMobileMenu}
               className="
                 md:hidden p-2 rounded-lg transition-all duration-200
@@ -198,10 +204,11 @@ const Navbar: React.FC = () => {
               {session ? (
                 <div className="space-y-2">
                   <div className="flex items-center space-x-3 px-4 py-2">
-                    <img
-                      className="h-10 w-10 rounded-full object-cover ring-2 ring-gray-200"
-                      src={session.user?.image || "/images/default-avatar.png"}
-                      alt="Profile"
+                    <Avatar
+                      size={40}
+                      src={session.user?.image}
+                      icon={<UserOutlined />}
+                      className="ring-2 ring-gray-200"
                     />
                     <div>
                       <p className="text-sm font-medium text-gray-900">{session.user?.firstName}</p>
@@ -209,6 +216,7 @@ const Navbar: React.FC = () => {
                     </div>
                   </div>
                   <button
+                    type="button"
                     onClick={() => {
                       handleSignOut();
                       setIsMobileMenuOpen(false);

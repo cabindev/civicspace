@@ -27,6 +27,13 @@ export async function updateCreativeCategory(id: string, formData: FormData): Pr
     if (!name) {
       return {
         success: false,
+        error: 'Name is required'
+      };
+    }
+
+    if (!name) {
+      return {
+        success: false,
         error: 'Category name is required'
       };
     }

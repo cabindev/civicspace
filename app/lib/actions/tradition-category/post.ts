@@ -24,6 +24,13 @@ export async function createTraditionCategory(formData: FormData): Promise<Actio
 
     const name = extractFormDataString(formData, 'name');
 
+    if (!name) {
+      return {
+        success: false,
+        error: 'Name is required'
+      };
+    }
+
     // Check if category name already exists
     const existingCategory = await prisma.traditionCategory.findFirst({
       where: { name }

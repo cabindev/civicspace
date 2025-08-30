@@ -23,6 +23,13 @@ export async function updateCreativeSubCategory(id: string, formData: FormData):
     }
 
     const name = extractFormDataString(formData, 'name');
+
+    if (!name) {
+      return {
+        success: false,
+        error: 'Name is required'
+      };
+    }
     const categoryId = extractFormDataString(formData, 'categoryId');
 
     if (!name || !categoryId) {

@@ -24,6 +24,13 @@ export async function createEthnicCategory(formData: FormData): Promise<ActionRe
 
     const name = extractFormDataString(formData, 'name');
 
+    if (!name) {
+      return {
+        success: false,
+        error: 'Name is required'
+      };
+    }
+
     // Check if category name already exists
     const existingCategory = await prisma.ethnicCategory.findFirst({
       where: { name }

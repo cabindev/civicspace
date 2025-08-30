@@ -24,6 +24,13 @@ export async function updateTraditionCategory(id: string, formData: FormData): P
 
     const name = extractFormDataString(formData, 'name');
 
+    if (!name) {
+      return {
+        success: false,
+        error: 'Name is required'
+      };
+    }
+
     // Check if category exists
     const existingCategory = await prisma.traditionCategory.findUnique({
       where: { id }

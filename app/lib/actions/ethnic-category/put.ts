@@ -25,6 +25,13 @@ export async function updateEthnicCategoryDirect(id: string, formData: FormData)
 
     const name = extractFormDataString(formData, 'name');
 
+    if (!name) {
+      return {
+        success: false,
+        error: 'Name is required'
+      };
+    }
+
     // Check if category exists
     const existingCategory = await prisma.ethnicCategory.findUnique({
       where: { id }
@@ -91,6 +98,13 @@ export async function updateEthnicCategory(id: string, formData: FormData): Prom
     }
 
     const name = extractFormDataString(formData, 'name');
+
+    if (!name) {
+      return {
+        success: false,
+        error: 'Name is required'
+      };
+    }
 
     // Check if category exists
     const existingCategory = await prisma.ethnicCategory.findUnique({

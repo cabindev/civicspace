@@ -27,6 +27,13 @@ export async function createCreativeCategory(formData: FormData): Promise<Action
     if (!name) {
       return {
         success: false,
+        error: 'Name is required'
+      };
+    }
+
+    if (!name) {
+      return {
+        success: false,
         error: 'Category name is required'
       };
     }

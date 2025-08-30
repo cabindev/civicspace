@@ -23,6 +23,13 @@ export async function createCreativeSubCategory(formData: FormData): Promise<Act
     }
 
     const name = extractFormDataString(formData, 'name');
+
+    if (!name) {
+      return {
+        success: false,
+        error: 'Name is required'
+      };
+    }
     const categoryId = extractFormDataString(formData, 'categoryId');
 
     if (!name || !categoryId) {

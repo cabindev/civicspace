@@ -79,6 +79,13 @@ export async function updatePublicPolicyDirect(id: string, formData: FormData): 
 
     // Extract and process form data
     const name = extractFormDataString(formData, 'name');
+
+    if (!name) {
+      return {
+        success: false,
+        error: 'Name is required'
+      };
+    }
     const signingDateStr = extractFormDataString(formData, 'signingDate');
     const signingDate = new Date(signingDateStr);
     const level = extractFormDataString(formData, 'level');

@@ -24,6 +24,13 @@ export async function createCreativeCategory(formData: FormData): Promise<Action
 
     const name = extractFormDataString(formData, 'name');
 
+    if (!name) {
+      return {
+        success: false,
+        error: 'Category name is required'
+      };
+    }
+
     // Check if category name already exists
     const existingCategory = await prisma.creativeCategory.findFirst({
       where: { name }

@@ -25,6 +25,13 @@ export async function createCreativeSubCategory(formData: FormData): Promise<Act
     const name = extractFormDataString(formData, 'name');
     const categoryId = extractFormDataString(formData, 'categoryId');
 
+    if (!name || !categoryId) {
+      return {
+        success: false,
+        error: 'Name and category ID are required'
+      };
+    }
+
     // Check if category exists
     const category = await prisma.creativeCategory.findUnique({
       where: { id: categoryId }

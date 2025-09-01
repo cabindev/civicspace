@@ -9,9 +9,10 @@ import { getNotifications } from '@/app/lib/actions/notifications/get';
 interface NotificationBadgeProps {
   userId: number;
   children: React.ReactNode;
+  forceRefresh?: number;
 }
 
-export default function NotificationBadge({ userId, children }: NotificationBadgeProps) {
+export default function NotificationBadge({ userId, children, forceRefresh }: NotificationBadgeProps) {
   const [count, setCount] = useState(0);
   const [isPending, startTransition] = useTransition();
 
@@ -34,8 +35,26 @@ export default function NotificationBadge({ userId, children }: NotificationBadg
     fetchNotifications();
     // อัพเดททุก 30 วินาที
     const interval = setInterval(fetchNotifications, 30000);
-    return () => clearInterval(interval);
+    
+    // Refresh when window gains focus
+    const handleFocus = () => {
+      fetchNotifications();
+    };
+    
+    window.addEventListener('focus', handleFocus);
+    
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('focus', handleFocus);
+    };
   }, [userId]);
+
+  // Force refresh when forceRefresh prop changes
+  useEffect(() => {
+    if (forceRefresh) {
+      fetchNotifications();
+    }
+  }, [forceRefresh]);
 
   return (
     <Badge count={count} size="small">

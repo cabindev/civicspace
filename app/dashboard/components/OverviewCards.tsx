@@ -69,7 +69,18 @@ export default function OverviewCards({ data, showNotifications = true }: Overvi
     fetchNotifications();
     // อัปเดตทุก 30 วินาที
     const interval = setInterval(fetchNotifications, 30000);
-    return () => clearInterval(interval);
+    
+    // Refresh when window gains focus
+    const handleFocus = () => {
+      fetchNotifications();
+    };
+    
+    window.addEventListener('focus', handleFocus);
+    
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('focus', handleFocus);
+    };
   }, []);
 
   const handleNotificationClick = async (notificationId: string) => {
@@ -146,6 +157,7 @@ export default function OverviewCards({ data, showNotifications = true }: Overvi
         <Text strong className="text-gray-700">การแจ้งเตือนใหม่</Text>
         {notifications.length > 0 && (
           <button
+            type="button"
             onClick={handleClearAll}
             className="text-xs text-blue-500 hover:text-blue-700 cursor-pointer"
           >

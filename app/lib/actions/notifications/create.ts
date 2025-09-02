@@ -2,6 +2,7 @@
 'use server'
 
 import prisma from '@/app/lib/prisma';
+import { revalidatePath } from 'next/cache';
 import { ActionResult } from '../shared/types';
 
 export async function createNotification(
@@ -34,7 +35,20 @@ export async function createNotification(
 
 export async function markNotificationAsRead(notificationId: string): Promise<ActionResult> {
   try {
-    await prisma.notification.update({
+    // Check if notification exists before updating
+    const existingNotification = await prisma.notification.findUnique({
+      where: { id: notificationId }
+    });
+
+    if (!existingNotification) {
+      return {
+        success: false,
+        error: 'Notification not found'
+      };
+    }
+
+    // Update notification
+    const updatedNotification = await prisma.notification.update({
       where: {
         id: notificationId
       },
@@ -43,8 +57,15 @@ export async function markNotificationAsRead(notificationId: string): Promise<Ac
       }
     });
 
+    console.log(`Notification ${notificationId} marked as read for user ${updatedNotification.userId}`);
+
+    // Force revalidate pages with notifications
+    revalidatePath('/dashboard');
+    revalidatePath('/dashboard/users');
+    
     return {
-      success: true
+      success: true,
+      data: updatedNotification
     };
   } catch (error) {
     console.error('Error marking notification as read:', error);

@@ -97,6 +97,11 @@ export default function OverviewCards({ data, showNotifications = true }: Overvi
         // If backend fails, restore the original state
         console.error('Failed to mark notification as read:', result.error);
         setNotifications(originalNotifications);
+      } else {
+        // Force refresh after successful backend update
+        setTimeout(() => {
+          fetchNotifications();
+        }, 500);
       }
     } catch (error) {
       console.error('Failed to mark notification as read:', error);
@@ -133,6 +138,11 @@ export default function OverviewCards({ data, showNotifications = true }: Overvi
         console.error('Failed to mark some notifications as read');
         // Restore original state if any failed
         setNotifications(originalNotifications);
+      } else {
+        // Force refresh after successful batch update
+        setTimeout(() => {
+          fetchNotifications();
+        }, 500);
       }
     } catch (error) {
       console.error('Failed to clear all notifications:', error);

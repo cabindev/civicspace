@@ -27,7 +27,7 @@ export async function createTradition(formData: FormData): Promise<ActionResult>
 
     // Validate required fields
     const validation = validateFormData(formData, [
-      'name', 'district', 'amphoe', 'province', 'type', 'categoryId', 'coordinatorName'
+      'name', 'district', 'amphoe', 'province', 'type', 'categoryId'
     ]);
     if (!validation.success) {
       return validation;
@@ -44,8 +44,7 @@ export async function createTradition(formData: FormData): Promise<ActionResult>
     const categoryId = extractFormDataString(formData, 'categoryId');
 
     // Check for required string fields
-    if (!name || !district || !amphoe || !province || !type || 
-        !history || !alcoholFreeApproach || !categoryId) {
+    if (!name || !district || !amphoe || !province || !type || !categoryId) {
       return {
         success: false,
         error: 'Required fields are missing or empty'
@@ -59,11 +58,11 @@ export async function createTradition(formData: FormData): Promise<ActionResult>
       province,
       type,
       village: extractFormDataString(formData, 'village'),
-      coordinatorName: extractFormDataString(formData, 'coordinatorName'),
-      phone: extractFormDataString(formData, 'phone'),
-      history,
-      alcoholFreeApproach,
-      results: extractFormDataString(formData, 'results'),
+      coordinatorName: extractFormDataString(formData, 'coordinatorName') || null,
+      phone: extractFormDataString(formData, 'phone') || null,
+      history: history || null,
+      alcoholFreeApproach: alcoholFreeApproach || null,
+      results: extractFormDataString(formData, 'results') || null,
       startYear: extractFormDataNumber(formData, 'startYear') ?? null,
       videoLink: extractFormDataString(formData, 'videoLink'),
       categoryId,

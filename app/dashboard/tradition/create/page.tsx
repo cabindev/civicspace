@@ -272,8 +272,7 @@ export default function CreateTradition() {
 
               {renderFormItem("village", "หมู่บ้าน", <Input />)}
               {renderFormItem("coordinatorName", "ชื่อผู้ประสานงาน", 
-                <Input />,
-                [{ required: true, message: "กรุณากรอกชื่อผู้ประสานงาน" }]
+                <Input />
               )}
               {renderFormItem("phone", "เบอร์ติดต่อ", <Input />)}
             </Card>

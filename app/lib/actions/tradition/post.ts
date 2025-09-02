@@ -27,7 +27,7 @@ export async function createTradition(formData: FormData): Promise<ActionResult>
 
     // Validate required fields
     const validation = validateFormData(formData, [
-      'name', 'district', 'amphoe', 'province', 'type', 'categoryId'
+      'name', 'district', 'amphoe', 'province', 'type', 'categoryId', 'coordinatorName'
     ]);
     if (!validation.success) {
       return validation;
@@ -50,8 +50,8 @@ export async function createTradition(formData: FormData): Promise<ActionResult>
       alcoholFreeApproachValue: formData.get('alcoholFreeApproach')
     });
 
-    // Check for required string fields
-    if (!name || !district || !amphoe || !province || !type || !categoryId) {
+    // Check for required string fields  
+    if (!name || !district || !amphoe || !province || !type || !categoryId || !extractFormDataString(formData, 'coordinatorName')) {
       return {
         success: false,
         error: 'Required fields are missing or empty'
@@ -65,7 +65,7 @@ export async function createTradition(formData: FormData): Promise<ActionResult>
       province,
       type,
       village: extractFormDataString(formData, 'village'),
-      coordinatorName: extractFormDataString(formData, 'coordinatorName') || null,
+      coordinatorName: extractFormDataString(formData, 'coordinatorName'),
       phone: extractFormDataString(formData, 'phone') || null,
       history: history || null,
       alcoholFreeApproach: alcoholFreeApproach || null,

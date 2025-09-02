@@ -11,11 +11,9 @@ import { ActionResult } from '../shared/types';
 
 export async function createTradition(formData: FormData): Promise<ActionResult> {
   try {
-    // Test database connection first
-    console.log('Testing database connection...');
+    // Test database connection first (production)
     try {
       await prisma.$connect();
-      console.log('Database connection successful');
     } catch (dbError) {
       console.error('Database connection failed:', dbError);
       return {
@@ -56,12 +54,7 @@ export async function createTradition(formData: FormData): Promise<ActionResult>
     const alcoholFreeApproach = extractFormDataString(formData, 'alcoholFreeApproach');
     const categoryId = extractFormDataString(formData, 'categoryId');
 
-    console.log('DEBUG - Extracted fields:', {
-      name, district, amphoe, province, type, categoryId,
-      history, alcoholFreeApproach,
-      historyValue: formData.get('history'),
-      alcoholFreeApproachValue: formData.get('alcoholFreeApproach')
-    });
+    // Production validation passed
 
     // Check for required string fields  
     if (!name || !district || !amphoe || !province || !type || !categoryId || !extractFormDataString(formData, 'coordinatorName')) {
@@ -117,23 +110,16 @@ export async function createTradition(formData: FormData): Promise<ActionResult>
     }
 
     // Create the tradition
-    console.log('Creating tradition with data:', JSON.stringify(traditionData, null, 2));
-    
     const tradition = await prisma.tradition.create({
       data: traditionData
     });
-    
-    console.log('Tradition created successfully:', tradition.id);
 
     // Handle image uploads
     const images = formData.getAll('images') as File[];
-    console.log('Images found:', images.length, 'files');
     
     if (images && images.length > 0 && images[0].size > 0) {
-      console.log('Processing image uploads...');
       try {
         await saveImages(images, 'tradition-images', tradition.id, 'traditionId');
-        console.log('Images saved successfully');
       } catch (imageError) {
         console.error('Error saving images:', imageError);
         // Don't fail the entire operation for image upload errors
@@ -141,8 +127,6 @@ export async function createTradition(formData: FormData): Promise<ActionResult>
     }
 
     // Create notification
-    console.log('Creating notification for user:', user.id, 'tradition:', tradition.id);
-    
     try {
       await prisma.notification.create({
         data: {
@@ -151,7 +135,6 @@ export async function createTradition(formData: FormData): Promise<ActionResult>
           activityType: 'tradition'
         }
       });
-      console.log('Notification created successfully');
     } catch (notificationError) {
       console.error('Error creating notification:', notificationError);
       // Don't fail the entire operation for notification errors
@@ -170,17 +153,10 @@ export async function createTradition(formData: FormData): Promise<ActionResult>
   } catch (error) {
     console.error('Error creating tradition:', error);
     
-    // Detailed error logging for production debugging
+    // Production error logging
     if (error instanceof Error) {
-      console.error('Error name:', error.name);
-      console.error('Error message:', error.message);
-      console.error('Error stack:', error.stack);
+      console.error('Tradition creation error:', error.message);
     }
-    
-    // Log additional context
-    console.error('FormData keys:', Array.from(formData.keys()));
-    console.error('Environment:', process.env.NODE_ENV);
-    console.error('Database URL exists:', !!process.env.DATABASE_URL);
     
     return {
       success: false,

@@ -43,6 +43,13 @@ export async function createTradition(formData: FormData): Promise<ActionResult>
     const alcoholFreeApproach = extractFormDataString(formData, 'alcoholFreeApproach');
     const categoryId = extractFormDataString(formData, 'categoryId');
 
+    console.log('DEBUG - Extracted fields:', {
+      name, district, amphoe, province, type, categoryId,
+      history, alcoholFreeApproach,
+      historyValue: formData.get('history'),
+      alcoholFreeApproachValue: formData.get('alcoholFreeApproach')
+    });
+
     // Check for required string fields
     if (!name || !district || !amphoe || !province || !type || !categoryId) {
       return {

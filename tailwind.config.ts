@@ -7,9 +7,6 @@ module.exports = {
   ],
   theme: {
     extend: {
-      fontFamily: {
-        seppuri: ['var(--font-seppuri)'], 
-      },
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
@@ -29,26 +26,27 @@ module.exports = {
           DEFAULT: "var(--muted)",
           foreground: "var(--muted-foreground)",
         },
+        border: "var(--border)",
+        card: {
+          DEFAULT: "var(--card-bg)",
+        },
+        yellow: {
+          50: '#fffbeb',
+          100: '#fef3c7',
+          200: '#fde68a',
+          300: '#fcd34d',
+          400: '#fbbf24',
+          500: '#f59e0b',
+          600: '#d97706',
+          700: '#b45309',
+          800: '#92400e',
+          900: '#78350f',
+        },
       },
     },
   },
-  plugins: [require("daisyui")],
-  daisyui: {
-    themes: [
-      {
-        mytheme: {
-          "primary": "#2F855A",          // สีเขียวเข้ม
-          "secondary": "#48BB78",        // สีเขียวกลาง
-          "accent": "#68D391",           // สีเขียวอ่อน
-          "neutral": "#3D4451",          // สีเทาเข้ม
-          "base-100": "#FFFFFF",         // สีพื้นหลัก (ขาว)
-          "info": "#4299E1",             // สีฟ้า
-          "success": "#38A169",          // สีเขียว success
-          "warning": "#ECC94B",          // สีเหลือง
-          "error": "#E53E3E",            // สีแดง
-        },
-      },
-    ],
-  },
+  plugins: [
+    require('@tailwindcss/typography'),
+  ],
   darkMode: "class",
  };

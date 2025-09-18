@@ -1,94 +1,89 @@
-# SSN Thailand Project - Claude Context
+# CivicSpace Project - Claude Context
 
 ## Project Overview
-SSN Thailand เป็นระบบจัดการข้อมูลเพื่อสนับสนุนการสร้างสรรค์และการอนุรักษ์ประเพณีไทย ประกอบด้วยระบบจัดการกิจกรรมสร้างสรรค์ กลุ่มชาติพันธุ์ และนโยบายสาธารณะ
+CivicSpace : พื้นที่พลเมืองร่วมหาทางออกปัญหาแอลกอฮอล์ เป็นศูนย์ข้อมูลและพื้นที่สำหรับเจ้าหน้าที่ในการทำงานร่วมกันหาทางออกปัญหาแอลกอฮอล์ รวบรวมข้อมูล บทความ และโครงการต่างๆ โดยใช้ API จาก CivicSpace API สำหรับแสดงเนื้อหา
 
 ## Technical Stack
 - **Frontend**: Next.js 14 with React 18, TypeScript
-- **UI Libraries**: Ant Design, Chakra UI, DaisyUI, Tailwind CSS  
-- **Charts**: Ant Design Charts, Highcharts, Recharts
-- **Database**: MySQL with Prisma ORM
+- **UI Libraries**: Tailwind CSS, Lucide React Icons
+- **Database**: MySQL with Prisma ORM (auth only)
 - **Authentication**: NextAuth.js with Prisma adapter
-- **File Upload**: Browser image compression, xlsx support
-- **Maps**: React Leaflet for geographic data visualization
-- **Styling**: Tailwind CSS, Emotion, Framer Motion
-- **Backend**: Express.js server with Next.js
+- **External Data**: CivicSpace API integration
+- **Styling**: Custom CSS with yellow color scheme
+- **Design**: Clean, minimal design focused on small fonts and readability
 
 ## Project Structure
 ```
 app/
-├── api/                    # API routes
-│   ├── auth/              # Authentication endpoints
-│   ├── creative-activity/ # Creative activities CRUD
-│   ├── ethnic-group/      # Ethnic groups CRUD  
-│   ├── tradition/         # Traditions CRUD
-│   └── public-policy/     # Public policies CRUD
-├── components/            # Reusable UI components
-├── dashboard/             # Admin dashboard pages
-└── auth/                  # Authentication pages
+├── api/                    # API routes (auth only)
+│   └── auth/              # Authentication endpoints
+├── dashboard/             # Admin dashboard for staff
+│   └── page.tsx           # Dashboard with API statistics
+├── auth/                  # Authentication pages
+├── page.tsx               # Homepage with CivicSpace API data
+├── layout.tsx             # Root layout
+└── globals.css            # Global styles with yellow theme
 
 prisma/
-├── schema.prisma          # Database schema
+├── schema.prisma          # Minimal schema (User + Role only)
 └── migrations/            # Database migrations
-
-public/
-└── uploads/               # File storage for images and documents
 ```
 
 ## Key Features
-1. **สำนักงานเครือข่ายองค์กรงดเหล้า (SSN)** - ระบบจัดการข้อมูลเครือข่าย
-2. **กิจกรรมสร้างสรรค์** - จัดการกิจกรรมทางวัฒนธรรม
-3. **กลุ่มชาติพันธุ์** - ข้อมูลกลุ่มชาติพันธุ์ต่างๆ
-4. **ประเพณี** - การจัดการข้อมูลประเพณีไทย
-5. **นโยบายสาธารณะ** - ติดตามนโยบายที่เกี่ยวข้อง
-6. **แดชบอร์ด** - สถิติและกราฟแสดงข้อมูล
-7. **ระบบผู้ใช้** - การจัดการผู้ใช้และสิทธิ์
+1. **หน้าแรก** - แสดงบทความล่าสุดและยอดนิยมจาก CivicSpace API
+2. **แดชบอร์ด** - สถิติและข้อมูลภาพรวมสำหรับเจ้าหน้าที่
+3. **ระบบผู้ใช้** - การจัดการผู้ใช้และสิทธิ์ (NextAuth.js)
+4. **API Integration** - เชื่อมต่อกับ CivicSpace API สำหรับข้อมูลเนื้อหา
+5. **Clean Design** - ดีไซน์เรียบง่าย เน้นตัวหนังสือขนาดเล็ก สีเหลือง
+6. **เฉพาะเจ้าหน้าที่** - ระบบสำหรับเจ้าหน้าที่เท่านั้น
 
 ## Database Configuration
-- **Development**: `mysql://root:root@localhost:3306/ssn_db`
-- **Production**: `mysql://ssn_thailand:YY_h025194166@localhost:3306/ssn_db`
+- **Development**: `mysql://root:root@localhost:3306/civicspace`
 - **Authentication**: NextAuth with custom secret
 
 ## Development Commands
 - `npm run dev` - Start development server
 - `npm run build` - Build for production
-- `npm run start` - Start production server  
+- `npm run start` - Start production server
 - `npm run lint` - Run ESLint
 
-## Important Notes
-- Custom Thai font family (Seppuri) implemented
-- Email notifications configured with Gmail SMTP
-- File upload system for documents and images
-- Multi-language support (Thai/English)
-- Responsive design with mobile support
-- Geographic data visualization for Thailand provinces
-- Role-based access control with super admin features
+## External API Integration
 
-## Recent Updates
-- Added user relations and notification system
-- Implemented tradition and policy management
-- Enhanced health region level functionality
-- Super admin role for advanced management
+### CivicSpace API
+Base URL: `https://civicspace-gqdcg0dxgjbqe8as.southeastasia-01.azurewebsites.net/api/v1`
 
-## File Upload Structure
+**Key Endpoints:**
+- `GET /posts/` - All posts with pagination
+- `GET /posts/latest/?limit=N` - Latest posts
+- `GET /posts/popular/?limit=N` - Popular posts by view count
+- `GET /categories/` - All categories with post counts
+- `GET /posts/{slug}/` - Single post details
+- `GET /categories/{slug}/posts/` - Posts by category
+
+## Color Scheme
+Yellow-based theme with careful attention to readability:
+```css
+--primary: #f59e0b;        /* Main yellow */
+--secondary: #92400e;      /* Dark brown */
+--accent: #fbbf24;         /* Light yellow */
+--background: #fffbeb;     /* Cream background */
+--foreground: #78350f;     /* Dark text */
 ```
-public/uploads/
-├── creative-activity-images/
-├── creative-activity-files/
-├── ethnic-group-images/
-├── ethnic-group-files/
-├── policy-files/
-├── public-policy-images/
-├── tradition-images/
-└── profiles/
-```
+
+## Design Principles
+1. **Small font sizes** - 14px base, clean typography
+2. **Minimal interface** - Focus on content
+3. **Staff-focused** - Built for internal use by officials
+4. **Data-driven** - Real statistics from external API
+5. **Responsive** - Mobile-friendly design
 
 ## Context for AI Assistant
 When working with this codebase:
 1. **Language**: Content is primarily in Thai, maintain Thai language for user-facing text
-2. **Database**: Use Prisma for all database operations
+2. **Database**: Use Prisma only for authentication (User model)
 3. **Authentication**: NextAuth.js is configured for user management
-4. **File Handling**: Images are compressed and stored in organized folders
-5. **UI Consistency**: Follow established patterns using Ant Design and Tailwind CSS
-6. **Charts**: Multiple chart libraries available - choose based on data visualization needs
-7. **Geographic Data**: Thailand province coordinates and regions are pre-configured
+4. **External Data**: Fetch all content from CivicSpace API
+5. **UI Consistency**: Follow clean, minimal design patterns with Tailwind CSS
+6. **Icons**: Use Lucide React icons only
+7. **Color Scheme**: Stick to yellow-based theme for consistency
+8. **Target Audience**: Government officials and staff members only

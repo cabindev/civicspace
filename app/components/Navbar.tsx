@@ -22,66 +22,66 @@ function Navbar({ showDashboardLink = true, showHomeLink = false }: NavbarProps)
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo and Title */}
-          <div className="flex items-center space-x-4">
-            <Link href="/" className="flex items-center space-x-4 hover:opacity-80 transition-opacity">
-              <div className="w-10 h-10 flex items-center justify-center">
+          <div className="flex items-center space-x-2 sm:space-x-4">
+            <Link href="/" className="flex items-center space-x-2 sm:space-x-4 hover:opacity-80 transition-opacity">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center">
                 <Image
                   src="/Civic-Spacelogo.png"
                   alt="CivicSpace Logo"
                   width={40}
                   height={40}
-                  className="w-auto h-auto max-w-10 max-h-10"
+                  className="w-auto h-auto max-w-8 max-h-8 sm:max-w-10 sm:max-h-10"
                 />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-gray-900">CivicSpace</h1>
-                <p className="text-xs text-gray-600">พื้นที่พลเมืองร่วมหาทางออกปัญหาแอลกอฮอล์</p>
+                <h1 className="text-lg sm:text-xl font-bold text-gray-900">CivicSpace</h1>
+                <p className="text-xs text-gray-600 hidden sm:block">พื้นที่พลเมืองร่วมหาทางออกปัญหาแอลกอฮอล์</p>
               </div>
             </Link>
           </div>
           
           {/* Navigation Links */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 sm:space-x-4">
             {/* Home Link (for dashboard page) */}
             {showHomeLink && (
-              <Link href="/" className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors">
-                <Home className="w-4 h-4 mr-2" />
-                หน้าหลัก
+              <Link href="/" className="inline-flex items-center px-2 sm:px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors">
+                <Home className="w-4 h-4 sm:mr-2" />
+                <span className="hidden sm:inline">หน้าหลัก</span>
               </Link>
             )}
 
             {/* Dashboard Link (for homepage) */}
             {showDashboardLink && (
-              <Link href="/dashboard" className="inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-gray-800 hover:bg-gray-700 rounded-md transition-colors">
-                <BarChart3 className="w-4 h-4 mr-2" />
-                แดชบอร์ด
+              <Link href="/dashboard" className="inline-flex items-center px-2 sm:px-3 py-2 text-sm font-medium text-white bg-gray-800 hover:bg-gray-700 rounded-md transition-colors">
+                <BarChart3 className="w-4 h-4 sm:mr-2" />
+                <span className="hidden sm:inline">แดชบอร์ด</span>
               </Link>
             )}
 
             {/* Authentication */}
             {session ? (
-              <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2 sm:space-x-4">
                 <div className="flex items-center space-x-2">
-                  <div className="w-8 h-8 bg-gray-600 text-white rounded-full flex items-center justify-center">
-                    <User className="w-4 h-4" />
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gray-600 text-white rounded-full flex items-center justify-center">
+                    <User className="w-3 h-3 sm:w-4 sm:h-4" />
                   </div>
-                  <span className="text-sm text-gray-900 hidden sm:inline font-medium">
+                  <span className="text-sm text-gray-900 hidden md:inline font-medium">
                     {(session.user as any)?.firstName || (session.user as any)?.name || session.user?.email}
                   </span>
                 </div>
                 <button 
                   type="button"
                   onClick={handleSignOut}
-                  className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors"
+                  className="inline-flex items-center px-2 sm:px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors"
                 >
-                  <LogOut className="w-4 h-4 mr-2" />
-                  ออกจากระบบ
+                  <LogOut className="w-4 h-4 sm:mr-2" />
+                  <span className="hidden sm:inline">ออกจากระบบ</span>
                 </button>
               </div>
             ) : (
-              <Link href="/auth/signin" className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors">
-                <LogIn className="w-4 h-4 mr-2" />
-                เข้าสู่ระบบ
+              <Link href="/auth/signin" className="inline-flex items-center px-2 sm:px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors">
+                <LogIn className="w-4 h-4 sm:mr-2" />
+                <span className="hidden sm:inline">เข้าสู่ระบบ</span>
               </Link>
             )}
           </div>

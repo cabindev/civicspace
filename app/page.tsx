@@ -123,36 +123,43 @@ export default function HomePage() {
       <Navbar showDashboardLink={true} />
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+      <section className="relative overflow-hidden bg-gradient-to-br from-white to-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
           <div className="text-center">
-            <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4 sm:mb-6">
               CivicSpace
             </h1>
-            <p className="text-xl text-gray-600 mb-12 max-w-3xl mx-auto leading-relaxed">
-              แหล่งรวมข้อมูล บทความ และงานวิจัยเพื่อสนับสนุนการทำงานของเจ้าหน้าที่<br/>
+            <p className="text-base sm:text-lg md:text-xl text-gray-600 mb-8 sm:mb-12 max-w-3xl mx-auto leading-relaxed px-4">
+              แหล่งรวมข้อมูล บทความ และงานวิจัยเพื่อสนับสนุนการทำงานของเจ้าหน้าที่
+              <br className="hidden sm:block"/>
               ในการหาทางออกปัญหาแอลกอฮอล์อย่างมีประสิทธิภาพ
             </p>
             
             {/* Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto mb-12">
-              <div className="text-center">
-                <div className="text-4xl font-bold text-gray-600 mb-2">{totalPosts.toLocaleString()}</div>
-                <div className="text-gray-600 text-sm uppercase tracking-wide">บทความทั้งหมด</div>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 md:gap-8 max-w-4xl mx-auto mb-8 sm:mb-12">
+              <div className="text-center p-4 bg-white rounded-lg shadow-sm">
+                <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-600 mb-1 sm:mb-2">
+                  {totalPosts.toLocaleString()}
+                </div>
+                <div className="text-gray-600 text-xs sm:text-sm uppercase tracking-wide">บทความทั้งหมด</div>
               </div>
-              <div className="text-center">
-                <div className="text-4xl font-bold text-gray-600 mb-2">{categories.length}</div>
-                <div className="text-gray-600 text-sm uppercase tracking-wide">หมวดหมู่</div>
+              <div className="text-center p-4 bg-white rounded-lg shadow-sm">
+                <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-600 mb-1 sm:mb-2">
+                  {categories.length}
+                </div>
+                <div className="text-gray-600 text-xs sm:text-sm uppercase tracking-wide">หมวดหมู่</div>
               </div>
-              <div className="text-center">
-                <div className="text-4xl font-bold text-gray-600 mb-2">{popularPosts.length}</div>
-                <div className="text-gray-600 text-sm uppercase tracking-wide">บทความยอดนิยม</div>
+              <div className="text-center p-4 bg-white rounded-lg shadow-sm">
+                <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-600 mb-1 sm:mb-2">
+                  {popularPosts.length}
+                </div>
+                <div className="text-gray-600 text-xs sm:text-sm uppercase tracking-wide">บทความยอดนิยม</div>
               </div>
-              <div className="text-center">
-                <div className="text-4xl font-bold text-gray-600 mb-2">
+              <div className="text-center p-4 bg-white rounded-lg shadow-sm">
+                <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-600 mb-1 sm:mb-2">
                   {popularPosts.reduce((sum, post) => sum + post.view_count, 0).toLocaleString()}
                 </div>
-                <div className="text-gray-600 text-sm uppercase tracking-wide">การเข้าชม</div>
+                <div className="text-gray-600 text-xs sm:text-sm uppercase tracking-wide">การเข้าชม</div>
               </div>
             </div>
           </div>
@@ -160,14 +167,14 @@ export default function HomePage() {
       </section>
 
       {/* Latest Posts Section */}
-      <section className="py-16 bg-gray-50">
+      <section className="py-8 sm:py-12 lg:py-16 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">บทความล่าสุด</h2>
-            <p className="text-gray-600">ติดตามข้อมูลและองค์ความรู้ใหม่ๆ</p>
+          <div className="text-center mb-8 sm:mb-12">
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2 sm:mb-4">บทความล่าสุด</h2>
+            <p className="text-sm sm:text-base text-gray-600">ติดตามข้อมูลและองค์ความรู้ใหม่ๆ</p>
           </div>
 
-          <div className="columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4">
+          <div className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4">
             {displayedPosts.map((post: Post, index: number) => {
               // สร้างความสูงที่แตกต่างกันแบบ Unsplash
               const heights = ['h-56', 'h-64', 'h-80', 'h-72', 'h-60', 'h-96', 'h-52', 'h-88', 'h-48', 'h-76'];
@@ -221,18 +228,19 @@ export default function HomePage() {
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div className="flex justify-center items-center mt-12 space-x-2">
+            <div className="flex flex-col sm:flex-row justify-center items-center mt-8 sm:mt-12 space-y-3 sm:space-y-0 sm:space-x-2">
               <button
                 type="button"
                 onClick={() => handlePageChange(currentPage - 1)}
                 disabled={currentPage === 1}
-                className="flex items-center px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto justify-center sm:justify-start"
               >
                 <ChevronLeft className="w-4 h-4 mr-1" />
-                ก่อนหน้า
+                <span className="hidden sm:inline">ก่อนหน้า</span>
+                <span className="sm:hidden">ก่อนหน้า</span>
               </button>
 
-              <div className="flex space-x-1">
+              <div className="flex space-x-1 overflow-x-auto px-2">
                 {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                   let pageNumber;
                   if (totalPages <= 5) {
@@ -250,7 +258,7 @@ export default function HomePage() {
                       type="button"
                       key={pageNumber}
                       onClick={() => handlePageChange(pageNumber)}
-                      className={`px-3 py-2 text-sm font-medium rounded-lg ${
+                      className={`px-3 py-2 text-sm font-medium rounded-lg min-w-[40px] ${
                         currentPage === pageNumber
                           ? 'text-white bg-gray-900'
                           : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50 hover:text-gray-700'
@@ -266,48 +274,51 @@ export default function HomePage() {
                 type="button"
                 onClick={() => handlePageChange(currentPage + 1)}
                 disabled={currentPage === totalPages}
-                className="flex items-center px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto justify-center sm:justify-start"
               >
-                ถัดไป
+                <span className="hidden sm:inline">ถัดไป</span>
+                <span className="sm:hidden">ถัดไป</span>
                 <ChevronRight className="w-4 h-4 ml-1" />
               </button>
             </div>
           )}
 
           {/* Page Info */}
-          <div className="text-center mt-6 text-sm text-gray-500">
-            แสดง {displayedPosts.length} จาก {totalPosts.toLocaleString()} บทความ (หน้า {currentPage} จาก {totalPages})
+          <div className="text-center mt-4 sm:mt-6 text-xs sm:text-sm text-gray-500 px-4">
+            แสดง {displayedPosts.length} จาก {totalPosts.toLocaleString()} บทความ 
+            <br className="sm:hidden" />
+            <span className="hidden sm:inline"> </span>(หน้า {currentPage} จาก {totalPages})
           </div>
         </div>
       </section>
 
       {/* Popular Posts & Categories Section */}
-      <section className="py-12 bg-white">
+      <section className="py-8 sm:py-12 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-8">
+          <div className="grid lg:grid-cols-2 gap-6 sm:gap-8">
             
             {/* Popular Posts */}
             <div>
-              <h2 className="text-xl font-bold text-gray-900 mb-6">บทความยอดนิยม</h2>
+              <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6">บทความยอดนิยม</h2>
               
-              <div className="space-y-3">
+              <div className="space-y-2 sm:space-y-3">
                 {popularPosts.map((post, index) => {
                   const enhancedViews = Math.floor((post.view_count + 1000) * (2.5 + Math.random() * 3));
                   
                   return (
                     <Link key={post.id} href={`/post/${post.slug}`}>
-                      <div className="flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-50 transition-colors group">
-                        <div className="flex-shrink-0 w-6 h-6 bg-gray-600 text-white rounded-full flex items-center justify-center text-xs font-semibold">
+                      <div className="flex items-start space-x-3 p-2 sm:p-3 rounded-lg hover:bg-gray-50 transition-colors group">
+                        <div className="flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6 bg-gray-600 text-white rounded-full flex items-center justify-center text-xs font-semibold">
                           {index + 1}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <h3 className="font-medium text-gray-900 group-hover:text-gray-600 transition-colors line-clamp-2 text-sm mb-1">
+                          <h3 className="font-medium text-gray-900 group-hover:text-gray-600 transition-colors line-clamp-2 text-xs sm:text-sm mb-1">
                             {post.title}
                           </h3>
-                          <div className="flex items-center space-x-3 text-xs text-gray-500">
+                          <div className="flex items-center space-x-2 sm:space-x-3 text-xs text-gray-500">
                             <span>{enhancedViews.toLocaleString()} ครั้ง</span>
                             <span>•</span>
-                            <span>{formatDate(post.created_at)}</span>
+                            <span className="hidden sm:inline">{formatDate(post.created_at)}</span>
                           </div>
                         </div>
                       </div>
@@ -319,15 +330,15 @@ export default function HomePage() {
 
             {/* Categories */}
             <div>
-              <h2 className="text-xl font-bold text-gray-900 mb-6">หมวดหมู่</h2>
+              <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6">หมวดหมู่</h2>
               
-              <div className="space-y-3">
+              <div className="space-y-2 sm:space-y-3">
                 {categories.slice(0, 6).map((category) => {
                   const enhancedCount = Math.floor((category.post_count + 15) * (3 + Math.random() * 4));
                   
                   return (
-                    <div key={category.id} className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors group cursor-pointer">
-                      <h3 className="font-medium text-gray-900 group-hover:text-gray-600 transition-colors text-sm">
+                    <div key={category.id} className="flex items-center justify-between p-2 sm:p-3 rounded-lg hover:bg-gray-50 transition-colors group cursor-pointer">
+                      <h3 className="font-medium text-gray-900 group-hover:text-gray-600 transition-colors text-xs sm:text-sm">
                         {category.name}
                       </h3>
                       <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">

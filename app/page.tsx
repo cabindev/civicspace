@@ -57,6 +57,12 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPosts, setTotalPosts] = useState(0);
+  const [animatedStats, setAnimatedStats] = useState({
+    totalPosts: 0,
+    categories: 0,
+    popularPosts: 0,
+    totalViews: 0
+  });
   const postsPerPage = 20;
 
   useEffect(() => {
@@ -95,6 +101,72 @@ export default function HomePage() {
     setCurrentPage(page);
     setLoading(true);
   };
+
+  // Counter animation function
+  const animateCounter = (start: number, end: number, duration: number = 2000) => {
+    return new Promise<void>((resolve) => {
+      const startTime = Date.now();
+      const difference = end - start;
+      
+      const step = () => {
+        const elapsed = Date.now() - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        
+        // Easing function for smooth animation
+        const easeOutCubic = 1 - Math.pow(1 - progress, 3);
+        const current = Math.floor(start + difference * easeOutCubic);
+        
+        return { current, completed: progress >= 1 };
+      };
+      
+      const animate = () => {
+        const { current, completed } = step();
+        
+        if (completed) {
+          resolve();
+        } else {
+          requestAnimationFrame(animate);
+        }
+      };
+      
+      animate();
+    });
+  };
+
+  // Animate stats when data loads
+  useEffect(() => {
+    if (!loading && totalPosts > 0) {
+      const totalViews = popularPosts.reduce((sum, post) => sum + post.view_count, 0);
+      
+      // Animate all counters simultaneously
+      const animateStats = async () => {
+        const duration = 2000;
+        const startTime = Date.now();
+        
+        const animate = () => {
+          const elapsed = Date.now() - startTime;
+          const progress = Math.min(elapsed / duration, 1);
+          const easeOutCubic = 1 - Math.pow(1 - progress, 3);
+          
+          setAnimatedStats({
+            totalPosts: Math.floor(totalPosts * easeOutCubic),
+            categories: Math.floor(categories.length * easeOutCubic),
+            popularPosts: Math.floor(popularPosts.length * easeOutCubic),
+            totalViews: Math.floor(totalViews * easeOutCubic)
+          });
+          
+          if (progress < 1) {
+            requestAnimationFrame(animate);
+          }
+        };
+        
+        animate();
+      };
+      
+      // Start animation after a short delay
+      setTimeout(animateStats, 300);
+    }
+  }, [loading, totalPosts, categories.length, popularPosts]);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -135,31 +207,31 @@ export default function HomePage() {
               ในการหาทางออกปัญหาแอลกอฮอล์อย่างมีประสิทธิภาพ
             </p>
             
-            {/* Stats */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 md:gap-8 max-w-4xl mx-auto mb-8 sm:mb-12">
-              <div className="text-center p-4 bg-white rounded-lg shadow-sm">
-                <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-600 mb-1 sm:mb-2">
-                  {totalPosts.toLocaleString()}
+            {/* Stats - Yellow Theme */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 md:gap-12 max-w-5xl mx-auto mb-8 sm:mb-12">
+              <div className="text-center">
+                <div className="text-4xl sm:text-5xl md:text-6xl font-bold text-yellow-500 mb-2 tabular-nums">
+                  {animatedStats.totalPosts.toLocaleString()}
                 </div>
-                <div className="text-gray-600 text-xs sm:text-sm uppercase tracking-wide">บทความทั้งหมด</div>
+                <div className="text-gray-500 text-xs sm:text-sm font-light tracking-wide">บทความทั้งหมด</div>
               </div>
-              <div className="text-center p-4 bg-white rounded-lg shadow-sm">
-                <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-600 mb-1 sm:mb-2">
-                  {categories.length}
+              <div className="text-center">
+                <div className="text-4xl sm:text-5xl md:text-6xl font-bold text-yellow-500 mb-2 tabular-nums">
+                  {animatedStats.categories.toLocaleString()}
                 </div>
-                <div className="text-gray-600 text-xs sm:text-sm uppercase tracking-wide">หมวดหมู่</div>
+                <div className="text-gray-500 text-xs sm:text-sm font-light tracking-wide">หมวดหมู่</div>
               </div>
-              <div className="text-center p-4 bg-white rounded-lg shadow-sm">
-                <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-600 mb-1 sm:mb-2">
-                  {popularPosts.length}
+              <div className="text-center">
+                <div className="text-4xl sm:text-5xl md:text-6xl font-bold text-yellow-500 mb-2 tabular-nums">
+                  {animatedStats.popularPosts.toLocaleString()}
                 </div>
-                <div className="text-gray-600 text-xs sm:text-sm uppercase tracking-wide">บทความยอดนิยม</div>
+                <div className="text-gray-500 text-xs sm:text-sm font-light tracking-wide">บทความยอดนิยม</div>
               </div>
-              <div className="text-center p-4 bg-white rounded-lg shadow-sm">
-                <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-600 mb-1 sm:mb-2">
-                  {popularPosts.reduce((sum, post) => sum + post.view_count, 0).toLocaleString()}
+              <div className="text-center">
+                <div className="text-4xl sm:text-5xl md:text-6xl font-bold text-yellow-500 mb-2 tabular-nums">
+                  {animatedStats.totalViews.toLocaleString()}
                 </div>
-                <div className="text-gray-600 text-xs sm:text-sm uppercase tracking-wide">การเข้าชม</div>
+                <div className="text-gray-500 text-xs sm:text-sm font-light tracking-wide">การเข้าชม</div>
               </div>
             </div>
           </div>

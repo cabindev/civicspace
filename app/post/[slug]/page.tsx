@@ -75,7 +75,7 @@ export default function PostPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-neutral-50">
-        <Navbar showDashboardLink={true} />
+        <Navbar showDashboardLink={true}  />
         <div className="min-h-96 flex items-center justify-center">
           <Loading size="lg" className="min-h-96" />
         </div>
@@ -87,7 +87,7 @@ export default function PostPage() {
   if (error || !post) {
     return (
       <div className="min-h-screen bg-neutral-50">
-        <Navbar showDashboardLink={true} />
+        <Navbar showDashboardLink={true}  />
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="text-center">
             <h1 className="text-2xl font-semibold text-slate-900 mb-3">ไม่พบบทความที่ต้องการ</h1>
@@ -109,7 +109,7 @@ export default function PostPage() {
 
   return (
     <div className="min-h-screen bg-neutral-50 text-slate-800">
-      <Navbar showDashboardLink={true} />
+      <Navbar showDashboardLink={true}  />
       
       <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Back Button */}
@@ -134,7 +134,7 @@ export default function PostPage() {
                 alt={post.title}
                 fill
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 800px, 1200px"
-                className="object-cover w-full h-full"
+                className="object-contain w-full h-full"
                 priority
               />
               </div>

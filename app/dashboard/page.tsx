@@ -34,6 +34,17 @@ interface DashboardStats {
     name: string;
     post_count: number;
   }>;
+  allPosts: Array<{
+    id: number;
+    title: string;
+    slug: string;
+    author: string;
+    category: {
+      name: string;
+    };
+    view_count: number;
+    created_at: string;
+  }>;
 }
 
 const API_BASE = 'https://civicspace-gqdcg0dxgjbqe8as.southeastasia-01.azurewebsites.net/api/v1';
@@ -54,9 +65,9 @@ export default function Dashboard() {
     const fetchStats = async () => {
       try {
         const [postsRes, categoriesRes, popularRes] = await Promise.all([
-          fetch(`${API_BASE}/posts/`),
-          fetch(`${API_BASE}/categories/`),
-          fetch(`${API_BASE}/posts/popular/?limit=5`)
+          fetch(`/api/post?page=1&page_size=100`),
+          fetch(`/api/categories`),
+          fetch(`/api/post?type=popular&limit=5`)
         ]);
 
         const [posts, categories, popular] = await Promise.all([
@@ -65,14 +76,17 @@ export default function Dashboard() {
           popularRes.json()
         ]);
 
-        const totalViews = popular.reduce((sum: number, post: any) => sum + post.view_count, 0);
+        console.log('Dashboard API responses:', { posts, categories, popular });
+
+        const totalViews = popular?.reduce((sum: number, post: any) => sum + post.view_count, 0) || 0;
 
         setStats({
           totalPosts: posts.count || posts.length || 0,
           totalCategories: categories.count || categories.results?.length || 0,
           totalViews,
-          popularPosts: popular.slice(0, 5),
-          recentCategories: categories.results?.slice(0, 6) || []
+          popularPosts: popular?.slice(0, 5) || [],
+          recentCategories: categories.results?.slice(0, 6) || [],
+          allPosts: posts.results || posts || []
         });
       } catch (error) {
         console.error('Error fetching dashboard stats:', error);
@@ -105,71 +119,91 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Welcome */}
         <div className="mb-8">
-          <div className="flex items-center space-x-4 mb-4">
-            <div className="w-12 h-12 bg-yellow-500 rounded-lg flex items-center justify-center">
-              <BarChart3 className="w-6 h-6 text-white" />
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center space-x-4">
+            <div className="w-12 h-12 rounded-lg flex items-center justify-center border border-gray-300">
+              <BarChart3 className="w-6 h-6 text-gray-600" />
             </div>
             <div>
               <h1 className="text-xs font-bold text-gray-900 mb-1">
                 แดชบอร์ด - สวัสดี {session.user?.firstName || 'เจ้าหน้าที่'}
               </h1>
-              <p className="text-xs text-gray-600">
+              <p className="text-xs text-gray-400">
                 ภาพรวมข้อมูลและสถิติการใช้งาน CivicSpace
               </p>
+            </div>
+            </div>
+            
+            {/* Navigation Links */}
+            <div className="flex items-center space-x-3">
+              <Link 
+                href="/datatable"
+                className="flex items-center space-x-2 px-4 py-2 text-sm text-white bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors"
+              >
+                <FileText className="w-4 h-4" />
+                <span>ตารางข้อมูล</span>
+              </Link>
+              <Link 
+                href="/"
+                className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-600 hover:text-gray-900 border border-gray-300 rounded-lg hover:border-gray-400 transition-colors"
+              >
+                <Home className="w-4 h-4" />
+                <span>กลับหน้าแรก</span>
+              </Link>
             </div>
           </div>
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="p-6 rounded-lg border border-gray-300">
             <div className="flex items-center">
-              <div className="p-2 bg-yellow-100 rounded-lg">
-                <FileText className="w-6 h-6 text-yellow-600" />
+              <div className="p-2 bg-gray-100 rounded-lg">
+                <FileText className="w-6 h-6 text-gray-400" />
               </div>
               <div className="ml-4">
-                <p className="text-xs font-medium text-gray-600">บทความทั้งหมด</p>
+                <p className="text-xs font-medium text-gray-400">ข้อมูลทั้งหมด</p>
                 <p className="text-lg font-bold text-gray-900">{stats?.totalPosts || 0}</p>
               </div>
             </div>
           </div>
           
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+          <div className="p-6 rounded-lg border border-gray-300">
             <div className="flex items-center">
-              <div className="p-2 bg-yellow-100 rounded-lg">
-                <Users className="w-6 h-6 text-yellow-600" />
+              <div className="p-2 bg-gray-100 rounded-lg">
+                <Users className="w-6 h-6 text-gray-400" />
               </div>
               <div className="ml-4">
-                <p className="text-xs font-medium text-gray-600">หมวดหมู่</p>
+                <p className="text-xs font-medium text-gray-400">ประเด็น</p>
                 <p className="text-lg font-bold text-gray-900">{stats?.totalCategories || 0}</p>
               </div>
             </div>
           </div>
           
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+          <div className="p-6 rounded-lg border border-gray-300">
             <div className="flex items-center">
-              <div className="p-2 bg-yellow-100 rounded-lg">
-                <Activity className="w-6 h-6 text-yellow-600" />
+              <div className="p-2 bg-gray-100 rounded-lg">
+                <Activity className="w-6 h-6 text-gray-400" />
               </div>
               <div className="ml-4">
-                <p className="text-xs font-medium text-gray-600">การเข้าชมรวม</p>
+                <p className="text-xs font-medium text-gray-400">การเข้าชมรวม</p>
                 <p className="text-lg font-bold text-gray-900">{stats?.totalViews?.toLocaleString() || 0}</p>
               </div>
             </div>
           </div>
           
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+          <div className="p-6 rounded-lg border border-gray-300">
             <div className="flex items-center">
-              <div className="p-2 bg-yellow-100 rounded-lg">
-                <Globe className="w-6 h-6 text-yellow-600" />
+              <div className="p-2 bg-gray-100 rounded-lg">
+                <Globe className="w-6 h-6 text-gray-400" />
               </div>
               <div className="ml-4">
-                <p className="text-xs font-medium text-gray-600">บทความยอดนิยม</p>
+                <p className="text-xs font-medium text-gray-400">เรื่องยอดนิยม</p>
                 <p className="text-lg font-bold text-gray-900">{stats?.popularPosts?.length || 0}</p>
               </div>
             </div>
@@ -269,6 +303,99 @@ export default function Dashboard() {
                 ))}
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* Data Table Section */}
+        <div className="mt-12">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-lg font-bold text-gray-900">ตารางข้อมูลบทความทั้งหมด</h2>
+                <FileText className="w-5 h-5 text-yellow-600" />
+              </div>
+              <p className="text-sm text-gray-600">
+                รายการบทความทั้งหมดในระบบ แสดง {stats?.allPosts?.length || 0} รายการ
+              </p>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      #
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      ชื่อบทความ
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      ผู้เขียน
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      หมวดหมู่
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      การเข้าชม
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      วันที่สร้าง
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      จัดการ
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {stats?.allPosts?.slice(0, 15).map((post, index) => (
+                    <tr key={post.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {index + 1}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="max-w-xs">
+                          <div className="text-sm font-medium text-gray-900 line-clamp-2">
+                            {post.title}
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {post.author || 'ไม่ระบุ'}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                          {post.category?.name || 'ไม่มีหมวดหมู่'}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <div className="flex items-center">
+                          <Activity className="w-4 h-4 text-gray-400 mr-1" />
+                          {post.view_count?.toLocaleString() || 0}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {formatDate(post.created_at)}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <Link 
+                          href={`/post/${post.slug}`}
+                          className="text-yellow-600 hover:text-yellow-900 flex items-center"
+                        >
+                          <ArrowUpRight className="w-4 h-4 mr-1" />
+                          ดูบทความ
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            {stats?.allPosts && stats.allPosts.length > 15 && (
+              <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
+                <p className="text-sm text-gray-500 text-center">
+                  แสดง 15 รายการแรกจากทั้งหมด {stats.allPosts.length} บทความ
+                </p>
+              </div>
+            )}
           </div>
         </div>
 

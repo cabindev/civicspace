@@ -4,10 +4,6 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { 
-  ChevronLeft,
-  ChevronRight
-} from 'lucide-react';
 import Navbar from './components/Navbar';
 import { Footer } from './components/Footer';
 import Loading from './components/Loading';
@@ -34,6 +30,23 @@ interface Post {
   reading_time: number;
 }
 
+interface Video {
+  id: number;
+  title: string;
+  slug: string;
+  description: string;
+  video_url: string;
+  thumbnail_url: string;
+  category: {
+    id: number;
+    name: string;
+    slug: string;
+  };
+  created_at: string;
+  view_count: number;
+  duration: string;
+}
+
 interface Category {
   id: number;
   name: string;
@@ -53,38 +66,57 @@ export default function HomePage() {
   const [allPosts, setAllPosts] = useState<Post[]>([]);
   const [displayedPosts, setDisplayedPosts] = useState<Post[]>([]);
   const [popularPosts, setPopularPosts] = useState<Post[]>([]);
+  const [latestVideos, setLatestVideos] = useState<Video[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
-  const [currentPage, setCurrentPage] = useState(1);
   const [totalPosts, setTotalPosts] = useState(0);
   const [animatedStats, setAnimatedStats] = useState({
     totalPosts: 0,
     categories: 0,
     popularPosts: 0,
-    totalViews: 0
+    totalViews: 0,
+    totalVideos: 0
   });
-  const postsPerPage = 20;
-
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [allPostsRes, popularRes, categoriesRes] = await Promise.all([
-          fetch(`${API_BASE}/posts/?page=${currentPage}&page_size=${postsPerPage}`),
-          fetch(`${API_BASE}/posts/popular/?limit=4`),
-          fetch(`${API_BASE}/categories/`)
+        const [allPostsRes, popularRes, categoriesRes, videosRes] = await Promise.all([
+          fetch(`/api/post?page=1&page_size=12`),
+          fetch(`/api/post?type=popular&limit=4`),
+          fetch(`/api/categories`),
+          fetch(`/api/videos?type=latest&limit=8`)
         ]);
 
-        const [allPostsData, popular, cats] = await Promise.all([
+        const [allPostsData, popular, cats, videos] = await Promise.all([
           allPostsRes.json() as Promise<ApiResponse<Post>>,
           popularRes.json() as Promise<Post[]>,
-          categoriesRes.json() as Promise<ApiResponse<Category>>
+          categoriesRes.json() as Promise<ApiResponse<Category>>,
+          videosRes.json() as Promise<Video[]>
         ]);
 
-        setAllPosts(allPostsData.results);
-        setDisplayedPosts(allPostsData.results);
-        setTotalPosts(allPostsData.count);
-        setPopularPosts(popular);
-        setCategories(cats.results);
+        // Handle API response structure - ensure arrays
+        const posts = Array.isArray(allPostsData?.results)
+          ? allPostsData.results
+          : (Array.isArray(allPostsData) ? allPostsData : []);
+        
+        const popularArray = Array.isArray(popular)
+          ? popular
+          : (Array.isArray((popular as any)?.results) ? (popular as any).results : []);
+        
+        const categoriesArray = Array.isArray(cats?.results)
+          ? cats.results
+          : (Array.isArray(cats) ? cats : []);
+
+        const videosArray = Array.isArray(videos)
+          ? videos
+          : (Array.isArray((videos as any)?.results) ? (videos as any).results : []);
+        
+        setAllPosts(posts);
+        setDisplayedPosts(posts);
+        setTotalPosts(allPostsData?.count || posts.length || 0);
+        setPopularPosts(popularArray);
+        setCategories(categoriesArray);
+        setLatestVideos(videosArray);
       } catch (error) {
         console.error('Error fetching data:', error);
       } finally {
@@ -93,14 +125,8 @@ export default function HomePage() {
     };
 
     fetchData();
-  }, [currentPage]);
+  }, []);
 
-  const totalPages = Math.ceil(totalPosts / postsPerPage);
-
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-    setLoading(true);
-  };
 
   // Counter animation function
   const animateCounter = (start: number, end: number, duration: number = 2000) => {
@@ -136,7 +162,7 @@ export default function HomePage() {
   // Animate stats when data loads
   useEffect(() => {
     if (!loading && totalPosts > 0) {
-      const totalViews = popularPosts.reduce((sum, post) => sum + post.view_count, 0);
+      const totalViews = popularPosts?.reduce((sum, post) => sum + post.view_count, 0) || 0;
       
       // Animate all counters simultaneously
       const animateStats = async () => {
@@ -150,9 +176,10 @@ export default function HomePage() {
           
           setAnimatedStats({
             totalPosts: Math.floor(totalPosts * easeOutCubic),
-            categories: Math.floor(categories.length * easeOutCubic),
-            popularPosts: Math.floor(popularPosts.length * easeOutCubic),
-            totalViews: Math.floor(totalViews * easeOutCubic)
+            categories: Math.floor((categories?.length || 0) * easeOutCubic),
+            popularPosts: Math.floor((popularPosts?.length || 0) * easeOutCubic),
+            totalViews: Math.floor(totalViews * easeOutCubic),
+            totalVideos: Math.floor((latestVideos?.length || 0) * easeOutCubic)
           });
           
           if (progress < 1) {
@@ -166,7 +193,7 @@ export default function HomePage() {
       // Start animation after a short delay
       setTimeout(animateStats, 300);
     }
-  }, [loading, totalPosts, categories.length, popularPosts]);
+  }, [loading, totalPosts, categories?.length, popularPosts?.length, latestVideos?.length]);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -181,7 +208,7 @@ export default function HomePage() {
   if (loading) {
     return (
       <div className="min-h-screen">
-        <Navbar showDashboardLink={true} />
+        <Navbar showDashboardLink={true}  />
         <div className="min-h-96">
           <Loading size="lg" className="min-h-96" />
         </div>
@@ -192,7 +219,7 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen">
-      <Navbar showDashboardLink={true} />
+      <Navbar showDashboardLink={true}  />
 
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-br from-white to-gray-50">
@@ -208,12 +235,18 @@ export default function HomePage() {
             </p>
             
             {/* Stats - Yellow Theme */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 md:gap-12 max-w-5xl mx-auto mb-8 sm:mb-12">
+            <div className="grid grid-cols-2 lg:grid-cols-5 gap-6 sm:gap-8 md:gap-12 max-w-6xl mx-auto mb-8 sm:mb-12">
               <div className="text-center">
                 <div className="text-4xl sm:text-5xl md:text-6xl font-bold text-yellow-500 mb-2 tabular-nums">
                   {animatedStats.totalPosts.toLocaleString()}
                 </div>
                 <div className="text-gray-500 text-xs sm:text-sm font-light tracking-wide">บทความทั้งหมด</div>
+              </div>
+              <div className="text-center">
+                <div className="text-4xl sm:text-5xl md:text-6xl font-bold text-yellow-500 mb-2 tabular-nums">
+                  {animatedStats.totalVideos.toLocaleString()}
+                </div>
+                <div className="text-gray-500 text-xs sm:text-sm font-light tracking-wide">วิดีโอ</div>
               </div>
               <div className="text-center">
                 <div className="text-4xl sm:text-5xl md:text-6xl font-bold text-yellow-500 mb-2 tabular-nums">
@@ -247,7 +280,7 @@ export default function HomePage() {
           </div>
 
           <div className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4">
-            {displayedPosts.map((post: Post, index: number) => {
+            {displayedPosts?.map((post: Post, index: number) => {
               // สร้างความสูงที่แตกต่างกันแบบ Unsplash
               const heights = ['h-56', 'h-64', 'h-80', 'h-72', 'h-60', 'h-96', 'h-52', 'h-88', 'h-48', 'h-76'];
               const randomHeight = heights[index % heights.length];
@@ -298,74 +331,73 @@ export default function HomePage() {
             })}
           </div>
 
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="flex flex-col sm:flex-row justify-center items-center mt-8 sm:mt-12 space-y-3 sm:space-y-0 sm:space-x-2">
-              <button
-                type="button"
-                onClick={() => handlePageChange(currentPage - 1)}
-                disabled={currentPage === 1}
-                className="flex items-center px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto justify-center sm:justify-start"
-              >
-                <ChevronLeft className="w-4 h-4 mr-1" />
-                <span className="hidden sm:inline">ก่อนหน้า</span>
-                <span className="sm:hidden">ก่อนหน้า</span>
-              </button>
-
-              <div className="flex space-x-1 overflow-x-auto px-2">
-                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                  let pageNumber;
-                  if (totalPages <= 5) {
-                    pageNumber = i + 1;
-                  } else if (currentPage <= 3) {
-                    pageNumber = i + 1;
-                  } else if (currentPage >= totalPages - 2) {
-                    pageNumber = totalPages - 4 + i;
-                  } else {
-                    pageNumber = currentPage - 2 + i;
-                  }
-
-                  return (
-                    <button
-                      type="button"
-                      key={pageNumber}
-                      onClick={() => handlePageChange(pageNumber)}
-                      className={`px-3 py-2 text-sm font-medium rounded-lg min-w-[40px] ${
-                        currentPage === pageNumber
-                          ? 'text-white bg-gray-900'
-                          : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50 hover:text-gray-700'
-                      }`}
-                    >
-                      {pageNumber}
-                    </button>
-                  );
-                })}
-              </div>
-
-              <button
-                type="button"
-                onClick={() => handlePageChange(currentPage + 1)}
-                disabled={currentPage === totalPages}
-                className="flex items-center px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto justify-center sm:justify-start"
-              >
-                <span className="hidden sm:inline">ถัดไป</span>
-                <span className="sm:hidden">ถัดไป</span>
-                <ChevronRight className="w-4 h-4 ml-1" />
-              </button>
-            </div>
-          )}
-
-          {/* Page Info */}
+          {/* Total Posts Info */}
           <div className="text-center mt-4 sm:mt-6 text-xs sm:text-sm text-gray-500 px-4">
-            แสดง {displayedPosts.length} จาก {totalPosts.toLocaleString()} บทความ 
-            <br className="sm:hidden" />
-            <span className="hidden sm:inline"> </span>(หน้า {currentPage} จาก {totalPages})
+            แสดง {displayedPosts?.length || 0} บทความทั้งหมด
+          </div>
+        </div>
+      </section>
+
+      {/* Latest Videos Section */}
+      <section className="py-8 sm:py-12 lg:py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-8 sm:mb-12">
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2 sm:mb-4">วิดีโอล่าสุด</h2>
+            <p className="text-sm sm:text-base text-gray-600">รับชมวิดีโอที่น่าสนใจและเป็นประโยชน์</p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+            {latestVideos?.map((video: Video) => (
+              <div key={video.id} className="group cursor-pointer">
+                <div className="relative aspect-[9/16] rounded-lg overflow-hidden bg-gray-100 mb-3">
+                  <Image
+                    src={video.thumbnail_url}
+                    alt={video.title}
+                    fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    className="object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors" />
+                  
+                  {/* Play button */}
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-12 h-12 sm:w-16 sm:h-16 bg-white/90 rounded-full flex items-center justify-center group-hover:bg-white group-hover:scale-110 transition-all">
+                      <svg className="w-5 h-5 sm:w-6 sm:h-6 text-gray-900 ml-1" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M8 5v14l11-7z"/>
+                      </svg>
+                    </div>
+                  </div>
+                  
+                  {/* Duration */}
+                  <div className="absolute bottom-2 right-2 bg-black/75 text-white text-xs px-2 py-1 rounded">
+                    {video.duration}
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <h3 className="font-semibold text-gray-900 group-hover:text-gray-600 transition-colors line-clamp-2 text-sm sm:text-base">
+                    {video.title}
+                  </h3>
+                  <p className="text-gray-600 text-xs sm:text-sm line-clamp-2">
+                    {video.description}
+                  </p>
+                  <div className="flex items-center justify-between text-xs text-gray-500">
+                    <span className="bg-gray-100 px-2 py-1 rounded-full">{video.category.name}</span>
+                    <div className="flex items-center space-x-2">
+                      <span>{video.view_count.toLocaleString()} ครั้ง</span>
+                      <span>•</span>
+                      <span>{formatDate(video.created_at)}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
       {/* Popular Posts & Categories Section */}
-      <section className="py-8 sm:py-12 bg-white">
+      <section className="py-8 sm:py-12 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-6 sm:gap-8">
             
@@ -374,7 +406,7 @@ export default function HomePage() {
               <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6">บทความยอดนิยม</h2>
               
               <div className="space-y-2 sm:space-y-3">
-                {popularPosts.map((post, index) => {
+                {popularPosts?.map((post, index) => {
                   const enhancedViews = Math.floor((post.view_count + 1000) * (2.5 + Math.random() * 3));
                   
                   return (
@@ -405,7 +437,7 @@ export default function HomePage() {
               <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6">หมวดหมู่</h2>
               
               <div className="space-y-2 sm:space-y-3">
-                {categories.slice(0, 6).map((category) => {
+                {categories?.slice(0, 6).map((category) => {
                   const enhancedCount = Math.floor((category.post_count + 15) * (3 + Math.random() * 4));
                   
                   return (

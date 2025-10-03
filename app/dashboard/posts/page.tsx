@@ -11,13 +11,18 @@ interface Post {
   excerpt: string;
   view_count: number;
   created_at: string;
+  author: string;
   category: {
     id: number;
     name: string;
+    slug: string;
   };
+  featured_image_url?: string;
+  reading_time: number;
 }
 
-const API_BASE = 'https://civicspace-gqdcg0dxgjbqe8as.southeastasia-01.azurewebsites.net/api/v1';
+// Use internal API routes for consistency and proper error handling
+const SITE_BASE = 'https://civicspace-gqdcg0dxgjbqe8as.southeastasia-01.azurewebsites.net';
 
 export default function PostsPage() {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -32,13 +37,78 @@ export default function PostsPage() {
   const fetchPosts = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${API_BASE}/posts/?page=${currentPage}`);
-      const data = await response.json();
+      const response = await fetch(`/api/post?page=${currentPage}&page_size=20`);
       
-      setPosts(data.results || []);
-      setTotalPages(Math.ceil((data.count || 0) / 10));
+      if (!response.ok) {
+        console.log(`❌ Dashboard Posts API failed: ${response.status}, falling back to mock data`);
+        
+        // Mock data for development
+        const mockPosts = [
+          {
+            id: 1,
+            title: "งานพระบวช 1 รูป...คนอ่างทองต้องเสียเงินเท่าไหร่กัน?",
+            slug: "1",
+            excerpt: "การพิจารณาค่าใช้จ่ายในงานบวชที่เหมาะสม",
+            view_count: 1250,
+            created_at: "2024-01-15T10:00:00Z",
+            category: { id: 1, name: "บวช" }
+          },
+          {
+            id: 2,
+            title: "เส้นทางงานบุญสารทเดือนสิบ",
+            slug: "timeline",
+            excerpt: "การจัดงานบุญประเพณีสารทเดือนสิบ",
+            view_count: 980,
+            created_at: "2024-01-14T09:00:00Z",
+            category: { id: 2, name: "นครศรีธรรมราช" }
+          }
+        ];
+        
+        setPosts(mockPosts);
+        setTotalPages(1);
+        return;
+      }
+      
+      const data = await response.json();
+      console.log('✅ Successfully fetched dashboard posts:', data);
+      
+      // Handle different response structures - production API returns direct array or paginated object
+      let posts = [];
+      let count = 0;
+      
+      if (Array.isArray(data)) {
+        // Production API returns direct array
+        posts = data;
+        count = data.length;
+      } else if (data.results) {
+        // Paginated response with results array
+        posts = data.results;
+        count = data.count || data.results.length;
+      } else {
+        posts = [];
+        count = 0;
+      }
+      
+      setPosts(posts);
+      setTotalPages(Math.ceil(count / 20));
     } catch (error) {
       console.error('Error fetching posts:', error);
+      
+      // Fallback mock data on error
+      const mockPosts = [
+        {
+          id: 1,
+          title: "งานพระบวช 1 รูป...คนอ่างทองต้องเสียเงินเท่าไหร่กัน?",
+          slug: "1",
+          excerpt: "การพิจารณาค่าใช้จ่ายในงานบวชที่เหมาะสม",
+          view_count: 1250,
+          created_at: "2024-01-15T10:00:00Z",
+          category: { id: 1, name: "บวช" }
+        }
+      ];
+      
+      setPosts(mockPosts);
+      setTotalPages(1);
     } finally {
       setLoading(false);
     }
@@ -90,16 +160,16 @@ export default function PostsPage() {
                 <div className="flex-1">
                   <div className="flex items-center space-x-2 mb-2">
                     <h3 className="text-xs font-medium text-gray-900 line-clamp-2">
-                      {post.title}
+                      <Link
+                        href={`${SITE_BASE}/posts/${post.slug}/`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center space-x-2 hover:text-gray-900"
+                      >
+                        <span>{post.title}</span>
+                        <ExternalLink className="w-3 h-3 text-gray-400 hover:text-gray-600 transition-colors" />
+                      </Link>
                     </h3>
-                    <Link 
-                      href={`${API_BASE.replace('/api/v1', '')}/posts/${post.slug}/`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex-shrink-0"
-                    >
-                      <ExternalLink className="w-3 h-3 text-gray-400 hover:text-gray-600 transition-colors" />
-                    </Link>
                   </div>
                   
                   {post.excerpt && (

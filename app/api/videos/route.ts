@@ -17,7 +17,6 @@ export async function GET(request: NextRequest) {
     }
     
     console.log('Fetching videos from CivicSpace API:', `${API_BASE}${endpoint}`);
-    
     const response = await fetch(`${API_BASE}${endpoint}`, {
       cache: 'no-store',
       headers: {

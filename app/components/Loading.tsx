@@ -19,7 +19,7 @@ export default function Loading({ size = 'md', className = '', color = 'gray' }:
   };
 
   return (
-    <div className={`flex items-center justify-center ${className}`}>
+    <div className={`flex items-center justify-center min-h-screen ${className}`}>
       <Loader className={`${sizeClasses[size]} ${colorClasses[color]} animate-spin`} />
     </div>
   );

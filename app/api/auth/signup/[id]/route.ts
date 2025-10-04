@@ -5,10 +5,11 @@ import path from 'path';
 
 const prisma = new PrismaClient();
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await params;
     const user = await prisma.user.findUnique({
-      where: { id: Number(params.id) },
+      where: { id: Number(id) },
     });
     return NextResponse.json(user);
   } catch (error) {
@@ -16,7 +17,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   }
 }
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const formData = await req.formData();
   const firstName = formData.get('firstName') as string;
   const lastName = formData.get('lastName') as string;
@@ -25,8 +26,9 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   let imageUrl: string | undefined;
 
   try {
+    const { id } = await params;
     const existingUser = await prisma.user.findUnique({
-      where: { id: Number(params.id) },
+      where: { id: Number(id) },
     });
 
     if (image) {
@@ -49,7 +51,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     }
 
     const updatedUser = await prisma.user.update({
-      where: { id: Number(params.id) },
+      where: { id: Number(id) },
       data: {
         firstName,
         lastName,

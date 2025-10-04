@@ -51,7 +51,9 @@ export default function PostsPage() {
             excerpt: "การพิจารณาค่าใช้จ่ายในงานบวชที่เหมาะสม",
             view_count: 1250,
             created_at: "2024-01-15T10:00:00Z",
-            category: { id: 1, name: "บวช" }
+            author: "CivicSpace Team",
+            reading_time: 5,
+            category: { id: 1, name: "บวช", slug: "ordain" }
           },
           {
             id: 2,
@@ -60,7 +62,9 @@ export default function PostsPage() {
             excerpt: "การจัดงานบุญประเพณีสารทเดือนสิบ",
             view_count: 980,
             created_at: "2024-01-14T09:00:00Z",
-            category: { id: 2, name: "นครศรีธรรมราช" }
+            author: "CivicSpace Team",
+            reading_time: 3,
+            category: { id: 2, name: "นครศรีธรรมราช", slug: "nakhonsithammarat" }
           }
         ];
         
@@ -103,7 +107,9 @@ export default function PostsPage() {
           excerpt: "การพิจารณาค่าใช้จ่ายในงานบวชที่เหมาะสม",
           view_count: 1250,
           created_at: "2024-01-15T10:00:00Z",
-          category: { id: 1, name: "บวช" }
+          author: "CivicSpace Team",
+          reading_time: 5,
+          category: { id: 1, name: "บวช", slug: "ordain" }
         }
       ];
       

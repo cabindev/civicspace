@@ -15,7 +15,22 @@ import { useState, useEffect } from 'react';
 import { cn } from '../lib/utils';
 import { useDashboard } from '../context/DashboardContext';
 
-const menuItems = [
+interface MenuChild {
+  key: string;
+  label: string;
+  href: string;
+  external?: boolean;
+}
+
+interface MenuItem {
+  key: string;
+  icon: any;
+  label: string;
+  href?: string;
+  children?: MenuChild[];
+}
+
+const menuItems: MenuItem[] = [
   {
     key: '/dashboard',
     icon: BarChart3,
@@ -177,7 +192,7 @@ export default function Sidebar() {
                   </div>
                 )}
               </div>
-            ) : (
+            ) : item.href ? (
               <Link
                 href={item.href}
                 onClick={() => isMobileView && setMobileSidebarOpen(false)}
@@ -195,6 +210,16 @@ export default function Sidebar() {
                   <span className="ml-3">{item.label}</span>
                 )}
               </Link>
+            ) : (
+              <div className={cn(
+                "flex items-center px-3 py-2 text-xs font-medium rounded-md text-gray-700",
+                sidebarCollapsed && !isMobileView ? "justify-center" : ""
+              )}>
+                <item.icon className="w-4 h-4 flex-shrink-0" />
+                {(!sidebarCollapsed || isMobileView) && (
+                  <span className="ml-3">{item.label}</span>
+                )}
+              </div>
             )}
           </div>
         ))}

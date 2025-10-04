@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { HiMenuAlt3 } from "react-icons/hi";
+import { Menu } from "lucide-react";
 import { useSession, signOut } from 'next-auth/react';
 
 export function NavMenu() {
@@ -17,7 +17,7 @@ export function NavMenu() {
        className="text-white focus:outline-none transition-colors duration-200 hover:text-green-100"
        aria-label="Toggle menu"
      >
-       <HiMenuAlt3 size={24} />
+       <Menu size={24} />
      </button>
 
      {isMenuOpen && (

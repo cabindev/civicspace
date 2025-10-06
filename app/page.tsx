@@ -208,7 +208,7 @@ export default function HomePage() {
   if (loading) {
     return (
       <div className="min-h-screen">
-        <Navbar showDashboardLink={true}  />
+        <Navbar showDashboardLink={true} />
         <div className="min-h-96">
           <Loading size="lg" className="min-h-96" />
         </div>
@@ -231,7 +231,7 @@ export default function HomePage() {
             <p className="text-base sm:text-lg md:text-xl text-gray-600 mb-8 sm:mb-12 max-w-3xl mx-auto leading-relaxed px-4">
               แหล่งรวมข้อมูล บทความ และงานวิจัยเพื่อสนับสนุนการทำงานของเจ้าหน้าที่
               <br className="hidden sm:block"/>
-              ในการหาทางออกปัญหาแอลกอฮอล์อย่างมีประสิทธิภาพ
+              พื้นที่พลเมืองร่วมหาทางออกปัญหาแอลกอฮอล์
             </p>
             
             {/* Stats - Yellow Theme */}

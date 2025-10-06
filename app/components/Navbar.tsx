@@ -58,7 +58,6 @@ function Navbar({ showDashboardLink = true, showHomeLink = false }: NavbarProps)
               </Link>
             )}
 
-
             {/* Authentication */}
             {session ? (
               <div className="flex items-center space-x-2 sm:space-x-4">

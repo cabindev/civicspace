@@ -1,3 +1,4 @@
+// app/dashboard/posts/page.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -11,18 +12,15 @@ interface Post {
   excerpt: string;
   view_count: number;
   created_at: string;
-  author: string;
   category: {
     id: number;
     name: string;
-    slug: string;
   };
-  featured_image_url?: string;
-  reading_time: number;
 }
 
-// Use internal API routes for consistency and proper error handling
-const SITE_BASE = 'https://civicspace-gqdcg0dxgjbqe8as.southeastasia-01.azurewebsites.net';
+// Use API_BASE for API calls (no trailing "/posts/") and SITE_BASE for building public URLs.
+const API_BASE = 'https://civicspace-gqdcg0dxgjbqe8as.southeastasia-01.azurewebsites.net/api/v1/posts/';
+const SITE_BASE = API_BASE.replace('/api/v1', '');
 
 export default function PostsPage() {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -37,7 +35,7 @@ export default function PostsPage() {
   const fetchPosts = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/post?page=${currentPage}&page_size=20`);
+      const response = await fetch(`${API_BASE}?page=${currentPage}`);
       
       if (!response.ok) {
         console.log(`❌ Dashboard Posts API failed: ${response.status}, falling back to mock data`);
@@ -51,9 +49,7 @@ export default function PostsPage() {
             excerpt: "การพิจารณาค่าใช้จ่ายในงานบวชที่เหมาะสม",
             view_count: 1250,
             created_at: "2024-01-15T10:00:00Z",
-            author: "CivicSpace Team",
-            reading_time: 5,
-            category: { id: 1, name: "บวช", slug: "ordain" }
+            category: { id: 1, name: "บวช" }
           },
           {
             id: 2,
@@ -62,9 +58,7 @@ export default function PostsPage() {
             excerpt: "การจัดงานบุญประเพณีสารทเดือนสิบ",
             view_count: 980,
             created_at: "2024-01-14T09:00:00Z",
-            author: "CivicSpace Team",
-            reading_time: 3,
-            category: { id: 2, name: "นครศรีธรรมราช", slug: "nakhonsithammarat" }
+            category: { id: 2, name: "นครศรีธรรมราช" }
           }
         ];
         
@@ -74,27 +68,10 @@ export default function PostsPage() {
       }
       
       const data = await response.json();
-      console.log('✅ Successfully fetched dashboard posts:', data);
+      console.log('✅ Successfully fetched dashboard posts');
       
-      // Handle different response structures - production API returns direct array or paginated object
-      let posts = [];
-      let count = 0;
-      
-      if (Array.isArray(data)) {
-        // Production API returns direct array
-        posts = data;
-        count = data.length;
-      } else if (data.results) {
-        // Paginated response with results array
-        posts = data.results;
-        count = data.count || data.results.length;
-      } else {
-        posts = [];
-        count = 0;
-      }
-      
-      setPosts(posts);
-      setTotalPages(Math.ceil(count / 20));
+      setPosts(data.results || []);
+      setTotalPages(Math.ceil((data.count || 0) / 10));
     } catch (error) {
       console.error('Error fetching posts:', error);
       
@@ -107,9 +84,7 @@ export default function PostsPage() {
           excerpt: "การพิจารณาค่าใช้จ่ายในงานบวชที่เหมาะสม",
           view_count: 1250,
           created_at: "2024-01-15T10:00:00Z",
-          author: "CivicSpace Team",
-          reading_time: 5,
-          category: { id: 1, name: "บวช", slug: "ordain" }
+          category: { id: 1, name: "บวช" }
         }
       ];
       

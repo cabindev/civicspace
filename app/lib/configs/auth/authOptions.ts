@@ -104,7 +104,7 @@ const authOptions: NextAuthOptions = {
       return session;
     },
     async redirect() {
-     return 'https://database.ssnthailand.com/'
+     return 'https://civicspace.sdnthailand.com/'
     },
   },
 };

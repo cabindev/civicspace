@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Calendar, Eye, ArrowLeft, User, Tag } from 'lucide-react';
+import { Calendar, Eye, ArrowLeft, User, Tag, Download, X, ZoomIn } from 'lucide-react';
 import Navbar from '../../components/Navbar';
 import { Footer } from '../../components/Footer';
 import Loading from '../../components/Loading';
@@ -38,6 +38,7 @@ export default function PostPage() {
   const [post, setPost] = useState<Post | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showImageModal, setShowImageModal] = useState(false);
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -70,6 +71,26 @@ export default function PostPage() {
       month: 'long',
       day: 'numeric'
     });
+  };
+
+  const handleDownloadImage = async () => {
+    if (!post?.featured_image_url) return;
+    
+    try {
+      // Try direct download first
+      const link = document.createElement('a');
+      link.href = post.featured_image_url;
+      link.download = `${post.slug}-image.jpg`;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error('Error downloading image:', error);
+      // Fallback: open in new tab
+      window.open(post.featured_image_url, '_blank');
+    }
   };
 
   if (loading) {
@@ -125,52 +146,79 @@ export default function PostPage() {
         </div>
 
         <article className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-          {/* Featured Image */}
+          {/* Hero Banner - Full Width Cover */}
           {post.featured_image_url && (
-            <div className="w-full bg-slate-100">
-              <div className="relative w-full aspect-video">
-              <Image
-                src={post.featured_image_url!}
-                alt={post.title}
-                fill
-                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 800px, 1200px"
-                className="object-contain w-full h-full"
-                priority
-              />
+            <div className="w-full bg-gradient-to-br from-slate-900 via-slate-800 to-slate-700 relative overflow-hidden">
+              <div className="relative w-full aspect-[1920/630]">
+                <Image
+                  src={post.featured_image_url!}
+                  alt={post.title}
+                  fill
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 800px, 1200px"
+                  className="object-cover w-full h-full opacity-60"
+                  priority
+                />
+                {/* Gradient Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-800/40 to-transparent"></div>
+                
+                {/* Title Overlay */}
+                <div className="absolute inset-0 flex items-end">
+                  <div className="w-full p-6 md:p-8">
+                    <div className="max-w-3xl">
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-500/20 text-yellow-100 border border-yellow-400/30 mb-4">
+                        {post.category.name}
+                      </span>
+                      <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-white mb-2 leading-tight drop-shadow-lg">
+                        {post.title}
+                      </h1>
+                      <div className="flex flex-wrap items-center gap-4 text-sm text-slate-200">
+                        <div className="flex items-center gap-1">
+                          <User className="w-4 h-4 text-slate-300" />
+                          <span>{post.author}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Calendar className="w-4 h-4 text-slate-300" />
+                          <span>{formatDate(post.created_at)}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Eye className="w-4 h-4 text-slate-300" />
+                          <span>{post.view_count.toLocaleString()} ครั้ง</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Content Image - Contained */}
+          {post.featured_image_url && (
+            <div className="w-full bg-slate-50 border-t border-slate-200 relative group">
+              <div className="relative w-full aspect-[4/3] lg:aspect-[5/3] cursor-pointer" onClick={() => setShowImageModal(true)}>
+                <Image
+                  src={post.featured_image_url!}
+                  alt={`${post.title} - รายละเอียด`}
+                  fill
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 800px, 1200px"
+                  className="object-contain w-full h-full transition-opacity group-hover:opacity-80"
+                />
+                {/* Hover Overlay */}
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center">
+                  <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white/90 rounded-full p-3">
+                    <ZoomIn className="w-6 h-6 text-slate-700" />
+                  </div>
+                </div>
               </div>
             </div>
           )}
 
           <div className="p-6 md:p-8">
-            {/* Category Badge */}
-            <div className="mb-3">
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-200 text-slate-800">
-                {post.category.name}
-              </span>
-            </div>
-
-            {/* Title */}
-            <h1 className="text-xl md:text-3xl font-semibold text-slate-900 mb-4 leading-snug">
-              {post.title}
-            </h1>
-
-            {/* Meta Information */}
-            <div className="flex flex-wrap items-center gap-4 mb-6 text-xs text-slate-600">
-              <div className="flex items-center gap-1">
-                <User className="w-4 h-4 text-slate-500" />
-                <span className="leading-none">{post.author}</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <Calendar className="w-4 h-4 text-slate-500" />
-                <span className="leading-none">{formatDate(post.created_at)}</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <Eye className="w-4 h-4 text-slate-500" />
-                <span className="leading-none">{post.view_count.toLocaleString()} ครั้ง</span>
-              </div>
-              <div className="text-slate-500">
+            {/* Reading Time */}
+            <div className="mb-6 text-center">
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-50 text-yellow-800 border border-yellow-200">
                 อ่าน {post.reading_time} นาที
-              </div>
+              </span>
             </div>
 
             {/* Content (small, clean) */}
@@ -200,6 +248,51 @@ export default function PostPage() {
           </div>
         </article>
       </main>
+
+      {/* Image Modal */}
+      {showImageModal && post?.featured_image_url && (
+        <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4" onClick={() => setShowImageModal(false)}>
+          <div className="relative max-w-7xl max-h-full w-full h-full flex items-center justify-center">
+            {/* Close Button */}
+            <button
+              type="button"
+              onClick={() => setShowImageModal(false)}
+              className="absolute top-4 right-4 z-10 bg-white/10 hover:bg-white/20 rounded-full p-2 transition-colors"
+              aria-label="ปิด"
+            >
+              <X className="w-6 h-6 text-white" />
+            </button>
+            
+            {/* Download Button */}
+            <button
+              type="button"
+              onClick={handleDownloadImage}
+              className="absolute top-4 left-4 z-10 bg-white/10 hover:bg-white/20 rounded-full p-2 transition-colors"
+              aria-label="ดาวน์โหลดรูปภาพ"
+            >
+              <Download className="w-6 h-6 text-white" />
+            </button>
+
+            {/* Image Container */}
+            <div className="relative w-full h-full flex items-center justify-center" onClick={(e) => e.stopPropagation()}>
+              <Image
+                src={post.featured_image_url}
+                alt={post.title}
+                fill
+                sizes="100vw"
+                className="object-contain"
+                priority
+              />
+            </div>
+            
+            {/* Image Info */}
+            <div className="absolute bottom-4 left-4 right-4 z-10 bg-black/50 rounded-lg p-4 text-white">
+              <h3 className="font-semibold text-lg mb-1">{post.title}</h3>
+              <p className="text-sm text-slate-300">คลิกที่รูปภาพเพื่อดาวน์โหลด หรือคลิกนอกรูปเพื่อปิด</p>
+            </div>
+          </div>
+        </div>
+      )}
 
       <Footer />
     </div>

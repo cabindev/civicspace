@@ -36,10 +36,10 @@ export default function PostsPage() {
     try {
       setLoading(true);
       const response = await fetch(`${API_BASE}?page=${currentPage}`);
-      
+
       if (!response.ok) {
         console.log(`❌ Dashboard Posts API failed: ${response.status}, falling back to mock data`);
-        
+
         // Mock data for development
         const mockPosts = [
           {
@@ -61,20 +61,26 @@ export default function PostsPage() {
             category: { id: 2, name: "นครศรีธรรมราช" }
           }
         ];
-        
+
         setPosts(mockPosts);
         setTotalPages(1);
         return;
       }
-      
+
       const data = await response.json();
-      console.log('✅ Successfully fetched dashboard posts');
-      
-      setPosts(data.results || []);
-      setTotalPages(Math.ceil((data.count || 0) / 10));
+      console.log('✅ Successfully fetched dashboard posts:', data.length);
+
+      // API returns an array directly, not an object with results
+      if (Array.isArray(data)) {
+        setPosts(data);
+        setTotalPages(1); // API doesn't provide total count
+      } else {
+        setPosts(data.results || []);
+        setTotalPages(Math.ceil((data.count || 0) / 10));
+      }
     } catch (error) {
       console.error('Error fetching posts:', error);
-      
+
       // Fallback mock data on error
       const mockPosts = [
         {
@@ -87,7 +93,7 @@ export default function PostsPage() {
           category: { id: 1, name: "บวช" }
         }
       ];
-      
+
       setPosts(mockPosts);
       setTotalPages(1);
     } finally {

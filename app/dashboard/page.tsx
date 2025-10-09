@@ -401,32 +401,37 @@ export default function Dashboard() {
 
         {/* Quick Actions */}
         <div className="mt-12">
-          <h2 className="text-xs font-bold text-gray-900 mb-6">ลิงก์ที่มีประโยชน์</h2>
-          <div className="grid md:grid-cols-3 gap-6">
+          <h2 className="text-xs font-bold text-gray-900 mb-6">ข้อมูลเพิ่มเติม</h2>
+          <div className="grid md:grid-cols-4 gap-6">
+            <Link href="/dashboard/posts">
+              <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 text-center hover:shadow-md hover:border-yellow-300 transition-all group cursor-pointer">
+                <FileText className="w-8 h-8 text-yellow-600 mx-auto mb-3 group-hover:scale-110 transition-transform" />
+                <h3 className="text-xs font-medium text-gray-900 mb-2 group-hover:text-yellow-600 transition-colors">บทความทั้งหมด</h3>
+                <p className="text-xs text-gray-600">ดูรายการบทความทั้งหมด</p>
+              </div>
+            </Link>
+
+            <Link href="/dashboard/categories">
+              <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 text-center hover:shadow-md hover:border-yellow-300 transition-all group cursor-pointer">
+                <Users className="w-8 h-8 text-yellow-600 mx-auto mb-3 group-hover:scale-110 transition-transform" />
+                <h3 className="text-xs font-medium text-gray-900 mb-2 group-hover:text-yellow-600 transition-colors">หมวดหมู่</h3>
+                <p className="text-xs text-gray-600">จัดการหมวดหมู่บทความ</p>
+              </div>
+            </Link>
+
+            <Link href="/dashboard/surveys">
+              <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 text-center hover:shadow-md hover:border-yellow-300 transition-all group cursor-pointer">
+                <BarChart3 className="w-8 h-8 text-yellow-600 mx-auto mb-3 group-hover:scale-110 transition-transform" />
+                <h3 className="text-xs font-medium text-gray-900 mb-2 group-hover:text-yellow-600 transition-colors">แบบสำรวจ</h3>
+                <p className="text-xs text-gray-600">ดูและดาวน์โหลดแบบสำรวจ</p>
+              </div>
+            </Link>
+
             <Link href={`${API_BASE}/posts/`} target="_blank" rel="noopener noreferrer">
               <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 text-center hover:shadow-md hover:border-yellow-300 transition-all group cursor-pointer">
                 <Globe className="w-8 h-8 text-yellow-600 mx-auto mb-3 group-hover:scale-110 transition-transform" />
-                <h3 className="text-xs font-medium text-gray-900 mb-2 group-hover:text-yellow-600 transition-colors">API บทความ</h3>
-                <p className="text-xs text-gray-600">จัดการบทความในระบบ</p>
-                <p className="text-xs text-yellow-500 mt-2">คลิกเพื่อเปิด API</p>
-              </div>
-            </Link>
-
-            <Link href={`${API_BASE}/categories/`} target="_blank" rel="noopener noreferrer">
-              <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 text-center hover:shadow-md hover:border-yellow-300 transition-all group cursor-pointer">
-                <FileText className="w-8 h-8 text-yellow-600 mx-auto mb-3 group-hover:scale-110 transition-transform" />
-                <h3 className="text-xs font-medium text-gray-900 mb-2 group-hover:text-yellow-600 transition-colors">API หมวดหมู่</h3>
-                <p className="text-xs text-gray-600">จัดการหมวดหมู่บทความ</p>
-                <p className="text-xs text-yellow-500 mt-2">คลิกเพื่อเปิด API</p>
-              </div>
-            </Link>
-
-            <Link href={`${API_BASE}/tags/`} target="_blank" rel="noopener noreferrer">
-              <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 text-center hover:shadow-md hover:border-yellow-300 transition-all group cursor-pointer">
-                <Users className="w-8 h-8 text-yellow-600 mx-auto mb-3 group-hover:scale-110 transition-transform" />
-                <h3 className="text-xs font-medium text-gray-900 mb-2 group-hover:text-yellow-600 transition-colors">API แท็ก</h3>
-                <p className="text-xs text-gray-600">จัดการแท็กบทความ</p>
-                <p className="text-xs text-yellow-500 mt-2">คลิกเพื่อเปิด API</p>
+                <h3 className="text-xs font-medium text-gray-900 mb-2 group-hover:text-yellow-600 transition-colors">API Endpoint</h3>
+                <p className="text-xs text-gray-600">เข้าถึง API ภายนอก</p>
               </div>
             </Link>
           </div>

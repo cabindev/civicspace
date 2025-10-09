@@ -15,14 +15,30 @@ CivicSpace : พื้นที่พลเมืองร่วมหาทา�
 ## Project Structure
 ```
 app/
-├── api/                    # API routes (auth only)
-│   └── auth/              # Authentication endpoints
+├── api/                    # API routes
+│   ├── auth/              # Authentication endpoints
+│   ├── post/              # Posts proxy API
+│   ├── categories/        # Categories proxy API
+│   ├── videos/            # Videos proxy API
+│   └── surveys/           # Surveys proxy API (NEW)
 ├── dashboard/             # Admin dashboard for staff
-│   └── page.tsx           # Dashboard with API statistics
+│   ├── page.tsx           # Dashboard with API statistics
+│   ├── posts/             # Posts management
+│   ├── categories/        # Categories management
+│   └── surveys/           # Surveys management (NEW)
+├── components/            # Reusable components
+│   ├── Navbar.tsx         # Navigation bar
+│   ├── Footer.tsx         # Footer component
+│   ├── Loading.tsx        # Loading states
+│   └── SurveyCard.tsx     # Survey card component (NEW)
 ├── auth/                  # Authentication pages
 ├── page.tsx               # Homepage with CivicSpace API data
+├── post/[slug]/           # Individual post pages
 ├── layout.tsx             # Root layout
 └── globals.css            # Global styles with yellow theme
+
+lib/
+└── api.ts                 # API library with Survey interface (NEW)
 
 prisma/
 ├── schema.prisma          # Minimal schema (User + Role only)
@@ -30,12 +46,13 @@ prisma/
 ```
 
 ## Key Features
-1. **หน้าแรก** - แสดงบทความล่าสุดและยอดนิยมจาก CivicSpace API
+1. **หน้าแรก** - แสดงบทความล่าสุด, วิดีโอ, และแบบสำรวจจาก CivicSpace API
 2. **แดชบอร์ด** - สถิติและข้อมูลภาพรวมสำหรับเจ้าหน้าที่
 3. **ระบบผู้ใช้** - การจัดการผู้ใช้และสิทธิ์ (NextAuth.js)
 4. **API Integration** - เชื่อมต่อกับ CivicSpace API สำหรับข้อมูลเนื้อหา
-5. **Clean Design** - ดีไซน์เรียบง่าย เน้นตัวหนังสือขนาดเล็ก สีเหลือง
-6. **เฉพาะเจ้าหน้าที่** - ระบบสำหรับเจ้าหน้าที่เท่านั้น
+5. **Surveys Management** - จัดการและดาวน์โหลดแบบสำรวจ (NEW)
+6. **Clean Design** - ดีไซน์เรียบง่าย เน้นตัวหนังสือขนาดเล็ก สีเหลือง
+7. **เฉพาะเจ้าหน้าที่** - ระบบสำหรับเจ้าหน้าที่เท่านั้น
 
 ## Database Configuration
 - **Development**: `mysql://root:root@localhost:3306/civicspace`
@@ -52,13 +69,51 @@ prisma/
 ### CivicSpace API
 Base URL: `https://civicspace-gqdcg0dxgjbqe8as.southeastasia-01.azurewebsites.net/api/v1`
 
-**Key Endpoints:**
+**Posts Endpoints:**
 - `GET /posts/` - All posts with pagination
 - `GET /posts/latest/?limit=N` - Latest posts
 - `GET /posts/popular/?limit=N` - Popular posts by view count
-- `GET /categories/` - All categories with post counts
 - `GET /posts/{slug}/` - Single post details
 - `GET /categories/{slug}/posts/` - Posts by category
+
+**Categories Endpoints:**
+- `GET /categories/` - All categories with post counts
+- `GET /categories/{slug}/` - Category details
+
+**Videos Endpoints:**
+- `GET /videos/` - All videos with pagination
+- `GET /videos/latest/?limit=N` - Latest videos
+
+**Surveys Endpoints (NEW):**
+- `GET /surveys/` - All surveys with pagination
+- `GET /surveys/latest/?limit=N` - Latest surveys
+- `GET /surveys/popular/?limit=N` - Popular surveys by view count
+- `GET /surveys/{slug}/` - Single survey details (increments view_count)
+- `GET /categories/{slug}/surveys/` - Surveys by category
+
+**Survey Response Structure:**
+```json
+{
+  "id": 1,
+  "title": "แบบสำรวจ...",
+  "slug": "survey-slug",
+  "description": "คำอธิบาย",
+  "author": "email@example.com",
+  "category": {
+    "id": 10,
+    "name": "หมวดหมู่",
+    "slug": "category-slug"
+  },
+  "survey_file_url": "https://.../file.docx",
+  "is_published": true,
+  "survey_date": "2025-10-08",
+  "response_count": 0,
+  "view_count": 0,
+  "created_at": "2025-10-08T11:44:48+07:00",
+  "updated_at": "2025-10-08T11:44:48+07:00",
+  "published_at": "2025-10-08T11:44:48+07:00"
+}
+```
 
 ## Color Scheme
 Yellow-based theme with careful attention to readability:
@@ -83,7 +138,17 @@ When working with this codebase:
 2. **Database**: Use Prisma only for authentication (User model)
 3. **Authentication**: NextAuth.js is configured for user management
 4. **External Data**: Fetch all content from CivicSpace API
-5. **UI Consistency**: Follow clean, minimal design patterns with Tailwind CSS
-6. **Icons**: Use Lucide React icons only
-7. **Color Scheme**: Stick to yellow-based theme for consistency
-8. **Target Audience**: Government officials and staff members only
+5. **API Proxy**: Use internal API routes (`/api/surveys`, `/api/posts`, etc.) instead of calling external API directly
+6. **UI Consistency**: Follow clean, minimal design patterns with Tailwind CSS
+7. **Icons**: Use Lucide React icons only
+8. **Color Scheme**: Stick to yellow-based theme for consistency
+9. **Target Audience**: Government officials and staff members only
+10. **Surveys**: Files are downloadable via `window.open()` to external blob storage URLs
+
+## Recent Updates (October 2025)
+- ✅ Added Surveys Management feature
+- ✅ Created `/api/surveys` proxy route with pagination support
+- ✅ Built `SurveyCard` component (compact variant)
+- ✅ Dashboard surveys page with statistics
+- ✅ Homepage displays latest 3 surveys
+- ✅ Download functionality for survey files (.docx)

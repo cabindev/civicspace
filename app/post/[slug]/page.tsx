@@ -39,6 +39,7 @@ export default function PostPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showImageModal, setShowImageModal] = useState(false);
+  const [imageError, setImageError] = useState(false);
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -147,7 +148,7 @@ export default function PostPage() {
 
         <article className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
           {/* Hero Banner - Full Width Cover */}
-          {post.featured_image_url && (
+          {post.featured_image_url && !imageError && (
             <div className="w-full bg-gradient-to-br from-slate-900 via-slate-800 to-slate-700 relative overflow-hidden">
               <div className="relative w-full aspect-[1920/630]">
                 <Image
@@ -157,6 +158,7 @@ export default function PostPage() {
                   sizes="(max-width: 640px) 100vw, (max-width: 1024px) 800px, 1200px"
                   className="object-cover w-full h-full opacity-60"
                   priority
+                  onError={() => setImageError(true)}
                 />
                 {/* Gradient Overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-800/40 to-transparent"></div>
@@ -193,7 +195,7 @@ export default function PostPage() {
           )}
 
           {/* Content Image - Contained */}
-          {post.featured_image_url && (
+          {post.featured_image_url && !imageError && (
             <div className="w-full bg-slate-50 border-t border-slate-200 relative group">
               <div className="relative w-full aspect-[4/3] lg:aspect-[5/3] cursor-pointer" onClick={() => setShowImageModal(true)}>
                 <Image
@@ -202,11 +204,44 @@ export default function PostPage() {
                   fill
                   sizes="(max-width: 640px) 100vw, (max-width: 1024px) 800px, 1200px"
                   className="object-contain w-full h-full transition-opacity group-hover:opacity-80"
+                  onError={() => setImageError(true)}
                 />
                 {/* Hover Overlay */}
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center">
                   <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white/90 rounded-full p-3">
                     <ZoomIn className="w-6 h-6 text-slate-700" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Fallback Hero Section (No Image) */}
+          {(!post.featured_image_url || imageError) && (
+            <div className="w-full bg-gradient-to-br from-slate-900 via-slate-800 to-slate-700 relative overflow-hidden">
+              <div className="relative w-full aspect-[1920/630] flex items-end">
+                <div className="w-full p-6 md:p-8">
+                  <div className="max-w-3xl">
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-500/20 text-yellow-100 border border-yellow-400/30 mb-4">
+                      {post.category.name}
+                    </span>
+                    <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-white mb-2 leading-tight drop-shadow-lg">
+                      {post.title}
+                    </h1>
+                    <div className="flex flex-wrap items-center gap-4 text-sm text-slate-200">
+                      <div className="flex items-center gap-1">
+                        <User className="w-4 h-4 text-slate-300" />
+                        <span>{post.author}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Calendar className="w-4 h-4 text-slate-300" />
+                        <span>{formatDate(post.created_at)}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Eye className="w-4 h-4 text-slate-300" />
+                        <span>{post.view_count.toLocaleString()} ครั้ง</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -250,7 +285,7 @@ export default function PostPage() {
       </main>
 
       {/* Image Modal */}
-      {showImageModal && post?.featured_image_url && (
+      {showImageModal && post?.featured_image_url && !imageError && (
         <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4" onClick={() => setShowImageModal(false)}>
           <div className="relative max-w-7xl max-h-full w-full h-full flex items-center justify-center">
             {/* Close Button */}

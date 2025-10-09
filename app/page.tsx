@@ -7,6 +7,8 @@ import Image from 'next/image';
 import Navbar from './components/Navbar';
 import { Footer } from './components/Footer';
 import Loading from './components/Loading';
+import SurveyCard from './components/SurveyCard';
+import { Survey } from '@/lib/api';
 
 interface Post {
   id: number;
@@ -68,6 +70,7 @@ export default function HomePage() {
   const [popularPosts, setPopularPosts] = useState<Post[]>([]);
   const [latestVideos, setLatestVideos] = useState<Video[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [latestSurveys, setLatestSurveys] = useState<Survey[]>([]);
   const [loading, setLoading] = useState(true);
   const [totalPosts, setTotalPosts] = useState(0);
   const [animatedStats, setAnimatedStats] = useState({
@@ -80,29 +83,31 @@ export default function HomePage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [allPostsRes, popularRes, categoriesRes, videosRes] = await Promise.all([
+        const [allPostsRes, popularRes, categoriesRes, videosRes, surveysRes] = await Promise.all([
           fetch(`/api/post?page=1&page_size=12`),
           fetch(`/api/post?type=popular&limit=4`),
           fetch(`/api/categories`),
-          fetch(`/api/videos?type=latest&limit=8`)
+          fetch(`/api/videos?type=latest&limit=8`),
+          fetch(`/api/surveys?type=latest&limit=3`)
         ]);
 
-        const [allPostsData, popular, cats, videos] = await Promise.all([
+        const [allPostsData, popular, cats, videos, surveys] = await Promise.all([
           allPostsRes.json() as Promise<ApiResponse<Post>>,
           popularRes.json() as Promise<Post[]>,
           categoriesRes.json() as Promise<ApiResponse<Category>>,
-          videosRes.json() as Promise<Video[]>
+          videosRes.json() as Promise<Video[]>,
+          surveysRes.json() as Promise<Survey[]>
         ]);
 
         // Handle API response structure - ensure arrays
         const posts = Array.isArray(allPostsData?.results)
           ? allPostsData.results
           : (Array.isArray(allPostsData) ? allPostsData : []);
-        
+
         const popularArray = Array.isArray(popular)
           ? popular
           : (Array.isArray((popular as any)?.results) ? (popular as any).results : []);
-        
+
         const categoriesArray = Array.isArray(cats?.results)
           ? cats.results
           : (Array.isArray(cats) ? cats : []);
@@ -110,13 +115,14 @@ export default function HomePage() {
         const videosArray = Array.isArray(videos)
           ? videos
           : (Array.isArray((videos as any)?.results) ? (videos as any).results : []);
-        
+
         setAllPosts(posts);
         setDisplayedPosts(posts);
         setTotalPosts(allPostsData?.count || posts.length || 0);
         setPopularPosts(popularArray);
         setCategories(categoriesArray);
         setLatestVideos(videosArray);
+        setLatestSurveys(Array.isArray(surveys) ? surveys : []);
       } catch (error) {
         console.error('Error fetching data:', error);
       } finally {
@@ -163,17 +169,17 @@ export default function HomePage() {
   useEffect(() => {
     if (!loading && totalPosts > 0) {
       const totalViews = popularPosts?.reduce((sum, post) => sum + post.view_count, 0) || 0;
-      
+
       // Animate all counters simultaneously
       const animateStats = async () => {
         const duration = 2000;
         const startTime = Date.now();
-        
+
         const animate = () => {
           const elapsed = Date.now() - startTime;
           const progress = Math.min(elapsed / duration, 1);
           const easeOutCubic = 1 - Math.pow(1 - progress, 3);
-          
+
           setAnimatedStats({
             totalPosts: Math.floor(totalPosts * easeOutCubic),
             categories: Math.floor((categories?.length || 0) * easeOutCubic),
@@ -181,15 +187,15 @@ export default function HomePage() {
             totalViews: Math.floor(totalViews * easeOutCubic),
             totalVideos: Math.floor((latestVideos?.length || 0) * easeOutCubic)
           });
-          
+
           if (progress < 1) {
             requestAnimationFrame(animate);
           }
         };
-        
+
         animate();
       };
-      
+
       // Start animation after a short delay
       setTimeout(animateStats, 300);
     }
@@ -396,19 +402,46 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Surveys Section */}
+      {latestSurveys && latestSurveys.length > 0 && (
+        <section className="py-8 sm:py-12 lg:py-16 bg-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-8 sm:mb-12">
+              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2 sm:mb-4">แบบสำรวจล่าสุด</h2>
+              <p className="text-sm sm:text-base text-gray-600">ดาวน์โหลดและศึกษาข้อมูลแบบสำรวจ</p>
+            </div>
+
+            <div className="space-y-4 max-w-4xl mx-auto">
+              {latestSurveys.map((survey) => (
+                <SurveyCard key={survey.id} survey={survey} variant="compact" />
+              ))}
+            </div>
+
+            <div className="text-center mt-8">
+              <Link
+                href="/dashboard/surveys"
+                className="inline-flex items-center space-x-2 px-6 py-3 bg-yellow-500 hover:bg-yellow-600 text-white font-medium rounded-lg transition-colors"
+              >
+                <span>ดูแบบสำรวจทั้งหมด</span>
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Popular Posts & Categories Section */}
       <section className="py-8 sm:py-12 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-6 sm:gap-8">
-            
+
             {/* Popular Posts */}
             <div>
               <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6">บทความยอดนิยม</h2>
-              
+
               <div className="space-y-2 sm:space-y-3">
                 {popularPosts?.map((post, index) => {
                   const enhancedViews = Math.floor((post.view_count + 1000) * (2.5 + Math.random() * 3));
-                  
+
                   return (
                     <Link key={post.id} href={`/post/${post.slug}`}>
                       <div className="flex items-start space-x-3 p-2 sm:p-3 rounded-lg hover:bg-gray-50 transition-colors group">
@@ -435,11 +468,11 @@ export default function HomePage() {
             {/* Categories */}
             <div>
               <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6">หมวดหมู่</h2>
-              
+
               <div className="space-y-2 sm:space-y-3">
                 {categories?.slice(0, 6).map((category) => {
                   const enhancedCount = Math.floor((category.post_count + 15) * (3 + Math.random() * 4));
-                  
+
                   return (
                     <div key={category.id} className="flex items-center justify-between p-2 sm:p-3 rounded-lg hover:bg-gray-50 transition-colors group cursor-pointer">
                       <h3 className="font-medium text-gray-900 group-hover:text-gray-600 transition-colors text-xs sm:text-sm">
@@ -453,7 +486,7 @@ export default function HomePage() {
                 })}
               </div>
             </div>
-            
+
           </div>
         </div>
       </section>

@@ -2,7 +2,7 @@
 const nextConfig = {
   images: {
     unoptimized: true,
-    domains: ['localhost', 'database.ssnthailand.com'],
+    domains: ['localhost', 'civicspace.sdnthailand.com', 'civicblogs12.blob.core.windows.net'],
     remotePatterns: [
       {
         protocol: 'http',
@@ -18,15 +18,21 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'database.ssnthailand.com',
+        hostname: 'civicspace.sdnthailand.com',
         port: '',
         pathname: '/images/**',
       },
       {
         protocol: 'https',
-        hostname: 'database.ssnthailand.com',
+        hostname: 'civicspace.sdnthailand.com',
         port: '',
         pathname: '/img/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'civicblogs12.blob.core.windows.net',
+        port: '',
+        pathname: '/media/**',
       },
     ],
   },

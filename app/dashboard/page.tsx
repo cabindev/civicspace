@@ -266,7 +266,7 @@ export default function Dashboard() {
         </div>
 
         {/* Overview Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           {/* Total Content */}
           <div className="bg-white border-2 border-gray-200 rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between mb-4">
@@ -309,21 +309,6 @@ export default function Dashboard() {
             <p className="text-3xl font-bold text-gray-900 mb-2">{stats?.categories.total || 0}</p>
             <div className="flex items-center text-xs text-gray-500">
               <span>ครอบคลุมทุกประเด็น</span>
-            </div>
-          </div>
-
-          {/* Survey Responses */}
-          <div className="bg-white border-2 border-gray-200 rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between mb-4">
-              <div className="p-3 bg-gray-100 rounded-lg">
-                <ClipboardList className="w-6 h-6 text-gray-700" />
-              </div>
-              <BarChart3 className="w-5 h-5 text-gray-400" />
-            </div>
-            <p className="text-sm font-medium text-gray-600 mb-1">คำตอบแบบสำรวจ</p>
-            <p className="text-3xl font-bold text-gray-900 mb-2">{formatNumber(stats?.surveys.totalResponses || 0)}</p>
-            <div className="flex items-center text-xs text-gray-500">
-              <span>จาก {stats?.surveys.total} แบบสำรวจ</span>
             </div>
           </div>
         </div>
@@ -492,7 +477,7 @@ export default function Dashboard() {
                             </p>
                             <p className="text-xs text-gray-500 mt-1">
                               <Eye className="w-3 h-3 inline mr-1" />
-                              {formatNumber(survey.view_count)} • {survey.response_count} คำตอบ
+                              {formatNumber(survey.view_count)} ครั้ง
                             </p>
                           </div>
                         </div>
@@ -738,7 +723,7 @@ export default function Dashboard() {
                   <div>
                     <h3 className="text-lg font-bold text-gray-900">แบบสำรวจทั้งหมด</h3>
                     <p className="text-sm text-gray-600 mt-1">
-                      ทั้งหมด {stats?.surveys.total} แบบสำรวจ • {formatNumber(stats?.surveys.totalResponses || 0)} คำตอบ • {formatNumber(stats?.surveys.totalViews || 0)} การเข้าชม
+                      ทั้งหมด {stats?.surveys.total} แบบสำรวจ • การเข้าชมรวม {formatNumber(stats?.surveys.totalViews || 0)} ครั้ง
                     </p>
                   </div>
                   <Link
@@ -767,12 +752,7 @@ export default function Dashboard() {
                               <div className="flex items-center space-x-3 text-xs text-gray-500">
                                 <span className="flex items-center">
                                   <Eye className="w-3 h-3 mr-1" />
-                                  {formatNumber(survey.view_count)}
-                                </span>
-                                <span>•</span>
-                                <span className="flex items-center">
-                                  <ClipboardList className="w-3 h-3 mr-1" />
-                                  {survey.response_count} คำตอบ
+                                  {formatNumber(survey.view_count)} ครั้ง
                                 </span>
                                 <span>•</span>
                                 <span className="flex items-center">
@@ -800,12 +780,7 @@ export default function Dashboard() {
                               <div className="flex items-center space-x-3 text-xs text-gray-500">
                                 <span className="flex items-center">
                                   <Eye className="w-3 h-3 mr-1" />
-                                  {formatNumber(survey.view_count)}
-                                </span>
-                                <span>•</span>
-                                <span className="flex items-center">
-                                  <ClipboardList className="w-3 h-3 mr-1" />
-                                  {survey.response_count} คำตอบ
+                                  {formatNumber(survey.view_count)} ครั้ง
                                 </span>
                                 <span>•</span>
                                 <span className="flex items-center">

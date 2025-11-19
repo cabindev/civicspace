@@ -29,70 +29,8 @@ export async function GET(request: NextRequest) {
     });
 
     if (!response.ok) {
-      console.log(`❌ API failed: ${response.status}, falling back to mock data`);
-      // Fallback to mock data when API is not available
-      if (type === 'popular') {
-        return NextResponse.json([
-          {
-            id: 1,
-            title: "งานพระบวช 1 รูป...คนอ่างทองต้องเสียเงินเท่าไหร่กัน?",
-            slug: "1",
-            content: "การพิจารณาค่าใช้จ่ายในงานบวชที่เหมาะสม",
-            author: "CivicSpace Team",
-            category: { id: 1, name: "บวช", slug: "ordain" },
-            tags: [],
-            featured_image_url: "https://picsum.photos/400/600?random=1",
-            created_at: "2024-01-15T10:00:00Z",
-            view_count: 1250,
-            reading_time: 5
-          },
-          {
-            id: 2,
-            title: "เส้นทางงานบุญสารทเดือนสิบ",
-            slug: "timeline", 
-            content: "การจัดงานบุญประเพณีสารทเดือนสิบ",
-            author: "CivicSpace Team",
-            category: { id: 2, name: "นครศรีธรรมราช", slug: "nakhonsithammarat" },
-            tags: [],
-            featured_image_url: "https://picsum.photos/400/800?random=2",
-            created_at: "2024-01-14T09:00:00Z",
-            view_count: 980,
-            reading_time: 4
-          }
-        ]);
-      } else {
-        return NextResponse.json({
-          count: 12,
-          results: [
-            {
-              id: 1,
-              title: "งานพระบวช 1 รูป...คนอ่างทองต้องเสียเงินเท่าไหร่กัน?",
-              slug: "1",
-              content: "การพิจารณาค่าใช้จ่ายในงานบวชที่เหมาะสม",
-              author: "CivicSpace Team",
-              category: { id: 1, name: "บวช", slug: "ordain" },
-              tags: [],
-              featured_image_url: "https://picsum.photos/400/600?random=1",
-              created_at: "2024-01-15T10:00:00Z",
-              view_count: 1250,
-              reading_time: 5
-            },
-            {
-              id: 2,
-              title: "เส้นทางงานบุญสารทเดือนสิบ",
-              slug: "timeline",
-              content: "การจัดงานบุญประเพณีสารทเดือนสิบ",
-              author: "CivicSpace Team",
-              category: { id: 2, name: "นครศรีธรรมราช", slug: "nakhonsithammarat" },
-              tags: [],
-              featured_image_url: "https://picsum.photos/400/800?random=2",
-              created_at: "2024-01-14T09:00:00Z",
-              view_count: 980,
-              reading_time: 4
-            }
-          ]
-        });
-      }
+      console.error(`Posts API error: ${response.status} ${response.statusText}`);
+      throw new Error(`Posts API error: ${response.status}`);
     }
 
     const data = await response.json();
@@ -101,13 +39,9 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(data);
   } catch (error) {
     console.error('Error fetching posts:', error);
-    const { searchParams } = new URL(request.url);
-    const type = searchParams.get('type');
-    
-    // Fallback data for errors
-    if (type === 'popular') {
-      return NextResponse.json([]);
-    }
-    return NextResponse.json({ count: 0, results: [] });
+    return NextResponse.json(
+      { error: 'Failed to fetch posts from external API' },
+      { status: 500 }
+    );
   }
 }

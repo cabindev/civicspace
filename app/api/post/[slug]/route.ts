@@ -19,27 +19,8 @@ export async function GET(
     });
 
     if (!response.ok) {
-      console.log(`❌ Post API failed: ${response.status}, falling back to mock data for slug: ${slug}`);
-      
-      // Return mock data for development
-      const mockPost = {
-        id: parseInt(slug) || 1,
-        title: slug === "1" ? "งานพระบวช 1 รูป...คนอ่างทองต้องเสียเงินเท่าไหร่กัน?" : "เส้นทางงานบุญสารทเดือนสิบ",
-        slug: slug,
-        content: `<p>เนื้อหาของบทความ ${slug}</p><p>นี่คือเนื้อหาตัวอย่างสำหรับบทความที่มี slug เป็น "${slug}"</p><p>เนื้อหานี้จะถูกแทนที่ด้วยข้อมูลจริงเมื่อ API พร้อมใช้งาน</p>`,
-        author: "CivicSpace Team",
-        category: { id: 1, name: "บวช", slug: "ordain" },
-        tags: [
-          { id: 1, name: "งานบุญ", slug: "ceremony" },
-          { id: 2, name: "ค่าใช้จ่าย", slug: "expenses" }
-        ],
-        featured_image_url: `https://picsum.photos/800/600?random=${slug}`,
-        created_at: "2024-01-15T10:00:00Z",
-        view_count: 1250,
-        reading_time: 5
-      };
-      
-      return NextResponse.json(mockPost);
+      console.error(`Post API error: ${response.status} ${response.statusText} for slug: ${slug}`);
+      throw new Error(`Post API error: ${response.status}`);
     }
 
     const post = await response.json();
@@ -48,28 +29,9 @@ export async function GET(
     return NextResponse.json(post);
   } catch (error) {
     console.error('Error fetching post:', error);
-    
-    const { slug } = await params;
-    
-    // Return mock data even on error for development
-    const mockPost = {
-      id: parseInt(slug) || 1,
-      title: slug === "1" ? "งานพระบวช 1 รูป...คนอ่างทองต้องเสียเงินเท่าไหร่กัน?" : "เส้นทางงานบุญสารทเดือนสิบ",
-      slug: slug,
-      content: `<p>เนื้อหาของบทความ ${slug}</p><p>นี่คือเนื้อหาตัวอย่างสำหรับบทความที่มี slug เป็น "${slug}"</p><p>เนื้อหานี้จะถูกแทนที่ด้วยข้อมูลจริงเมื่อ API พร้อมใช้งาน</p>`,
-      author: "CivicSpace Team",
-      category: { id: 1, name: "บวช", slug: "ordain" },
-      tags: [
-        { id: 1, name: "งานบุญ", slug: "ceremony" },
-        { id: 2, name: "ค่าใช้จ่าย", slug: "expenses" }
-      ],
-      featured_image_url: `https://picsum.photos/800/600?random=${slug}`,
-      created_at: "2024-01-15T10:00:00Z",
-      view_count: 1250,
-      reading_time: 5
-    };
-    
-    console.log(`📝 Returning mock post data for slug: ${slug}`);
-    return NextResponse.json(mockPost);
+    return NextResponse.json(
+      { error: 'Failed to fetch post from external API' },
+      { status: 500 }
+    );
   }
 }

@@ -38,33 +38,8 @@ export default function PostsPage() {
       const response = await fetch(`${API_BASE}?page=${currentPage}`);
 
       if (!response.ok) {
-        console.log(`❌ Dashboard Posts API failed: ${response.status}, falling back to mock data`);
-
-        // Mock data for development
-        const mockPosts = [
-          {
-            id: 1,
-            title: "งานพระบวช 1 รูป...คนอ่างทองต้องเสียเงินเท่าไหร่กัน?",
-            slug: "1",
-            excerpt: "การพิจารณาค่าใช้จ่ายในงานบวชที่เหมาะสม",
-            view_count: 1250,
-            created_at: "2024-01-15T10:00:00Z",
-            category: { id: 1, name: "บวช" }
-          },
-          {
-            id: 2,
-            title: "เส้นทางงานบุญสารทเดือนสิบ",
-            slug: "timeline",
-            excerpt: "การจัดงานบุญประเพณีสารทเดือนสิบ",
-            view_count: 980,
-            created_at: "2024-01-14T09:00:00Z",
-            category: { id: 2, name: "นครศรีธรรมราช" }
-          }
-        ];
-
-        setPosts(mockPosts);
-        setTotalPages(1);
-        return;
+        console.error(`Dashboard Posts API error: ${response.status} ${response.statusText}`);
+        throw new Error(`Posts API error: ${response.status}`);
       }
 
       const data = await response.json();
@@ -80,21 +55,7 @@ export default function PostsPage() {
       }
     } catch (error) {
       console.error('Error fetching posts:', error);
-
-      // Fallback mock data on error
-      const mockPosts = [
-        {
-          id: 1,
-          title: "งานพระบวช 1 รูป...คนอ่างทองต้องเสียเงินเท่าไหร่กัน?",
-          slug: "1",
-          excerpt: "การพิจารณาค่าใช้จ่ายในงานบวชที่เหมาะสม",
-          view_count: 1250,
-          created_at: "2024-01-15T10:00:00Z",
-          category: { id: 1, name: "บวช" }
-        }
-      ];
-
-      setPosts(mockPosts);
+      setPosts([]);
       setTotalPages(1);
     } finally {
       setLoading(false);

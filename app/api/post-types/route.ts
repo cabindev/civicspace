@@ -14,46 +14,8 @@ export async function GET(request: NextRequest) {
     });
 
     if (!response.ok) {
-      console.log(`❌ Post Types API failed: ${response.status}, falling back to mock data`);
-      // Return mock post types data when API fails
-      const mockPostTypes = {
-        count: 4,
-        results: [
-          {
-            id: 1,
-            name: "บทความ",
-            slug: "article",
-            description: "บทความทั่วไป",
-            color: "#3b82f6",
-            post_count: 8
-          },
-          {
-            id: 2,
-            name: "ข่าวสาร",
-            slug: "news",
-            description: "ข่าวสารและการประชาสัมพันธ์",
-            color: "#10b981",
-            post_count: 5
-          },
-          {
-            id: 3,
-            name: "งานวิจัย",
-            slug: "research",
-            description: "ผลงานวิจัยและการศึกษา",
-            color: "#8b5cf6",
-            post_count: 3
-          },
-          {
-            id: 4,
-            name: "คู่มือ",
-            slug: "guide",
-            description: "คู่มือและแนวทางปฏิบัติ",
-            color: "#f59e0b",
-            post_count: 6
-          }
-        ]
-      };
-      return NextResponse.json(mockPostTypes);
+      console.error(`Post Types API error: ${response.status} ${response.statusText}`);
+      throw new Error(`Post Types API error: ${response.status}`);
     }
 
     const data = await response.json();
@@ -61,8 +23,9 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(data);
   } catch (error) {
     console.error('Error fetching post types:', error);
-    
-    // Return empty fallback for errors
-    return NextResponse.json({ count: 0, results: [] });
+    return NextResponse.json(
+      { error: 'Failed to fetch post types from external API' },
+      { status: 500 }
+    );
   }
 }

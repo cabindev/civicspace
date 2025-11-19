@@ -14,35 +14,8 @@ export async function GET(request: NextRequest) {
     });
 
     if (!response.ok) {
-      console.log(`❌ Categories API failed: ${response.status}, falling back to mock data`);
-      // Return mock categories data when API fails
-      const mockCategories = {
-        count: 3,
-        results: [
-          {
-            id: 1,
-            name: "บวช",
-            slug: "ordain",
-            description: "เรื่องราวเกี่ยวกับการบวช",
-            post_count: 5
-          },
-          {
-            id: 2,
-            name: "นครศรีธรรมราช",
-            slug: "nakhonsithammarat", 
-            description: "ข่าวสารจากจังหวัดนครศรีธรรมราช",
-            post_count: 3
-          },
-          {
-            id: 3,
-            name: "สุขภาพ",
-            slug: "health",
-            description: "เรื่องราวเกี่ยวกับสุขภาพ",
-            post_count: 4
-          }
-        ]
-      };
-      return NextResponse.json(mockCategories);
+      console.error(`Categories API error: ${response.status} ${response.statusText}`);
+      throw new Error(`Categories API error: ${response.status}`);
     }
 
     const data = await response.json();
@@ -50,8 +23,9 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(data);
   } catch (error) {
     console.error('Error fetching categories:', error);
-    
-    // Return empty fallback for errors
-    return NextResponse.json({ count: 0, results: [] });
+    return NextResponse.json(
+      { error: 'Failed to fetch categories from external API' },
+      { status: 500 }
+    );
   }
 }

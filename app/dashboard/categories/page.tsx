@@ -29,41 +29,8 @@ export default function CategoriesPage() {
       const response = await fetch(`${API_BASE}/categories/`);
       
       if (!response.ok) {
-        console.log(`❌ Dashboard Categories API failed: ${response.status}, falling back to mock data`);
-        
-        // Mock data for development
-        const mockCategories = [
-          {
-            id: 1,
-            name: "บวช",
-            description: "เรื่องราวเกี่ยวกับการบวช",
-            post_count: 5,
-            video_count: 2,
-            survey_count: 1,
-            total_count: 8
-          },
-          {
-            id: 2,
-            name: "นครศรีธรรมราช",
-            description: "ข่าวสารจากจังหวัดนครศรีธรรมราช",
-            post_count: 3,
-            video_count: 1,
-            survey_count: 0,
-            total_count: 4
-          },
-          {
-            id: 3,
-            name: "สุขภาพ",
-            description: "เรื่องราวเกี่ยวกับสุขภาพ",
-            post_count: 4,
-            video_count: 3,
-            survey_count: 2,
-            total_count: 9
-          }
-        ];
-        
-        setCategories(mockCategories);
-        return;
+        console.error(`Dashboard Categories API error: ${response.status} ${response.statusText}`);
+        throw new Error(`Categories API error: ${response.status}`);
       }
       
       const data = await response.json();
@@ -72,30 +39,7 @@ export default function CategoriesPage() {
       setCategories(data.results || data || []);
     } catch (error) {
       console.error('Error fetching categories:', error);
-      
-      // Fallback mock data on error
-      const mockCategories = [
-        {
-          id: 1,
-          name: "บวช",
-          description: "เรื่องราวเกี่ยวกับการบวช",
-          post_count: 5,
-          video_count: 2,
-          survey_count: 1,
-          total_count: 8
-        },
-        {
-          id: 2,
-          name: "นครศรีธรรมราช",
-          description: "ข่าวสารจากจังหวัดนครศรีธรรมราช",
-          post_count: 3,
-          video_count: 1,
-          survey_count: 0,
-          total_count: 4
-        }
-      ];
-      
-      setCategories(mockCategories);
+      setCategories([]);
     } finally {
       setLoading(false);
     }

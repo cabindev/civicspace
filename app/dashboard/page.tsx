@@ -239,7 +239,7 @@ export default function Dashboard() {
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center space-x-4">
+            <Link href="/" className="flex items-center space-x-4 hover:opacity-80 transition-opacity">
               <div className="w-14 h-14 rounded-lg flex items-center justify-center bg-gray-900">
                 <BarChart3 className="w-7 h-7 text-white" />
               </div>
@@ -251,7 +251,7 @@ export default function Dashboard() {
                   สวัสดี {session.user?.firstName || 'เจ้าหน้าที่'} • {formatDate(new Date().toISOString())}
                 </p>
               </div>
-            </div>
+            </Link>
 
             <div className="flex items-center space-x-3">
               <Link

@@ -125,8 +125,8 @@ export default function PostsPage() {
   return (
     <div className="p-6">
       <div className="mb-6">
-        <h1 className="text-xs font-bold text-gray-900 mb-2">บทความทั้งหมด</h1>
-        <p className="text-xs text-gray-600">จัดการและดูข้อมูลบทความในระบบ</p>
+        <h1 className="text-xs font-bold text-gray-900 mb-2">โพสต์ทั้งหมด</h1>
+        <p className="text-xs text-gray-600">จัดการและดูข้อมูลโพสต์ในระบบ</p>
       </div>
 
       <div className="bg-white rounded-lg shadow-sm border border-gray-200">
@@ -134,7 +134,7 @@ export default function PostsPage() {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <FileText className="w-4 h-4 text-gray-600" />
-              <span className="text-xs font-medium">รายการบทความ</span>
+              <span className="text-xs font-medium">รายการโพสต์</span>
             </div>
             <span className="text-xs text-gray-500">{posts.length} รายการ</span>
           </div>

@@ -8,6 +8,9 @@ interface Category {
   name: string;
   description?: string;
   post_count: number;
+  video_count: number;
+  survey_count: number;
+  total_count: number;
 }
 
 const API_BASE = 'https://civicspace-gqdcg0dxgjbqe8as.southeastasia-01.azurewebsites.net/api/v1';
@@ -34,19 +37,28 @@ export default function CategoriesPage() {
             id: 1,
             name: "บวช",
             description: "เรื่องราวเกี่ยวกับการบวช",
-            post_count: 5
+            post_count: 5,
+            video_count: 2,
+            survey_count: 1,
+            total_count: 8
           },
           {
             id: 2,
             name: "นครศรีธรรมราช",
             description: "ข่าวสารจากจังหวัดนครศรีธรรมราช",
-            post_count: 3
+            post_count: 3,
+            video_count: 1,
+            survey_count: 0,
+            total_count: 4
           },
           {
             id: 3,
             name: "สุขภาพ",
             description: "เรื่องราวเกี่ยวกับสุขภาพ",
-            post_count: 4
+            post_count: 4,
+            video_count: 3,
+            survey_count: 2,
+            total_count: 9
           }
         ];
         
@@ -67,13 +79,19 @@ export default function CategoriesPage() {
           id: 1,
           name: "บวช",
           description: "เรื่องราวเกี่ยวกับการบวช",
-          post_count: 5
+          post_count: 5,
+          video_count: 2,
+          survey_count: 1,
+          total_count: 8
         },
         {
           id: 2,
-          name: "นครศรีธรรมราช", 
+          name: "นครศรีธรรมราช",
           description: "ข่าวสารจากจังหวัดนครศรีธรรมราช",
-          post_count: 3
+          post_count: 3,
+          video_count: 1,
+          survey_count: 0,
+          total_count: 4
         }
       ];
       
@@ -98,8 +116,8 @@ export default function CategoriesPage() {
   return (
     <div className="p-6">
       <div className="mb-6">
-        <h1 className="text-xs font-bold text-gray-900 mb-2">หมวดหมู่บทความ</h1>
-        <p className="text-xs text-gray-600">รายการหมวดหมู่ทั้งหมดในระบบ</p>
+        <h1 className="text-xs font-bold text-gray-900 mb-2">ประเด็นทั้งหมด</h1>
+        <p className="text-xs text-gray-600">รายการประเด็นทั้งหมดในระบบ</p>
       </div>
 
       <div className="bg-white rounded-lg shadow-sm border border-gray-200">
@@ -107,9 +125,9 @@ export default function CategoriesPage() {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <Users className="w-4 h-4 text-gray-600" />
-              <span className="text-xs font-medium">รายการหมวดหมู่</span>
+              <span className="text-xs font-medium">รายการประเด็น</span>
             </div>
-            <span className="text-xs text-gray-500">{categories.length} หมวดหมู่</span>
+            <span className="text-xs text-gray-500">{categories.length} ประเด็น</span>
           </div>
         </div>
 
@@ -132,10 +150,19 @@ export default function CategoriesPage() {
                     )}
                   </div>
                 </div>
-                
-                <div className="flex items-center space-x-2">
-                  <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                    {category.post_count} บทความ
+
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                    {category.post_count || 0} โพสต์
+                  </span>
+                  <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                    {category.video_count || 0} วิดีโอ
+                  </span>
+                  <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                    {category.survey_count || 0} แบบสำรวจ
+                  </span>
+                  <span className="text-xs font-bold text-gray-900 bg-gray-200 px-2 py-1 rounded">
+                    รวม {category.total_count || category.post_count || 0}
                   </span>
                 </div>
               </div>
@@ -146,7 +173,7 @@ export default function CategoriesPage() {
         {categories.length === 0 && (
           <div className="p-8 text-center">
             <Users className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-            <p className="text-xs text-gray-500">ไม่มีหมวดหมู่ในระบบ</p>
+            <p className="text-xs text-gray-500">ไม่มีประเด็นในระบบ</p>
           </div>
         )}
       </div>

@@ -1,3 +1,4 @@
+// app/api/videos/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 
 const API_BASE = 'https://civicspace-gqdcg0dxgjbqe8as.southeastasia-01.azurewebsites.net/api/v1';

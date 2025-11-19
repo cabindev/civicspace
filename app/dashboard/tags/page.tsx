@@ -50,7 +50,7 @@ export default function TagsPage() {
   return (
     <div className="p-6">
       <div className="mb-6">
-        <h1 className="text-xs font-bold text-gray-900 mb-2">แท็กบทความ</h1>
+        <h1 className="text-xs font-bold text-gray-900 mb-2">แท็กโพสต์</h1>
         <p className="text-xs text-gray-600">รายการแท็กทั้งหมดในระบบ</p>
       </div>
 

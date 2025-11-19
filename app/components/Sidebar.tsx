@@ -42,8 +42,8 @@ const menuItems: MenuItem[] = [
     icon: FileText,
     label: 'เนื้อหา',
     children: [
-      { key: '/dashboard/posts', label: 'บทความ', href: '/dashboard/posts' },
-      { key: '/dashboard/categories', label: 'หมวดหมู่', href: '/dashboard/categories' },
+      { key: '/dashboard/posts', label: 'โพสต์', href: '/dashboard/posts' },
+      { key: '/dashboard/categories', label: 'ประเด็น', href: '/dashboard/categories' },
       { key: '/dashboard/tags', label: 'แท็ก', href: '/dashboard/tags' }
     ]
   },
@@ -52,8 +52,8 @@ const menuItems: MenuItem[] = [
     icon: Globe,
     label: 'API ภายนอก',
     children: [
-      { key: 'api-posts', label: 'API บทความ', href: 'https://civicspace-gqdcg0dxgjbqe8as.southeastasia-01.azurewebsites.net/api/v1/posts/', external: true },
-      { key: 'api-categories', label: 'API หมวดหมู่', href: 'https://civicspace-gqdcg0dxgjbqe8as.southeastasia-01.azurewebsites.net/api/v1/categories/', external: true }
+      { key: 'api-posts', label: 'API โพสต์', href: 'https://civicspace-gqdcg0dxgjbqe8as.southeastasia-01.azurewebsites.net/api/v1/posts/', external: true },
+      { key: 'api-categories', label: 'API ประเด็น', href: 'https://civicspace-gqdcg0dxgjbqe8as.southeastasia-01.azurewebsites.net/api/v1/categories/', external: true }
     ]
   }
 ];

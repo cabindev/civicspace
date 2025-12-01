@@ -226,49 +226,60 @@ export default function HomePage() {
       <Navbar showDashboardLink={true}  />
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-white to-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
+      <section className="relative overflow-hidden bg-gradient-to-br from-yellow-50 via-white to-gray-50">
+        {/* Decorative elements */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-yellow-200/30 rounded-full blur-3xl"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-yellow-100/30 rounded-full blur-3xl"></div>
+        </div>
+
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
           <div className="text-center">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4 sm:mb-6">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-yellow-500 rounded-2xl mb-6 shadow-lg">
+              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+            </div>
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 bg-clip-text text-transparent mb-4 sm:mb-6">
               CivicSpace
             </h1>
             <p className="text-base sm:text-lg md:text-xl text-gray-600 mb-8 sm:mb-12 max-w-3xl mx-auto leading-relaxed px-4">
-              แหล่งรวมข้อมูล บทความ และงานวิจัยเพื่อสนับสนุนการทำงานของเจ้าหน้าที่
+              แหล่งรวมข้อมูล บทความ และงานวิจัย
               <br className="hidden sm:block"/>
-              พื้นที่พลเมืองร่วมหาทางออกปัญหาแอลกอฮอล์
+              <span className="text-yellow-600 font-semibold">พื้นที่พลเมืองร่วมหาทางออกปัญหาแอลกอฮอล์</span>
             </p>
             
             {/* Stats - Yellow Theme */}
-            <div className="grid grid-cols-2 lg:grid-cols-5 gap-6 sm:gap-8 md:gap-12 max-w-6xl mx-auto mb-8 sm:mb-12">
-              <div className="text-center">
-                <div className="text-4xl sm:text-5xl md:text-6xl font-bold text-yellow-500 mb-2 tabular-nums">
+            <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 sm:gap-6 max-w-6xl mx-auto">
+              <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 sm:p-6 shadow-sm hover:shadow-md transition-shadow border border-gray-100">
+                <div className="text-3xl sm:text-4xl md:text-5xl font-bold text-yellow-600 mb-2 tabular-nums">
                   {animatedStats.totalPosts.toLocaleString()}
                 </div>
-                <div className="text-gray-500 text-xs sm:text-sm font-light tracking-wide">บทความทั้งหมด</div>
+                <div className="text-gray-600 text-xs sm:text-sm font-medium">บทความทั้งหมด</div>
               </div>
-              <div className="text-center">
-                <div className="text-4xl sm:text-5xl md:text-6xl font-bold text-yellow-500 mb-2 tabular-nums">
+              <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 sm:p-6 shadow-sm hover:shadow-md transition-shadow border border-gray-100">
+                <div className="text-3xl sm:text-4xl md:text-5xl font-bold text-yellow-600 mb-2 tabular-nums">
                   {animatedStats.totalVideos.toLocaleString()}
                 </div>
-                <div className="text-gray-500 text-xs sm:text-sm font-light tracking-wide">วิดีโอ</div>
+                <div className="text-gray-600 text-xs sm:text-sm font-medium">วิดีโอ</div>
               </div>
-              <div className="text-center">
-                <div className="text-4xl sm:text-5xl md:text-6xl font-bold text-yellow-500 mb-2 tabular-nums">
+              <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 sm:p-6 shadow-sm hover:shadow-md transition-shadow border border-gray-100">
+                <div className="text-3xl sm:text-4xl md:text-5xl font-bold text-yellow-600 mb-2 tabular-nums">
                   {animatedStats.categories.toLocaleString()}
                 </div>
-                <div className="text-gray-500 text-xs sm:text-sm font-light tracking-wide">หมวดหมู่</div>
+                <div className="text-gray-600 text-xs sm:text-sm font-medium">ประเด็น</div>
               </div>
-              <div className="text-center">
-                <div className="text-4xl sm:text-5xl md:text-6xl font-bold text-yellow-500 mb-2 tabular-nums">
+              <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 sm:p-6 shadow-sm hover:shadow-md transition-shadow border border-gray-100">
+                <div className="text-3xl sm:text-4xl md:text-5xl font-bold text-yellow-600 mb-2 tabular-nums">
                   {animatedStats.popularPosts.toLocaleString()}
                 </div>
-                <div className="text-gray-500 text-xs sm:text-sm font-light tracking-wide">บทความยอดนิยม</div>
+                <div className="text-gray-600 text-xs sm:text-sm font-medium">ยอดนิยม</div>
               </div>
-              <div className="text-center">
-                <div className="text-4xl sm:text-5xl md:text-6xl font-bold text-yellow-500 mb-2 tabular-nums">
+              <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 sm:p-6 shadow-sm hover:shadow-md transition-shadow border border-gray-100">
+                <div className="text-3xl sm:text-4xl md:text-5xl font-bold text-yellow-600 mb-2 tabular-nums">
                   {animatedStats.totalViews.toLocaleString()}
                 </div>
-                <div className="text-gray-500 text-xs sm:text-sm font-light tracking-wide">การเข้าชม</div>
+                <div className="text-gray-600 text-xs sm:text-sm font-medium">การเข้าชม</div>
               </div>
             </div>
           </div>
@@ -276,11 +287,16 @@ export default function HomePage() {
       </section>
 
       {/* Latest Posts Section */}
-      <section className="py-8 sm:py-12 lg:py-16 bg-gray-50">
+      <section className="py-8 sm:py-12 lg:py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-8 sm:mb-12">
+            <div className="inline-flex items-center justify-center w-12 h-12 bg-yellow-100 rounded-full mb-4">
+              <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+              </svg>
+            </div>
             <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2 sm:mb-4">บทความล่าสุด</h2>
-            <p className="text-sm sm:text-base text-gray-600">ติดตามข้อมูลและองค์ความรู้ใหม่ๆ</p>
+            <p className="text-sm sm:text-base text-gray-600 max-w-2xl mx-auto">ติดตามข้อมูลและองค์ความรู้ใหม่ๆ จากทีมงาน CivicSpace</p>
           </div>
 
           <div className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4">
@@ -354,55 +370,63 @@ export default function HomePage() {
       </section>
 
       {/* Latest Videos Section */}
-      <section className="py-8 sm:py-12 lg:py-16 bg-white">
+      <section className="py-8 sm:py-12 lg:py-16 bg-gradient-to-b from-white to-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-8 sm:mb-12">
+            <div className="inline-flex items-center justify-center w-12 h-12 bg-yellow-100 rounded-full mb-4">
+              <svg className="w-6 h-6 text-yellow-600" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z"/>
+              </svg>
+            </div>
             <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2 sm:mb-4">วิดีโอล่าสุด</h2>
-            <p className="text-sm sm:text-base text-gray-600">รับชมวิดีโอที่น่าสนใจและเป็นประโยชน์</p>
+            <p className="text-sm sm:text-base text-gray-600 max-w-2xl mx-auto">รับชมวิดีโอที่น่าสนใจและเป็นประโยชน์จากทีมงาน CivicSpace</p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
             {latestVideos?.map((video: Video) => (
               <div key={video.id} className="group cursor-pointer">
-                <div className="relative aspect-[9/16] rounded-lg overflow-hidden bg-gray-100 mb-3">
+                <div className="relative aspect-[3/4] rounded-xl overflow-hidden bg-gray-100 mb-2 shadow-sm hover:shadow-md transition-shadow">
                   <Image
                     src={video.thumbnail_url}
                     alt={video.title}
                     fill
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 16vw"
                     className="object-cover group-hover:scale-105 transition-transform duration-500"
                   />
-                  <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors" />
-                  
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+
                   {/* Play button */}
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-12 h-12 sm:w-16 sm:h-16 bg-white/90 rounded-full flex items-center justify-center group-hover:bg-white group-hover:scale-110 transition-all">
-                      <svg className="w-5 h-5 sm:w-6 sm:h-6 text-gray-900 ml-1" fill="currentColor" viewBox="0 0 24 24">
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="w-10 h-10 bg-white/95 rounded-full flex items-center justify-center shadow-lg">
+                      <svg className="w-4 h-4 text-gray-900 ml-0.5" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M8 5v14l11-7z"/>
                       </svg>
                     </div>
                   </div>
-                  
+
                   {/* Duration */}
-                  <div className="absolute bottom-2 right-2 bg-black/75 text-white text-xs px-2 py-1 rounded">
+                  <div className="absolute bottom-2 right-2 bg-black/80 backdrop-blur-sm text-white text-xs px-1.5 py-0.5 rounded font-medium">
                     {video.duration}
                   </div>
+
+                  {/* Category badge */}
+                  <div className="absolute top-2 left-2">
+                    <span className="bg-yellow-500 text-white text-xs px-2 py-0.5 rounded-full font-medium">
+                      {video.category.name}
+                    </span>
+                  </div>
                 </div>
-                
-                <div className="space-y-2">
-                  <h3 className="font-semibold text-gray-900 group-hover:text-gray-600 transition-colors line-clamp-2 text-sm sm:text-base">
+
+                <div className="space-y-1">
+                  <h3 className="font-medium text-gray-900 group-hover:text-yellow-600 transition-colors line-clamp-2 text-xs leading-tight">
                     {video.title}
                   </h3>
-                  <p className="text-gray-600 text-xs sm:text-sm line-clamp-2">
-                    {video.description}
-                  </p>
-                  <div className="flex items-center justify-between text-xs text-gray-500">
-                    <span className="bg-gray-100 px-2 py-1 rounded-full">{video.category.name}</span>
-                    <div className="flex items-center space-x-2">
-                      <span>{video.view_count.toLocaleString()} ครั้ง</span>
-                      <span>•</span>
-                      <span>{formatDate(video.created_at)}</span>
-                    </div>
+                  <div className="flex items-center text-xs text-gray-500">
+                    <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                    <span>{video.view_count.toLocaleString()}</span>
                   </div>
                 </div>
               </div>

@@ -38,17 +38,24 @@ export default function AllVideosPage() {
     try {
       setLoading(true);
       const response = await fetch(`/api/videos?page=${currentPage}&page_size=${pageSize}`);
+
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+      }
+
       const data = await response.json();
 
-      const videosArray = Array.isArray(data)
-        ? data
-        : (Array.isArray((data as any)?.results) ? (data as any).results : []);
+      // Handle API response - it returns {count, next, previous, results}
+      const videosArray = Array.isArray(data?.results)
+        ? data.results
+        : (Array.isArray(data) ? data : []);
 
       setVideos(videosArray);
-      setTotalCount((data as any)?.count || videosArray.length || 0);
+      setTotalCount(data?.count || videosArray.length || 0);
     } catch (error) {
       console.error('Error fetching videos:', error);
       setVideos([]);
+      setTotalCount(0);
     } finally {
       setLoading(false);
     }

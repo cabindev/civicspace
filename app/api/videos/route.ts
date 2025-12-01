@@ -5,18 +5,22 @@ const API_BASE = 'https://civicspace-gqdcg0dxgjbqe8as.southeastasia-01.azurewebs
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
-  const type = searchParams.get('type') || 'latest';
-  const limit = searchParams.get('limit') || '6';
-  
+  const type = searchParams.get('type');
+  const limit = searchParams.get('limit');
+  const page = searchParams.get('page') || '1';
+  const pageSize = searchParams.get('page_size') || '20';
+
   try {
-    
     let endpoint: string;
-    if (type === 'latest') {
+
+    if (type === 'latest' && limit) {
+      // For homepage - latest videos with specific limit
       endpoint = `/videos/latest/?limit=${limit}`;
     } else {
-      endpoint = `/videos/?limit=${limit}`;
+      // For pagination - use page and page_size
+      endpoint = `/videos/?page=${page}&page_size=${pageSize}`;
     }
-    
+
     console.log('Fetching videos from CivicSpace API:', `${API_BASE}${endpoint}`);
     const response = await fetch(`${API_BASE}${endpoint}`, {
       cache: 'no-store',

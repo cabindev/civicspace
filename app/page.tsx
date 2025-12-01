@@ -65,19 +65,13 @@ interface ApiResponse<T> {
 const API_BASE = 'https://civicspace-gqdcg0dxgjbqe8as.southeastasia-01.azurewebsites.net/api/v1';
 
 export default function HomePage() {
-  const [allPosts, setAllPosts] = useState<Post[]>([]);
   const [displayedPosts, setDisplayedPosts] = useState<Post[]>([]);
   const [popularPosts, setPopularPosts] = useState<Post[]>([]);
   const [latestVideos, setLatestVideos] = useState<Video[]>([]);
-  const [allVideos, setAllVideos] = useState<Video[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [latestSurveys, setLatestSurveys] = useState<Survey[]>([]);
   const [loading, setLoading] = useState(true);
   const [totalPosts, setTotalPosts] = useState(0);
-  const [showAllPosts, setShowAllPosts] = useState(false);
-  const [showAllVideos, setShowAllVideos] = useState(false);
-  const [loadingAllPosts, setLoadingAllPosts] = useState(false);
-  const [loadingAllVideos, setLoadingAllVideos] = useState(false);
   const [animatedStats, setAnimatedStats] = useState({
     totalPosts: 0,
     categories: 0,
@@ -121,7 +115,6 @@ export default function HomePage() {
           ? videos
           : (Array.isArray((videos as any)?.results) ? (videos as any).results : []);
 
-        setAllPosts(posts);
         setDisplayedPosts(posts);
         setTotalPosts(allPostsData?.count || posts.length || 0);
         setPopularPosts(popularArray);
@@ -213,50 +206,6 @@ export default function HomePage() {
       month: 'short',
       day: 'numeric'
     });
-  };
-
-  const loadAllPosts = async () => {
-    if (showAllPosts) {
-      setShowAllPosts(false);
-      setDisplayedPosts(allPosts.slice(0, 12));
-      return;
-    }
-
-    setLoadingAllPosts(true);
-    try {
-      const response = await fetch('/api/post?page=1&page_size=100');
-      const data = await response.json() as ApiResponse<Post>;
-      const posts = Array.isArray(data?.results) ? data.results : (Array.isArray(data) ? data : []);
-
-      setAllPosts(posts);
-      setDisplayedPosts(posts);
-      setShowAllPosts(true);
-    } catch (error) {
-      console.error('Error loading all posts:', error);
-    } finally {
-      setLoadingAllPosts(false);
-    }
-  };
-
-  const loadAllVideos = async () => {
-    if (showAllVideos) {
-      setShowAllVideos(false);
-      return;
-    }
-
-    setLoadingAllVideos(true);
-    try {
-      const response = await fetch('/api/videos?page=1&page_size=100');
-      const data = await response.json();
-      const videos = Array.isArray(data) ? data : (Array.isArray((data as any)?.results) ? (data as any).results : []);
-
-      setAllVideos(videos);
-      setShowAllVideos(true);
-    } catch (error) {
-      console.error('Error loading all videos:', error);
-    } finally {
-      setLoadingAllVideos(false);
-    }
   };
 
 
@@ -386,29 +335,20 @@ export default function HomePage() {
             })}
           </div>
 
-          {/* Total Posts Info & Load More Button */}
+          {/* Total Posts Info & View All Button */}
           <div className="text-center mt-6 sm:mt-8 space-y-4">
             <div className="text-xs sm:text-sm text-gray-500">
-              แสดง {displayedPosts?.length || 0} {showAllPosts ? 'จากทั้งหมด' : 'บทความ'}
+              แสดง {displayedPosts?.length || 0} บทความ
             </div>
-            <button
-              type="button"
-              onClick={loadAllPosts}
-              disabled={loadingAllPosts}
-              className="inline-flex items-center space-x-2 px-6 py-3 bg-yellow-500 hover:bg-yellow-600 disabled:bg-gray-300 text-white font-medium rounded-lg transition-colors"
+            <Link
+              href="/post"
+              className="inline-flex items-center space-x-2 px-6 py-3 bg-yellow-500 hover:bg-yellow-600 text-white font-medium rounded-lg transition-colors"
             >
-              {loadingAllPosts ? (
-                <>
-                  <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                  </svg>
-                  <span>กำลังโหลด...</span>
-                </>
-              ) : (
-                <span>{showAllPosts ? 'แสดงน้อยลง' : 'ดูบทความทั้งหมด'}</span>
-              )}
-            </button>
+              <span>ดูบทความทั้งหมด</span>
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </Link>
           </div>
         </div>
       </section>
@@ -422,7 +362,7 @@ export default function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-            {(showAllVideos ? allVideos : latestVideos)?.map((video: Video) => (
+            {latestVideos?.map((video: Video) => (
               <div key={video.id} className="group cursor-pointer">
                 <div className="relative aspect-[9/16] rounded-lg overflow-hidden bg-gray-100 mb-3">
                   <Image
@@ -469,29 +409,20 @@ export default function HomePage() {
             ))}
           </div>
 
-          {/* Load All Videos Button */}
+          {/* View All Videos Button */}
           <div className="text-center mt-6 sm:mt-8 space-y-4">
             <div className="text-xs sm:text-sm text-gray-500">
-              แสดง {(showAllVideos ? allVideos : latestVideos)?.length || 0} วิดีโอ
+              แสดง {latestVideos?.length || 0} วิดีโอ
             </div>
-            <button
-              type="button"
-              onClick={loadAllVideos}
-              disabled={loadingAllVideos}
-              className="inline-flex items-center space-x-2 px-6 py-3 bg-yellow-500 hover:bg-yellow-600 disabled:bg-gray-300 text-white font-medium rounded-lg transition-colors"
+            <Link
+              href="/videos"
+              className="inline-flex items-center space-x-2 px-6 py-3 bg-yellow-500 hover:bg-yellow-600 text-white font-medium rounded-lg transition-colors"
             >
-              {loadingAllVideos ? (
-                <>
-                  <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                  </svg>
-                  <span>กำลังโหลด...</span>
-                </>
-              ) : (
-                <span>{showAllVideos ? 'แสดงน้อยลง' : 'ดูวิดีโอทั้งหมด'}</span>
-              )}
-            </button>
+              <span>ดูวิดีโอทั้งหมด</span>
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </Link>
           </div>
         </div>
       </section>

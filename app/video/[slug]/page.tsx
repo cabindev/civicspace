@@ -104,7 +104,7 @@ export default function VideoDetailPage() {
           <h1 className="text-2xl font-bold text-gray-900 mb-4">ไม่พบวิดีโอ</h1>
           <p className="text-gray-600 mb-8">ขออภัย ไม่พบวิดีโอที่คุณกำลังค้นหา</p>
           <Link
-            href="/videos"
+            href="/video"
             className="inline-flex items-center space-x-2 px-6 py-3 bg-yellow-500 hover:bg-yellow-600 text-white font-medium rounded-lg transition-colors"
           >
             <span>กลับไปหน้าวิดีโอทั้งหมด</span>
@@ -125,7 +125,7 @@ export default function VideoDetailPage() {
           <nav className="flex items-center space-x-2 text-sm">
             <Link href="/" className="text-gray-500 hover:text-yellow-600">หน้าแรก</Link>
             <span className="text-gray-400">/</span>
-            <Link href="/videos" className="text-gray-500 hover:text-yellow-600">วิดีโอทั้งหมด</Link>
+            <Link href="/video" className="text-gray-500 hover:text-yellow-600">วิดีโอทั้งหมด</Link>
             <span className="text-gray-400">/</span>
             <span className="text-gray-900 font-medium line-clamp-1">{video.title}</span>
           </nav>
@@ -223,7 +223,7 @@ export default function VideoDetailPage() {
           {/* Back Button */}
           <div className="mt-8 text-center">
             <Link
-              href="/videos"
+              href="/video"
               className="inline-flex items-center space-x-2 px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

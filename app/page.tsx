@@ -402,7 +402,7 @@ export default function HomePage() {
               แสดง {latestVideos?.length || 0} วิดีโอ
             </div>
             <Link
-              href="/videos"
+              href="/video"
               className="inline-flex items-center space-x-2 px-6 py-3 bg-yellow-500 hover:bg-yellow-600 text-white font-medium rounded-lg transition-colors"
             >
               <span>ดูวิดีโอทั้งหมด</span>

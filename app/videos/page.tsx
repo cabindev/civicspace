@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import Image from 'next/image';
 import Navbar from '../components/Navbar';
 import { Footer } from '../components/Footer';
@@ -128,7 +129,7 @@ export default function AllVideosPage() {
             <>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
                 {videos.map((video: Video) => (
-                  <div key={video.id} className="group cursor-pointer">
+                  <Link key={video.id} href={`/video/${video.slug}`} className="group cursor-pointer">
                     <div className="relative aspect-[9/16] rounded-lg overflow-hidden bg-gray-100 mb-3">
                       <Image
                         src={video.thumbnail_url}
@@ -170,7 +171,7 @@ export default function AllVideosPage() {
                         </div>
                       </div>
                     </div>
-                  </div>
+                  </Link>
                 ))}
               </div>
 

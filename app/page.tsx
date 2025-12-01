@@ -347,7 +347,7 @@ export default function HomePage() {
 
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
             {latestVideos?.map((video: Video) => (
-              <div key={video.id} className="group cursor-pointer">
+              <Link key={video.id} href={`/video/${video.slug}`} className="group cursor-pointer">
                 <div className="relative aspect-[3/4] rounded-xl overflow-hidden bg-gray-100 mb-2 shadow-sm hover:shadow-md transition-shadow">
                   <Image
                     src={video.thumbnail_url}
@@ -392,7 +392,7 @@ export default function HomePage() {
                     <span>{video.view_count.toLocaleString()}</span>
                   </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
 

@@ -151,60 +151,49 @@ export default function HomePage() {
       <Navbar showDashboardLink={true}  />
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-yellow-50 via-white to-gray-50">
-        {/* Decorative elements */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-yellow-200/30 rounded-full blur-3xl"></div>
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-yellow-100/30 rounded-full blur-3xl"></div>
-        </div>
-
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
+      <section className="bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
           <div className="text-center">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-yellow-500 rounded-2xl mb-6 shadow-lg">
-              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-              </svg>
-            </div>
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 bg-clip-text text-transparent mb-4 sm:mb-6">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4 sm:mb-6">
               CivicSpace
             </h1>
             <p className="text-base sm:text-lg md:text-xl text-gray-600 mb-8 sm:mb-12 max-w-3xl mx-auto leading-relaxed px-4">
-              แหล่งรวมข้อมูล บทความ และงานวิจัย
+              Resource hub for articles and research
               <br className="hidden sm:block"/>
-              <span className="text-yellow-600 font-semibold">พื้นที่พลเมืองร่วมหาทางออกปัญหาแอลกอฮอล์</span>
+              <span className="font-semibold">Civic space for collaborative solutions to alcohol issues</span>
             </p>
-            
-            {/* Stats - Yellow Theme */}
+
+            {/* Stats */}
             <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 sm:gap-6 max-w-6xl mx-auto">
               <div className="p-4 sm:p-6">
-                <div className="text-3xl sm:text-4xl md:text-5xl font-bold text-yellow-600 mb-2 tabular-nums">
+                <div className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-2 tabular-nums">
                   {totalPosts.toLocaleString()}
                 </div>
-                <div className="text-gray-600 text-xs sm:text-sm font-medium">บทความทั้งหมด</div>
+                <div className="text-gray-600 text-xs sm:text-sm font-medium">Total Posts</div>
               </div>
               <div className="p-4 sm:p-6">
-                <div className="text-3xl sm:text-4xl md:text-5xl font-bold text-yellow-600 mb-2 tabular-nums">
+                <div className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-2 tabular-nums">
                   {latestVideos.length.toLocaleString()}
                 </div>
-                <div className="text-gray-600 text-xs sm:text-sm font-medium">วิดีโอ</div>
+                <div className="text-gray-600 text-xs sm:text-sm font-medium">Videos</div>
               </div>
               <div className="p-4 sm:p-6">
-                <div className="text-3xl sm:text-4xl md:text-5xl font-bold text-yellow-600 mb-2 tabular-nums">
+                <div className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-2 tabular-nums">
                   {categories.length.toLocaleString()}
                 </div>
-                <div className="text-gray-600 text-xs sm:text-sm font-medium">ประเด็น</div>
+                <div className="text-gray-600 text-xs sm:text-sm font-medium">Categories</div>
               </div>
               <div className="p-4 sm:p-6">
-                <div className="text-3xl sm:text-4xl md:text-5xl font-bold text-yellow-600 mb-2 tabular-nums">
+                <div className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-2 tabular-nums">
                   {popularPosts.length.toLocaleString()}
                 </div>
-                <div className="text-gray-600 text-xs sm:text-sm font-medium">ยอดนิยม</div>
+                <div className="text-gray-600 text-xs sm:text-sm font-medium">Popular Posts</div>
               </div>
               <div className="p-4 sm:p-6">
-                <div className="text-3xl sm:text-4xl md:text-5xl font-bold text-yellow-600 mb-2 tabular-nums">
+                <div className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-2 tabular-nums">
                   {(popularPosts?.reduce((sum, post) => sum + post.view_count, 0) || 0).toLocaleString()}
                 </div>
-                <div className="text-gray-600 text-xs sm:text-sm font-medium">การเข้าชม</div>
+                <div className="text-gray-600 text-xs sm:text-sm font-medium">Total Views</div>
               </div>
             </div>
           </div>

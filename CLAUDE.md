@@ -15,30 +15,34 @@ CivicSpace : พื้นที่พลเมืองร่วมหาทา�
 ## Project Structure
 ```
 app/
-├── api/                    # API routes
+├── api/                    # API routes (proxy to external API)
 │   ├── auth/              # Authentication endpoints
-│   ├── post/              # Posts proxy API
+│   ├── post/              # Posts proxy API with pagination
 │   ├── categories/        # Categories proxy API
-│   ├── videos/            # Videos proxy API
-│   └── surveys/           # Surveys proxy API (NEW)
+│   ├── videos/            # Videos proxy API with pagination
+│   └── surveys/           # Surveys proxy API with pagination
 ├── dashboard/             # Admin dashboard for staff
 │   ├── page.tsx           # Dashboard with API statistics
 │   ├── posts/             # Posts management
 │   ├── categories/        # Categories management
-│   └── surveys/           # Surveys management (NEW)
+│   └── surveys/           # Surveys management
+├── post/                  # All posts page with pagination
+│   └── page.tsx           # Display all posts (24 per page)
+├── videos/                # All videos page with pagination
+│   └── page.tsx           # Display all videos (24 per page)
 ├── components/            # Reusable components
 │   ├── Navbar.tsx         # Navigation bar
 │   ├── Footer.tsx         # Footer component
 │   ├── Loading.tsx        # Loading states
-│   └── SurveyCard.tsx     # Survey card component (NEW)
+│   └── SurveyCard.tsx     # Survey card component
 ├── auth/                  # Authentication pages
-├── page.tsx               # Homepage with CivicSpace API data
-├── post/[slug]/           # Individual post pages
+├── page.tsx               # Homepage with latest content
+├── post/[slug]/           # Individual post detail pages
 ├── layout.tsx             # Root layout
 └── globals.css            # Global styles with yellow theme
 
 lib/
-└── api.ts                 # API library with Survey interface (NEW)
+└── api.ts                 # API library with interfaces
 
 prisma/
 ├── schema.prisma          # Minimal schema (User + Role only)
@@ -46,13 +50,15 @@ prisma/
 ```
 
 ## Key Features
-1. **หน้าแรก** - แสดงบทความล่าสุด, วิดีโอ, และแบบสำรวจจาก CivicSpace API
-2. **แดชบอร์ด** - สถิติและข้อมูลภาพรวมสำหรับเจ้าหน้าที่
-3. **ระบบผู้ใช้** - การจัดการผู้ใช้และสิทธิ์ (NextAuth.js)
-4. **API Integration** - เชื่อมต่อกับ CivicSpace API สำหรับข้อมูลเนื้อหา
-5. **Surveys Management** - จัดการและดาวน์โหลดแบบสำรวจ (NEW)
-6. **Clean Design** - ดีไซน์เรียบง่าย เน้นตัวหนังสือขนาดเล็ก สีเหลือง
-7. **เฉพาะเจ้าหน้าที่** - ระบบสำหรับเจ้าหน้าที่เท่านั้น
+1. **หน้าแรก** - แสดงบทความล่าสุด 12 รายการ, วิดีโอล่าสุด 8 รายการ, และแบบสำรวจล่าสุด 3 รายการ
+2. **หน้าบทความทั้งหมด** (/post) - แสดงบทความทั้งหมดแบบ Masonry grid พร้อม pagination (24 รายการต่อหน้า)
+3. **หน้าวิดีโอทั้งหมด** (/videos) - แสดงวิดีโอทั้งหมดแบบ grid พร้อม pagination (24 รายการต่อหน้า)
+4. **แดชบอร์ด** - สถิติและข้อมูลภาพรวมสำหรับเจ้าหน้าที่ (ไม่มี mock data)
+5. **ระบบผู้ใช้** - การจัดการผู้ใช้และสิทธิ์ (NextAuth.js)
+6. **API Integration** - เชื่อมต่อกับ CivicSpace API ผ่าน proxy routes (ไม่มี mock data)
+7. **Surveys Management** - จัดการและดาวน์โหลดแบบสำรวจ
+8. **Clean Design** - ดีไซน์เรียบง่าย เน้นตัวหนังสือขนาดเล็ก สีเหลือง
+9. **เฉพาะเจ้าหน้าที่** - ระบบสำหรับเจ้าหน้าที่เท่านั้น
 
 ## Database Configuration
 - **Development**: `mysql://root:root@localhost:3306/civicspace`
@@ -81,8 +87,8 @@ Base URL: `https://civicspace-gqdcg0dxgjbqe8as.southeastasia-01.azurewebsites.ne
 - `GET /categories/{slug}/` - Category details
 
 **Videos Endpoints:**
-- `GET /videos/` - All videos with pagination
-- `GET /videos/latest/?limit=N` - Latest videos
+- `GET /videos/?page=X&page_size=N` - All videos with pagination (returns {count, next, previous, results})
+- `GET /videos/latest/?limit=N` - Latest videos (returns array)
 
 **Surveys Endpoints (NEW):**
 - `GET /surveys/` - All surveys with pagination
@@ -137,18 +143,43 @@ When working with this codebase:
 1. **Language**: Content is primarily in Thai, maintain Thai language for user-facing text
 2. **Database**: Use Prisma only for authentication (User model)
 3. **Authentication**: NextAuth.js is configured for user management
-4. **External Data**: Fetch all content from CivicSpace API
-5. **API Proxy**: Use internal API routes (`/api/surveys`, `/api/posts`, etc.) instead of calling external API directly
-6. **UI Consistency**: Follow clean, minimal design patterns with Tailwind CSS
-7. **Icons**: Use Lucide React icons only
-8. **Color Scheme**: Stick to yellow-based theme for consistency
-9. **Target Audience**: Government officials and staff members only
-10. **Surveys**: Files are downloadable via `window.open()` to external blob storage URLs
+4. **External Data**: Fetch all content from CivicSpace API - **NO MOCK DATA**
+5. **API Proxy**: Use internal API routes (`/api/surveys`, `/api/posts`, `/api/videos`) instead of calling external API directly
+6. **Error Handling**: All API routes return 500 errors when external API fails - **NO FALLBACK MOCK DATA**
+7. **UI Consistency**: Follow clean, minimal design patterns with Tailwind CSS
+8. **Icons**: Use Lucide React icons only
+9. **Color Scheme**: Stick to yellow-based theme for consistency (#f59e0b)
+10. **Target Audience**: Government officials and staff members only
+11. **Surveys**: Files are downloadable via `window.open()` to external blob storage URLs
+12. **Pagination**: Posts and Videos pages show 24 items per page with proper pagination UI
 
-## Recent Updates (October 2025)
+## Recent Updates (December 2025)
+### Latest Changes
+- ✅ **Removed ALL mock data** from API routes and dashboard pages
+- ✅ Created dedicated **/post** page with pagination (24 items/page, Masonry layout)
+- ✅ Created dedicated **/videos** page with pagination (24 items/page, Grid layout)
+- ✅ Fixed videos API to support both homepage (latest) and pagination modes
+- ✅ Homepage now has "ดูทั้งหมด" buttons that redirect to dedicated pages
+- ✅ Proper error handling (500 status) when external API fails
+
+### Previous Updates (October 2025)
 - ✅ Added Surveys Management feature
 - ✅ Created `/api/surveys` proxy route with pagination support
 - ✅ Built `SurveyCard` component (compact variant)
 - ✅ Dashboard surveys page with statistics
 - ✅ Homepage displays latest 3 surveys
 - ✅ Download functionality for survey files (.docx)
+- ✅ Updated terminology: "หมวดหมู่" → "ประเด็น", "บทความ" → "โพสต์"
+- ✅ Removed survey response count from dashboard (not tracked in system)
+
+## Important Notes
+1. **NO MOCK DATA**: The entire application uses only real data from CivicSpace API
+2. **Error Handling**: When API fails, return proper HTTP 500 errors instead of mock data
+3. **Pagination**:
+   - Homepage: Shows limited recent items (12 posts, 8 videos, 3 surveys)
+   - Dedicated pages: Show 24 items per page with numbered pagination
+4. **API Response Formats**:
+   - Posts: `{count: number, results: Post[]}`
+   - Videos: `{count: number, next: string, previous: string, results: Video[]}`
+   - Surveys: `Survey[]` (array directly)
+5. **Navigation**: Use Next.js Link component for client-side navigation between pages

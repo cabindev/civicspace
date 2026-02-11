@@ -8,6 +8,7 @@ import Navbar from './components/Navbar';
 import { Footer } from './components/Footer';
 import Loading from './components/Loading';
 import SurveyCard from './components/SurveyCard';
+import LifeCycle from './components/LifeCycle';
 import { Survey } from '@/lib/api';
 
 interface Post {
@@ -134,21 +135,19 @@ export default function HomePage() {
   };
 
 
-  if (loading) {
-    return (
-      <div className="min-h-screen">
-        <Navbar showDashboardLink={true} />
+  return (
+    <div className="min-h-screen">
+      <Navbar showDashboardLink={true} />
+
+      {/* LifeCycle Section - renders immediately, no API dependency */}
+      <LifeCycle />
+
+      {loading ? (
         <div className="min-h-96">
           <Loading size="lg" className="min-h-96" />
         </div>
-        <Footer />
-      </div>
-    );
-  }
-
-  return (
-    <div className="min-h-screen">
-      <Navbar showDashboardLink={true}  />
+      ) : (
+        <>
 
       {/* Hero Section */}
       <section className="bg-white">
@@ -491,6 +490,9 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      </>
+      )}
 
       <Footer />
     </div>

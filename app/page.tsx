@@ -73,23 +73,30 @@ export default function HomePage() {
   const [latestSurveys, setLatestSurveys] = useState<Survey[]>([]);
   const [loading, setLoading] = useState(true);
   const [totalPosts, setTotalPosts] = useState(0);
+  const [totalVideos, setTotalVideos] = useState(0);
+  const [totalCategories, setTotalCategories] = useState(0);
+  const [totalSurveys, setTotalSurveys] = useState(0);
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [allPostsRes, popularRes, categoriesRes, videosRes, surveysRes] = await Promise.all([
+        const [allPostsRes, popularRes, categoriesRes, videosRes, surveysRes, allPostsCountRes, videoCountRes] = await Promise.all([
           fetch(`/api/post?type=latest&limit=12`),
           fetch(`/api/post?type=popular&limit=4`),
           fetch(`/api/categories`),
           fetch(`/api/videos?type=latest&limit=12`),
-          fetch(`/api/surveys?type=latest&limit=3`)
+          fetch(`/api/surveys?type=latest&limit=3`),
+          fetch(`/api/post?page=1&page_size=1000`),
+          fetch(`/api/videos?page=1&page_size=1`)
         ]);
 
-        const [allPostsData, popular, cats, videos, surveys] = await Promise.all([
-          allPostsRes.json() as Promise<ApiResponse<Post>>,
+        const [allPostsData, popular, cats, videos, surveys, allPostsCount, videoCount] = await Promise.all([
+          allPostsRes.json(),
           popularRes.json() as Promise<Post[]>,
-          categoriesRes.json() as Promise<ApiResponse<Category>>,
-          videosRes.json() as Promise<Video[]>,
-          surveysRes.json() as Promise<Survey[]>
+          categoriesRes.json(),
+          videosRes.json(),
+          surveysRes.json(),
+          allPostsCountRes.json(),
+          videoCountRes.json()
         ]);
 
         // Handle API response structure - ensure arrays
@@ -109,8 +116,25 @@ export default function HomePage() {
           ? videos
           : (Array.isArray((videos as any)?.results) ? (videos as any).results : []);
 
+        // Calculate true totals - handle both array and {count, results} responses
+        const truePostsTotal = Array.isArray(allPostsCount)
+          ? allPostsCount.length
+          : (allPostsCount?.count || posts.length);
+        const trueVideosTotal = Array.isArray(videoCount)
+          ? videoCount.length
+          : (videoCount?.count || videosArray.length);
+        const trueCategoriesTotal = Array.isArray(cats)
+          ? cats.length
+          : (cats?.count || categoriesArray.length);
+        const trueSurveysTotal = Array.isArray(surveys)
+          ? surveys.length
+          : (surveys?.count || 0);
+
         setDisplayedPosts(posts);
-        setTotalPosts(posts.length || 0);
+        setTotalPosts(truePostsTotal);
+        setTotalVideos(trueVideosTotal);
+        setTotalCategories(trueCategoriesTotal);
+        setTotalSurveys(trueSurveysTotal);
         setPopularPosts(popularArray);
         setCategories(categoriesArray);
         setLatestVideos(videosArray);
@@ -172,21 +196,21 @@ export default function HomePage() {
               </div>
               <div className="p-4 sm:p-6">
                 <div className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-2 tabular-nums">
-                  {latestVideos.length.toLocaleString()}
+                  {totalVideos.toLocaleString()}
                 </div>
                 <div className="text-gray-600 text-xs sm:text-sm font-medium">Videos</div>
               </div>
               <div className="p-4 sm:p-6">
                 <div className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-2 tabular-nums">
-                  {categories.length.toLocaleString()}
+                  {totalCategories.toLocaleString()}
                 </div>
                 <div className="text-gray-600 text-xs sm:text-sm font-medium">Categories</div>
               </div>
               <div className="p-4 sm:p-6">
                 <div className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-2 tabular-nums">
-                  {popularPosts.length.toLocaleString()}
+                  {totalSurveys.toLocaleString()}
                 </div>
-                <div className="text-gray-600 text-xs sm:text-sm font-medium">Popular Posts</div>
+                <div className="text-gray-600 text-xs sm:text-sm font-medium">Surveys</div>
               </div>
               <div className="p-4 sm:p-6">
                 <div className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-2 tabular-nums">

@@ -13,6 +13,8 @@ export async function GET(request: NextRequest) {
     let url: string;
     if (type === 'popular') {
       url = `${API_BASE}/posts/popular/?limit=${limit || '4'}`;
+    } else if (type === 'latest' && limit) {
+      url = `${API_BASE}/posts/latest/?limit=${limit}`;
     } else {
       url = `${API_BASE}/posts/?page=${page}&page_size=${pageSize}`;
     }

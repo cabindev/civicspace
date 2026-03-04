@@ -77,7 +77,7 @@ export default function HomePage() {
     const fetchData = async () => {
       try {
         const [allPostsRes, popularRes, categoriesRes, videosRes, surveysRes] = await Promise.all([
-          fetch(`/api/post?page=1&page_size=12`),
+          fetch(`/api/post?type=latest&limit=12`),
           fetch(`/api/post?type=popular&limit=4`),
           fetch(`/api/categories`),
           fetch(`/api/videos?type=latest&limit=12`),
@@ -110,7 +110,7 @@ export default function HomePage() {
           : (Array.isArray((videos as any)?.results) ? (videos as any).results : []);
 
         setDisplayedPosts(posts);
-        setTotalPosts(allPostsData?.count || posts.length || 0);
+        setTotalPosts(posts.length || 0);
         setPopularPosts(popularArray);
         setCategories(categoriesArray);
         setLatestVideos(videosArray);
@@ -283,7 +283,7 @@ export default function HomePage() {
 
               return (
                 <Link key={post.id} href={`/post/${post.slug}`} className="group">
-                  <article className="rounded-lg overflow-hidden transition-all duration-300 group-hover:scale-105 hover:shadow-lg break-inside-avoid mb-4">
+                  <article className="rounded-lg overflow-hidden transition-all duration-300 group-hover:scale-105 hover:shadow-lg break-inside-avoid mb-4 bg-gray-100">
                     {post.featured_image_url && (
                       <div className={`relative ${randomHeight} overflow-hidden`}>
                         <Image
@@ -291,9 +291,14 @@ export default function HomePage() {
                           alt={post.title}
                           fill
                           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-                          className="object-contain group-hover:scale-105 transition-transform duration-500"
+                          className="object-cover group-hover:scale-105 transition-transform duration-500"
                         />
-                        <div className="absolute inset-0" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+                        <div className="absolute bottom-0 left-0 right-0 p-3">
+                          <h3 className="text-white text-xs font-medium line-clamp-2 leading-tight">
+                            {post.title}
+                          </h3>
+                        </div>
                       </div>
                     )}
                   </article>

@@ -1,29 +1,19 @@
-import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import { NextRequest, NextResponse } from 'next/server';
 import path from 'path';
 import fs from 'fs/promises';
-import axios from 'axios';
+import { randomUUID } from 'crypto';
+import prisma from '@/app/lib/prisma';
 
-const prisma = new PrismaClient();
-
-const LINE_NOTIFY_TOKEN = 'Q6Xpu58PHvUT3nzkn2WwL9E42in8il7gmmLJZllCBsm';
-
-async function sendLineNotify(message: string) {
-  try {
-    await axios.post('https://notify-api.line.me/api/notify', 
-      `message=${encodeURIComponent(message)}`,
-      {
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'Authorization': `Bearer ${LINE_NOTIFY_TOKEN}`
-        }
-      }
-    );
-  } catch (error) {
-    console.error('Error sending Line notification:', error);
-  }
-}
+// อนุญาตเฉพาะชนิดรูปที่รู้จัก และ "ตั้งนามสกุลเอง" จาก MIME type
+// ห้ามใช้นามสกุลจากชื่อไฟล์ของผู้ใช้ เพราะอัปโหลด .svg/.html เข้ามาแล้วกลายเป็น stored XSS บนโดเมนตัวเองได้
+const ALLOWED_IMAGE_TYPES: Record<string, string> = {
+  'image/jpeg': '.jpg',
+  'image/png': '.png',
+  'image/webp': '.webp',
+};
+const MAX_IMAGE_BYTES = 2 * 1024 * 1024; // 2MB
+const MIN_PASSWORD_LENGTH = 8;
 
 export async function POST(request: NextRequest) {
   try {
@@ -41,19 +31,25 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate password strength
-    if (password.length < 5) {
-      return new NextResponse(JSON.stringify({ error: 'รหัสผ่านต้องมีความยาวอย่างน้อย 5 ตัวอักษร' }), { status: 400 });
+    if (!password || password.length < MIN_PASSWORD_LENGTH) {
+      return new NextResponse(JSON.stringify({ error: `รหัสผ่านต้องมีความยาวอย่างน้อย ${MIN_PASSWORD_LENGTH} ตัวอักษร` }), { status: 400 });
     }
 
     // Hash the password
     const hashedPassword = bcrypt.hashSync(password, 10);
 
     let imagePath = '';
-    if (image) {
+    if (image && image.size > 0) {
+      const fileExtension = ALLOWED_IMAGE_TYPES[image.type];
+      if (!fileExtension) {
+        return new NextResponse(JSON.stringify({ error: 'รองรับเฉพาะไฟล์รูป JPG, PNG หรือ WebP' }), { status: 400 });
+      }
+      if (image.size > MAX_IMAGE_BYTES) {
+        return new NextResponse(JSON.stringify({ error: 'ไฟล์รูปต้องมีขนาดไม่เกิน 2MB' }), { status: 400 });
+      }
+
       const bufferData = Buffer.from(await image.arrayBuffer());
-      const timestamp = new Date().getTime();
-      const fileExtension = path.extname(image.name) || '.jpg';
-      const fileName = `${timestamp}${fileExtension}`;
+      const fileName = `${Date.now()}-${randomUUID()}${fileExtension}`;
       const imageSavePath = path.join(process.cwd(), 'public/img', fileName);
 
       await fs.writeFile(imageSavePath, bufferData);
@@ -70,9 +66,6 @@ export async function POST(request: NextRequest) {
         image: imagePath || null,
       },
     });
-
-    // Send Line Notify
-    await sendLineNotify(`มีผู้ใช้ใหม่ลงทะเบียน: ${firstName} ${lastName} (${email})`);
 
     // Return success response
     return new NextResponse(JSON.stringify({ message: 'ลงทะเบียนสำเร็จ', userId: newUser.id }), { status: 200 });

@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
 import crypto from "crypto";
 import nodemailer from "nodemailer";
+import prisma from "@/app/lib/prisma";
 
-const prisma = new PrismaClient();
+// ตอบข้อความเดียวกันเสมอ ไม่ว่าอีเมลจะมีอยู่จริงหรือไม่
+// เพื่อไม่ให้ endpoint นี้ถูกใช้ไล่เดาว่าอีเมลไหนมีบัญชีในระบบ (user enumeration)
+const GENERIC_RESULT = {
+  message: "หากอีเมลนี้มีอยู่ในระบบ เราได้ส่งลิงก์สำหรับรีเซ็ตรหัสผ่านไปให้แล้ว",
+};
 
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
@@ -22,10 +26,7 @@ export async function POST(req: NextRequest) {
     const user = await prisma.user.findUnique({ where: { email } });
 
     if (!user) {
-      return NextResponse.json(
-        { error: "ไม่พบผู้ใช้งานในระบบ" },
-        { status: 404 }
-      );
+      return NextResponse.json(GENERIC_RESULT);
     }
 
     const token = crypto.randomBytes(32).toString("hex");
@@ -108,9 +109,7 @@ export async function POST(req: NextRequest) {
 
     await transporter.sendMail(mailOptions);
 
-    return NextResponse.json({
-      message: "ลิงก์สำหรับรีเซ็ตรหัสผ่านได้ถูกส่งไปยังอีเมลของคุณแล้ว",
-    });
+    return NextResponse.json(GENERIC_RESULT);
   } catch (error) {
     console.error("Error occurred:", error);
     return NextResponse.json(

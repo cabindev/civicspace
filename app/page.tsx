@@ -17,11 +17,12 @@ interface Post {
   slug: string;
   content: string;
   author: string;
+  // API ส่ง category เป็น null ได้ เมื่อโพสต์/วิดีโอยังไม่ถูกกำหนดประเด็น
   category: {
     id: number;
     name: string;
     slug: string;
-  };
+  } | null;
   tags: Array<{
     id: number;
     name: string;
@@ -40,11 +41,12 @@ interface Video {
   description: string;
   video_url: string;
   thumbnail_url: string;
+  // API ส่ง category เป็น null ได้ เมื่อโพสต์/วิดีโอยังไม่ถูกกำหนดประเด็น
   category: {
     id: number;
     name: string;
     slug: string;
-  };
+  } | null;
   created_at: string;
   view_count: number;
   duration: string;
@@ -265,9 +267,11 @@ export default function HomePage() {
                   <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-8 lg:p-10">
                     <div className="max-w-4xl">
                       <div className="flex items-center space-x-3 mb-3">
-                        <span className="bg-white/20 backdrop-blur-sm text-white text-xs px-3 py-1 rounded-full border border-white/30">
-                          {displayedPosts[0].category.name}
-                        </span>
+                        {displayedPosts[0].category && (
+                          <span className="bg-white/20 backdrop-blur-sm text-white text-xs px-3 py-1 rounded-full border border-white/30">
+                            {displayedPosts[0].category.name}
+                          </span>
+                        )}
                         <span className="text-white/80 text-xs">
                           {formatDate(displayedPosts[0].created_at)}
                         </span>
@@ -390,11 +394,13 @@ export default function HomePage() {
                   </div>
 
                   {/* Category badge */}
-                  <div className="absolute top-2 left-2">
-                    <span className="bg-yellow-500 text-white text-xs px-2 py-0.5 rounded-full font-medium">
-                      {video.category.name}
-                    </span>
-                  </div>
+                  {video.category && (
+                    <div className="absolute top-2 left-2">
+                      <span className="bg-yellow-500 text-white text-xs px-2 py-0.5 rounded-full font-medium">
+                        {video.category.name}
+                      </span>
+                    </div>
+                  )}
                 </div>
 
                 <div className="space-y-1">

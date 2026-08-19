@@ -12,10 +12,11 @@ interface Post {
   excerpt: string;
   view_count: number;
   created_at: string;
+  // API ส่ง category เป็น null ได้ เมื่อโพสต์ยังไม่ถูกกำหนดประเด็น
   category: {
     id: number;
     name: string;
-  };
+  } | null;
 }
 
 // ต้องเรียกผ่าน proxy ภายในเสมอ ห้ามยิงไป Azure ตรงจากเบราว์เซอร์

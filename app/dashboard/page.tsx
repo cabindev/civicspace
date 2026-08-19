@@ -26,11 +26,12 @@ interface Post {
   title: string;
   slug: string;
   author: string;
+  // API ส่ง category เป็น null ได้ เมื่อโพสต์ยังไม่ถูกกำหนดประเด็น
   category: {
     id: number;
     name: string;
     slug: string;
-  };
+  } | null;
   post_type?: {
     id: number;
     name: string;
@@ -580,10 +581,14 @@ export default function Dashboard() {
                                       <Eye className="w-3 h-3 mr-1" />
                                       {formatNumber(post.view_count)}
                                     </span>
-                                    <span>•</span>
-                                    <span className="px-2 py-0.5 bg-gray-100 text-gray-700 rounded">
-                                      {post.category.name}
-                                    </span>
+                                    {post.category && (
+                                      <>
+                                        <span>•</span>
+                                        <span className="px-2 py-0.5 bg-gray-100 text-gray-700 rounded">
+                                          {post.category.name}
+                                        </span>
+                                      </>
+                                    )}
                                     <span>•</span>
                                     <span className="flex items-center">
                                       <Calendar className="w-3 h-3 mr-1" />
@@ -620,10 +625,14 @@ export default function Dashboard() {
                                     <Eye className="w-3 h-3 mr-1" />
                                     {formatNumber(post.view_count)}
                                   </span>
-                                  <span>•</span>
-                                  <span className="px-2 py-0.5 bg-gray-100 text-gray-700 rounded">
-                                    {post.category.name}
-                                  </span>
+                                  {post.category && (
+                                    <>
+                                      <span>•</span>
+                                      <span className="px-2 py-0.5 bg-gray-100 text-gray-700 rounded">
+                                        {post.category.name}
+                                      </span>
+                                    </>
+                                  )}
                                   <span>•</span>
                                   <span className="flex items-center">
                                     <Calendar className="w-3 h-3 mr-1" />

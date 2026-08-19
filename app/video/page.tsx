@@ -14,11 +14,12 @@ interface Video {
   description: string;
   video_url: string;
   thumbnail_url: string;
+  // API ส่ง category เป็น null ได้ เมื่อวิดีโอยังไม่ถูกกำหนดประเด็น
   category: {
     id: number;
     name: string;
     slug: string;
-  };
+  } | null;
   created_at: string;
   view_count: number;
   duration: string;
@@ -163,7 +164,7 @@ export default function AllVideosPage() {
                         {video.description}
                       </p>
                       <div className="flex items-center justify-between text-xs text-gray-500">
-                        <span className="bg-gray-100 px-2 py-1 rounded-full">{video.category.name}</span>
+                        {video.category && <span className="bg-gray-100 px-2 py-1 rounded-full">{video.category.name}</span>}
                         <div className="flex items-center space-x-2">
                           <span>{video.view_count.toLocaleString()} ครั้ง</span>
                           <span>•</span>

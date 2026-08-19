@@ -14,7 +14,8 @@ interface Post {
   slug: string;
   content: string;
   author: string;
-  category: { id: number; name: string; slug: string };
+  // API ส่ง category เป็น null ได้ เมื่อโพสต์ยังไม่ถูกกำหนดประเด็น
+  category: { id: number; name: string; slug: string } | null;
   tags: Array<{ id: number; name: string; slug: string }>;
   featured_image_url?: string;
   created_at: string;
@@ -78,9 +79,11 @@ export default function PostContent({ post }: { post: Post }) {
                 <div className="absolute inset-0 flex items-end">
                   <div className="w-full p-6 md:p-8">
                     <div className="max-w-3xl">
-                      <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-500/20 text-yellow-100 border border-yellow-400/30 mb-4">
-                        {post.category.name}
-                      </span>
+                      {post.category && (
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-500/20 text-yellow-100 border border-yellow-400/30 mb-4">
+                          {post.category.name}
+                        </span>
+                      )}
                       <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-white mb-2 leading-tight drop-shadow-lg">
                         {post.title}
                       </h1>
@@ -135,9 +138,11 @@ export default function PostContent({ post }: { post: Post }) {
               <div className="relative w-full aspect-[1920/630] flex items-end">
                 <div className="w-full p-6 md:p-8">
                   <div className="max-w-3xl">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-500/20 text-yellow-100 border border-yellow-400/30 mb-4">
-                      {post.category.name}
-                    </span>
+                    {post.category && (
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-500/20 text-yellow-100 border border-yellow-400/30 mb-4">
+                        {post.category.name}
+                      </span>
+                    )}
                     <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-white mb-2 leading-tight drop-shadow-lg">
                       {post.title}
                     </h1>

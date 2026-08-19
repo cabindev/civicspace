@@ -15,11 +15,12 @@ interface Video {
   description: string;
   video_url: string;
   thumbnail_url: string;
+  // API ส่ง category เป็น null ได้ เมื่อวิดีโอยังไม่ถูกกำหนดประเด็น
   category: {
     id: number;
     name: string;
     slug: string;
-  };
+  } | null;
   created_at: string;
   view_count: number;
   duration: string;
@@ -137,12 +138,14 @@ export default function VideoDetailPage() {
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Video Header */}
           <div className="mb-6">
-            <Link
-              href={`/categories/${video.category.slug}`}
-              className="inline-block bg-yellow-100 text-yellow-800 text-sm px-3 py-1 rounded-full font-medium hover:bg-yellow-200 transition-colors mb-4"
-            >
-              {video.category.name}
-            </Link>
+            {video.category && (
+              <Link
+                href={`/categories/${video.category.slug}`}
+                className="inline-block bg-yellow-100 text-yellow-800 text-sm px-3 py-1 rounded-full font-medium hover:bg-yellow-200 transition-colors mb-4"
+              >
+                {video.category.name}
+              </Link>
+            )}
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
               {video.title}
             </h1>

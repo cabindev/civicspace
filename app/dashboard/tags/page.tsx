@@ -9,7 +9,9 @@ interface Tag {
   usage_count?: number;
 }
 
-const API_BASE = 'https://civicspace-gqdcg0dxgjbqe8as.southeastasia-01.azurewebsites.net/api/v1';
+// ต้องเรียกผ่าน proxy ภายในเสมอ ห้ามยิงไป Azure ตรงจากเบราว์เซอร์
+// เพราะ API ปลายทางไม่ส่ง header Access-Control-* กลับมา เบราว์เซอร์จะบล็อกด้วย CORS
+const API_BASE = '/api/tags';
 
 export default function TagsPage() {
   const [tags, setTags] = useState<Tag[]>([]);
@@ -22,7 +24,7 @@ export default function TagsPage() {
   const fetchTags = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${API_BASE}/tags/`);
+      const response = await fetch(API_BASE);
       const data = await response.json();
       
       setTags(data.results || data || []);

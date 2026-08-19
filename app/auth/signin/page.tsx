@@ -8,6 +8,15 @@ import Image from 'next/image';
 import { LogIn, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import Loading from '../../components/Loading';
 
+// อ่านปลายทางหลังล็อกอินจาก ?callbackUrl= ที่ middleware แนบมาให้
+// รับเฉพาะ relative path เท่านั้น และกัน protocol-relative (//evil.com) เพื่อไม่ให้กลายเป็น open redirect
+function getCallbackUrl(): string {
+  if (typeof window === 'undefined') return '/dashboard';
+  const raw = new URLSearchParams(window.location.search).get('callbackUrl');
+  if (raw && raw.startsWith('/') && !raw.startsWith('//')) return raw;
+  return '/dashboard';
+}
+
 export default function SignIn() {
   const { data: session } = useSession();
   const [email, setEmail] = useState<string>('');
@@ -19,7 +28,7 @@ export default function SignIn() {
 
   useEffect(() => {
     if (session) {
-      router.push('/dashboard');
+      router.push(getCallbackUrl());
     }
   }, [session, router]);
 
@@ -38,7 +47,7 @@ export default function SignIn() {
       if (result?.error) {
         setError('อีเมลหรือรหัสผ่านไม่ถูกต้อง');
       } else {
-        router.replace('/dashboard');
+        router.replace(getCallbackUrl());
       }
     } catch (error) {
       setError('เกิดข้อผิดพลาด โปรดลองอีกครั้ง');

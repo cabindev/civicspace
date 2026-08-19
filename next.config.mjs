@@ -2,38 +2,12 @@
 const nextConfig = {
   images: {
     unoptimized: true,
-    domains: ['localhost', 'civicspace.sdnthailand.com', 'civicblogs12.blob.core.windows.net'],
+    // Next.js 16: `images.domains` ถูกยกเลิก ใช้ `remotePatterns` แทน
+    // รายการด้านล่างครอบคลุมโฮสต์ชุดเดิมที่ `domains` เคยอนุญาต (ทุก path) จึงไม่เปลี่ยนพฤติกรรมเดิม
     remotePatterns: [
-      {
-        protocol: 'http',
-        hostname: 'localhost',
-        port: '3000',
-        pathname: '/uploads/**',
-      },
-      {
-        protocol: 'http', 
-        hostname: 'localhost',
-        port: '3000',
-        pathname: '/img/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'civicspace.sdnthailand.com',
-        port: '',
-        pathname: '/images/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'civicspace.sdnthailand.com',
-        port: '',
-        pathname: '/img/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'civicblogs12.blob.core.windows.net',
-        port: '',
-        pathname: '/media/**',
-      },
+      { protocol: 'http', hostname: 'localhost' },
+      { protocol: 'https', hostname: 'civicspace.sdnthailand.com' },
+      { protocol: 'https', hostname: 'civicblogs12.blob.core.windows.net' },
     ],
   },
 };

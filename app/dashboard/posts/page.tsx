@@ -12,15 +12,16 @@ interface Post {
   excerpt: string;
   view_count: number;
   created_at: string;
+  // API ส่ง category เป็น null ได้ เมื่อโพสต์ยังไม่ถูกกำหนดประเด็น
   category: {
     id: number;
     name: string;
-  };
+  } | null;
 }
 
-// Use API_BASE for API calls (no trailing "/posts/") and SITE_BASE for building public URLs.
-const API_BASE = 'https://civicspace-gqdcg0dxgjbqe8as.southeastasia-01.azurewebsites.net/api/v1/posts/';
-const SITE_BASE = API_BASE.replace('/api/v1', '');
+// ต้องเรียกผ่าน proxy ภายในเสมอ ห้ามยิงไป Azure ตรงจากเบราว์เซอร์
+// เพราะ API ปลายทางไม่ส่ง header Access-Control-* กลับมา เบราว์เซอร์จะบล็อกด้วย CORS ("Failed to fetch")
+const API_BASE = '/api/posts';
 
 export default function PostsPage() {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -109,7 +110,7 @@ export default function PostsPage() {
                   <div className="flex items-center space-x-2 mb-2">
                     <h3 className="text-xs font-medium text-gray-900 line-clamp-2">
                       <Link
-                        href={`${SITE_BASE}/posts/${post.slug}/`}
+                        href={`/post/${post.slug}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center space-x-2 hover:text-gray-900"

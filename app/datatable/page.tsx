@@ -24,11 +24,12 @@ interface Post {
   slug: string;
   content: string;
   author: string;
+  // API ส่ง category เป็น null ได้ เมื่อโพสต์ยังไม่ถูกกำหนดประเด็น
   category: {
     id: number;
     name: string;
     slug: string;
-  };
+  } | null;
   post_type?: {
     id: number;
     name: string;
@@ -142,13 +143,13 @@ export default function DataTablePage() {
       filtered = filtered.filter(post =>
         post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         post.author.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        post.category.name.toLowerCase().includes(searchTerm.toLowerCase())
+        (post.category?.name ?? '').toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
     // Filter by category
     if (selectedCategory !== 'all') {
-      filtered = filtered.filter(post => post.category.slug === selectedCategory);
+      filtered = filtered.filter(post => post.category?.slug === selectedCategory);
     }
 
     // Sort
@@ -158,8 +159,8 @@ export default function DataTablePage() {
 
       // Handle nested objects
       if (sortField === 'category') {
-        aValue = a.category.name;
-        bValue = b.category.name;
+        aValue = a.category?.name ?? '';
+        bValue = b.category?.name ?? '';
       }
 
       if (typeof aValue === 'string' && typeof bValue === 'string') {
@@ -192,7 +193,7 @@ export default function DataTablePage() {
     const excelData = filteredPosts.map((post, index) => ({
       'ลำดับ': index + 1,
       'ชื่อบทความ': post.title,
-      'หมวดหมู่': post.category.name,
+      'หมวดหมู่': post.category?.name ?? 'ไม่ระบุประเด็น',
       'ประเภท': post.post_type?.name || 'ไม่ระบุ',
       'การเข้าชม': post.view_count || 0,
       'เวลาอ่าน (นาที)': post.reading_time || 0,
@@ -249,8 +250,10 @@ export default function DataTablePage() {
   };
 
   // Get unique categories for filter from posts
-  const postCategories = Array.from(new Set(posts.map(post => post.category.slug)))
-    .map(slug => posts.find(post => post.category.slug === slug)?.category)
+  const postCategories = Array.from(
+    new Set(posts.map(post => post.category?.slug).filter((slug): slug is string => Boolean(slug)))
+  )
+    .map(slug => posts.find(post => post.category?.slug === slug)?.category)
     .filter(Boolean);
 
   const exportCategoriesToExcel = () => {
@@ -613,7 +616,7 @@ export default function DataTablePage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                          {post.category.name}
+                          {post.category?.name ?? 'ไม่ระบุประเด็น'}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">

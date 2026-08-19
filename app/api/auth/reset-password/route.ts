@@ -1,13 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
+import prisma from '@/app/lib/prisma';
 
-const prisma = new PrismaClient();
+const MIN_PASSWORD_LENGTH = 8;
 
 export async function POST(req: NextRequest) {
   try {
     const { token, password } = await req.json();
-    console.log('Received token:', token);
+
+    // reset token ใช้เปลี่ยนรหัสผ่านได้จริง จึงต้องไม่ถูก log ลงที่ใดทั้งสิ้น
+    if (!password || password.length < MIN_PASSWORD_LENGTH) {
+      return NextResponse.json(
+        { error: `รหัสผ่านต้องมีความยาวอย่างน้อย ${MIN_PASSWORD_LENGTH} ตัวอักษร` },
+        { status: 400 }
+      );
+    }
 
     const user = await prisma.user.findFirst({
       where: {
@@ -17,7 +24,6 @@ export async function POST(req: NextRequest) {
     });
 
     if (!user) {
-      console.log('User not found or token expired');
       return NextResponse.json({ error: 'รหัสยืนยันไม่ถูกต้องหรือหมดอายุแล้ว' }, { status: 400 });
     }
 
@@ -35,10 +41,8 @@ export async function POST(req: NextRequest) {
     });
 
     if (updatedUser) {
-      console.log('Password reset successful for user:', user.id);
       return NextResponse.json({ message: 'รีเซ็ตรหัสผ่านสำเร็จ' });
     } else {
-      console.log('Failed to update user');
       return NextResponse.json({ error: 'ไม่สามารถอัพเดทรหัสผ่านได้' }, { status: 500 });
     }
   } catch (error) {

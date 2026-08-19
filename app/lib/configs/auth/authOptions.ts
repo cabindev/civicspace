@@ -1,11 +1,10 @@
 // app/lib/configs/auth/authOptions.ts
 import { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import { PrismaClient, User as PrismaUser } from '@prisma/client';
+import { User as PrismaUser } from '@prisma/client';
 import bcrypt from "bcryptjs";
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
-
-const prisma = new PrismaClient();
+import prisma from '@/app/lib/prisma';
 
 interface Credentials {
   email: string;
@@ -82,6 +81,9 @@ const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   session: {
     strategy: 'jwt',
+    // อายุ session 1 วัน (เดิมใช้ค่า default ของ NextAuth คือ 30 วัน)
+    // สั้นลงเพื่อจำกัดเวลาที่สิทธิ์เก่าค้างอยู่ใน JWT หลังถูกถอด role หรือถูกลบบัญชี
+    maxAge: 24 * 60 * 60,
   },
   callbacks: {
     jwt: async ({ token, user }) => {
@@ -103,8 +105,13 @@ const authOptions: NextAuthOptions = {
       }
       return session;
     },
-    async redirect() {
-     return 'https://civicspace.sdnthailand.com/'
+    // ปล่อยให้ relative path และ URL ที่อยู่โดเมนเดียวกันผ่านได้
+    // ส่วน URL ภายนอกให้ตกกลับมาที่ baseUrl เพื่อกัน open redirect
+    // (พฤติกรรมเดียวกับ default ของ NextAuth — จำเป็นต่อ callbackUrl ของ signIn/signOut)
+    async redirect({ url, baseUrl }) {
+      if (url.startsWith('/')) return `${baseUrl}${url}`;
+      if (new URL(url).origin === baseUrl) return url;
+      return baseUrl;
     },
   },
 };

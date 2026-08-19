@@ -13,7 +13,8 @@ interface Post {
   content: string;
   author: string;
   excerpt?: string;
-  category: { id: number; name: string; slug: string };
+  // API ส่ง category เป็น null ได้ เมื่อโพสต์ยังไม่ถูกกำหนดประเด็น
+  category: { id: number; name: string; slug: string } | null;
   tags: Array<{ id: number; name: string; slug: string }>;
   featured_image_url?: string;
   created_at: string;
@@ -62,7 +63,7 @@ export async function generateMetadata(
       publishedTime: post.created_at,
       modifiedTime: post.updated_at,
       authors: [post.author],
-      section: post.category.name,
+      section: post.category?.name,
       images: post.featured_image_url
         ? [{ url: post.featured_image_url, alt: post.title }]
         : [],

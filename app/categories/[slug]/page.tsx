@@ -201,7 +201,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
                   return (
                     <Link 
                       key={post.id} 
-                      href={`/posts/${post.slug}`}
+                      href={`/post/${post.slug}`}
                       className="group"
                     >
                       <article className="rounded-xl overflow-hidden transition-all duration-300 group-hover:scale-105 hover:shadow-lg break-inside-avoid mb-4 group-hover:rotate-1">

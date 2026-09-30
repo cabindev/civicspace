@@ -114,6 +114,28 @@ export function getCategories() {
 }
 
 /**
+ * /categories/{slug}/posts/ ตอบ {category, posts} และ /categories/{slug}/videos/ ตอบ {category, videos}
+ */
+async function fetchCategoryList<T>(slug: string, kind: 'posts' | 'videos'): Promise<T[]> {
+  try {
+    const data = await fetchJson(`/categories/${encodeURIComponent(slug)}/${kind}/`, kind);
+    const list = (data as Record<string, unknown>)?.[kind];
+    return Array.isArray(list) ? (list as T[]) : toArray<T>(data);
+  } catch (error) {
+    console.error('[homeData]', error);
+    return [];
+  }
+}
+
+export function getCategoryPosts(slug: string) {
+  return fetchCategoryList<Post>(slug, 'posts');
+}
+
+export function getCategoryVideos(slug: string) {
+  return fetchCategoryList<Video>(slug, 'videos');
+}
+
+/**
  * ยอดรวมทั้งหมดคำนวณจาก /categories/ ซึ่งมี post_count / video_count / survey_count
  * มาให้ครบอยู่แล้ว (~0.5 วินาที, 3 KB)
  *

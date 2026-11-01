@@ -8,7 +8,7 @@ export default function JourneyFallback() {
   return (
     <section className="bg-[#f3eee6]">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 py-10 sm:py-14 space-y-6">
-        <div className="relative aspect-[14/9] rounded-xl overflow-hidden bg-stone-300">
+        <div className="relative aspect-[14/9] rounded-xl overflow-hidden bg-gray-200">
           <Image
             src="/last-journey/fallback-coffin.png"
             alt="หีบศพสีขาวลายทองแบบไทย"

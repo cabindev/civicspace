@@ -86,7 +86,7 @@ export default function JourneyScroll() {
       }
 
       // reduced-motion: ไม่ไหลต่อเนื่อง กระโดดไปท่าสุดท้ายของขั้นปัจจุบัน
-      if (scene && visible) scene.render(reduce ? snapToStage(p) : p);
+      if (scene && visible) scene.render(reduce ? snapToStage(p) : p, !reduce);
       updateOverlay();
 
       // เครื่องที่วาดไม่ทัน (เกิน 24ms ต่อเฟรมเกือบตลอด) ลดความละเอียดลงเหลือ 1x
@@ -103,7 +103,9 @@ export default function JourneyScroll() {
         }
       }
 
-      if (p !== target) raf = requestAnimationFrame(tick);
+      // ไฟในเตา (ท้ายเรื่อง) กะพริบเอง → วาดต่อเนื่องเฉพาะตอนเห็นฉากนั้นอยู่
+      const burning = !reduce && visible && !!scene?.needsFrames(p);
+      if (p !== target || burning) raf = requestAnimationFrame(tick);
       else last = 0;
     };
 
@@ -156,11 +158,12 @@ export default function JourneyScroll() {
         scene = created;
         const rect = sticky.getBoundingClientRect();
         created.resize(rect.width, rect.height);
-        created.render(reduce ? snapToStage(p) : p);
+        created.render(reduce ? snapToStage(p) : p, !reduce);
         setStatus('ready');
+        kick();
       })
       .catch((error) => {
-        console.error('[last-journey] 3D scene failed', error);
+        console.error('[farewell/journey] 3D scene failed', error);
         if (!disposed) setStatus('failed');
       });
 
@@ -216,7 +219,7 @@ export default function JourneyScroll() {
       <section ref={sectionRef} aria-label="เส้นทางสุดท้าย ภาพเคลื่อนไหวตามการเลื่อนหน้า" className="relative -mt-16 h-[520svh] md:h-[600svh]">
         <a
           href="#learn"
-          className="sr-only focus:not-sr-only focus:absolute focus:top-20 focus:left-3 focus:z-30 focus:px-4 focus:py-2 focus:rounded-md focus:bg-gray-900 focus:text-white focus:text-sm"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-20 focus:left-3 focus:z-30 focus:px-4 focus:py-2 focus:rounded-md focus:bg-gray-800 focus:text-white focus:text-sm"
         >
           ข้ามไปอ่านเนื้อหา
         </a>
@@ -225,7 +228,7 @@ export default function JourneyScroll() {
           {/* ระหว่างรอ 3D โหลด (ไม่ใช้ภาพนิ่งหีบปิดฝา เพราะขั้นแรกเป็นหีบเปิด ภาพจะกระโดด) */}
           <p
             aria-hidden="true"
-            className={`absolute right-6 bottom-6 md:right-10 text-xs text-stone-500 transition-opacity duration-500 max-md:top-28 max-md:bottom-auto max-md:inset-x-0 max-md:text-center ${
+            className={`absolute right-6 bottom-6 md:right-10 text-xs text-gray-500 transition-opacity duration-500 max-md:top-28 max-md:bottom-auto max-md:inset-x-0 max-md:text-center ${
               status === 'ready' ? 'opacity-0' : 'opacity-100 motion-safe:animate-pulse'
             }`}
           >
@@ -240,12 +243,13 @@ export default function JourneyScroll() {
             }`}
           />
 
-          {/* การ์ดข้อความ: มือถืออยู่ล่าง จอใหญ่อยู่ซ้าย */}
+          <div aria-hidden="true" className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_62%_38%,transparent_30%,rgba(35,26,18,0.28)_100%)]" />
+          {/* ข้อความโปสเตอร์: มือถืออยู่ล่าง จอใหญ่อยู่ซ้าย */}
           <div
             aria-hidden="true"
-            className="absolute inset-x-4 bottom-[max(16px,env(safe-area-inset-bottom))] md:inset-x-auto md:bottom-auto md:left-10 md:top-1/2 md:-translate-y-1/2 md:w-[380px] grid items-end md:items-center"
+            className="absolute inset-x-6 bottom-[max(20px,env(safe-area-inset-bottom))] md:inset-x-auto md:bottom-auto md:left-[4vw] md:top-1/2 md:-translate-y-1/2 md:w-[39vw] md:max-w-[580px] grid items-end md:items-center before:absolute before:-inset-x-6 before:-top-10 before:-bottom-6 before:bg-gradient-to-t before:from-[#e9e4dc] before:via-[#e9e4dc]/95 before:to-transparent before:pointer-events-none md:before:hidden"
           >
-            {STAGE_COPY.map((copy, index) => (
+            {STAGE_COPY.slice(0, 5).map((copy, index) => (
               <div
                 key={copy.label}
                 ref={(el) => {
@@ -259,10 +263,18 @@ export default function JourneyScroll() {
             ))}
           </div>
 
+          <div
+            ref={(el) => { cardRefs.current[5] = el; }}
+            className="absolute inset-0 flex items-center justify-center px-6 pt-20 pb-8 bg-[#141515]/75 text-center will-change-[opacity,transform]"
+            style={{ opacity: 0, visibility: 'hidden' }}
+          >
+            <StageCard copy={STAGE_COPY[5]} index={5} dark overlay />
+          </div>
+
           {/* จุดบอกขั้น: มือถืออยู่บน จอใหญ่อยู่ขวา */}
           <nav
             aria-label="ขั้นของเส้นทาง"
-            className="absolute top-[76px] inset-x-0 flex justify-center gap-1 md:inset-x-auto md:top-1/2 md:right-5 md:-translate-y-1/2 md:flex-col"
+            className="absolute top-[64px] inset-x-0 flex justify-center gap-0 md:inset-x-auto md:top-1/2 md:right-3 md:-translate-y-1/2 md:flex-col"
           >
             {STAGE_COPY.map((copy, index) => (
               <button
@@ -271,13 +283,14 @@ export default function JourneyScroll() {
                 onClick={() => goTo(index)}
                 aria-label={`ขั้นที่ ${index + 1}: ${copy.label}`}
                 aria-current={stage === index ? 'step' : undefined}
-                className="group w-7 h-7 flex items-center justify-center rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-yellow-500"
+                title={copy.label}
+                className="group w-11 h-11 flex items-center justify-center rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-gray-900"
               >
                 <span
                   className={`block rounded-full transition-all duration-300 ${
                     stage === index
-                      ? `w-2.5 h-2.5 ${dark ? 'bg-amber-300' : 'bg-gray-900'}`
-                      : `w-2 h-2 ${dark ? 'bg-amber-50/40 group-hover:bg-amber-50/70' : 'bg-gray-900/25 group-hover:bg-gray-900/50'}`
+                      ? `w-2.5 h-2.5 ${dark ? 'bg-gray-700' : 'bg-gray-900'}`
+                      : `w-2 h-2 ${dark ? 'bg-white/40 group-hover:bg-white/70' : 'bg-gray-900/25 group-hover:bg-gray-900/50'}`
                   }`}
                 />
               </button>

@@ -1,7 +1,20 @@
 // app/farewell/journey/components/StageCard.tsx
 // การ์ดข้อความของแต่ละขั้น ใช้ทั้งบนภาพ 3D และในหน้าสำรอง (ไม่มี WebGL)
-import { ArrowDown } from 'lucide-react';
+import { ArrowDown, ArrowRight } from 'lucide-react';
+import Image from 'next/image';
 import type { StageCopy } from '../content';
+import styles from './StageCard.module.css';
+
+/** หัวข้อบนภาพ 3D แยกบรรทัดพร้อมขนาด: sm เล็ก · md กลาง · xl คำหลัก (สีเน้น) · pill แถบดำ (วลีปิดท้าย) */
+type LineRole = 'sm' | 'md' | 'xl' | 'pill';
+const POSTER_LINES: [string, LineRole][][] = [
+  [['เส้นทาง', 'sm'], ['สุดท้าย', 'xl']],
+  [['ร่วมส่ง', 'sm'], ['ผู้วายชนม์', 'xl'], ['ครั้งสุดท้าย', 'pill']],
+  [['ไม่ได้อยากจัดใหญ่', 'sm'], ['แต่กลัว', 'md'], ['สายตาคน', 'xl']],
+  [['เหล้าคือต้นทุน', 'md'], ['ที่ตัดได้', 'xl'], ['โดยไม่เสียน้ำใจ', 'sm']],
+  [['ส่งคนที่รัก', 'sm'], ['ด้วยใจ', 'xl'], ['ไม่ใช่ด้วยหนี้', 'pill']],
+  [['ความสูญเสีย', 'sm'], ['ครั้งเดียว', 'xl'], ['ไม่ควรกลายเป็นหนี้', 'md'], ['ของคนที่ยังอยู่', 'sm']],
+];
 
 interface StageCardProps {
   copy: StageCopy;
@@ -13,30 +26,34 @@ interface StageCardProps {
 
 export default function StageCard({ copy, index, dark = false, overlay = false }: StageCardProps) {
   const Heading = index === 0 && !overlay ? 'h1' : 'h2';
-  const tab = overlay ? -1 : undefined;
+  const tab = overlay && index !== 5 ? -1 : undefined;
 
   return (
     <div
-      className={`rounded-xl border px-5 py-4 sm:px-6 sm:py-5 shadow-lg backdrop-blur-md transition-colors duration-500 ${
-        dark ? 'bg-stone-900/85 border-stone-700/60 text-amber-50' : 'bg-white/85 border-white/70 text-gray-900'
+      className={overlay ? `${styles.poster} ${index === 5 ? styles.finale : ''}` : `rounded-2xl border px-5 py-4 sm:px-7 sm:py-7 shadow-[0_16px_60px_-30px_rgba(40,30,20,0.35)] backdrop-blur-xl transition-colors duration-500 ${
+        dark ? 'bg-[#24221f]/95 border-white/10 text-white' : 'bg-[#fffdf8]/95 border-white/70 text-gray-900'
       }`}
     >
-      {copy.eyebrow && (
-        <p className={`text-xs font-medium mb-2 ${dark ? 'text-amber-300' : 'text-yellow-800'}`}>{copy.eyebrow}</p>
+      {overlay && <div className={styles.masthead}>
+        <p>ส่งด้วยใจ · 0{index + 1} / 06</p>
+        <Image src="/farewell/logorip.png" alt="งานศพปลอดเหล้า" width={48} height={41} className="rounded bg-white p-1" />
+      </div>}
+      {copy.eyebrow && !overlay && (
+        <p className={`text-xs font-medium mb-2 ${dark ? 'text-gray-400' : 'text-gray-900'}`}>{copy.eyebrow}</p>
       )}
-      <Heading className={`font-bold leading-snug ${index === 0 ? 'text-3xl sm:text-4xl mb-3' : 'text-lg sm:text-xl mb-2'}`}>
-        {copy.title}
+      <Heading className={overlay ? styles.headline : `font-bold leading-snug text-balance ${index === 0 ? 'text-3xl sm:text-4xl mb-3' : 'text-lg sm:text-2xl mb-3'}`}>
+        {overlay ? POSTER_LINES[index].map(([line, role]) => <span key={line} className={styles[role]}>{line}</span>) : copy.title}
       </Heading>
       {copy.body && (
-        <p className={`text-[15px] sm:text-base leading-relaxed ${dark ? 'text-amber-50/90' : 'text-gray-700'}`}>{copy.body}</p>
+        <p className={overlay ? styles.body : `text-[15px] sm:text-base leading-relaxed ${dark ? 'text-gray-100' : 'text-gray-700'}`}>{copy.body}</p>
       )}
       {copy.quote && (
-        <blockquote className={`mt-3 border-l-2 pl-3 text-[15px] ${dark ? 'border-amber-300/70' : 'border-yellow-500'}`}>
+        <blockquote className={overlay ? styles.quote : `mt-3 border-l-2 pl-3 text-[15px] ${dark ? 'border-gray-500' : 'border-gray-900'}`}>
           “{copy.quote.text}”
-          <footer className={`mt-1 text-xs ${dark ? 'text-amber-100/70' : 'text-gray-500'}`}>{copy.quote.by}</footer>
+          <footer className={overlay ? styles.note : `mt-1 text-xs ${dark ? 'text-gray-300' : 'text-gray-500'}`}>{copy.quote.by}</footer>
         </blockquote>
       )}
-      {copy.note && <p className={`mt-3 text-xs ${dark ? 'text-amber-100/70' : 'text-gray-500'}`}>{copy.note}</p>}
+      {copy.note && <p className={overlay ? styles.note : `mt-3 text-xs ${dark ? 'text-gray-300' : 'text-gray-500'}`}>{copy.note}</p>}
       {index === 0 && overlay && (
         <p data-hint className="mt-4 inline-flex items-center gap-2 text-sm text-gray-600 transition-opacity duration-300">
           <ArrowDown className="w-4 h-4 motion-safe:animate-bounce" />
@@ -45,14 +62,12 @@ export default function StageCard({ copy, index, dark = false, overlay = false }
       )}
       {index === 5 && (
         <a
-          href="#learn"
+          href="/farewell/plan"
           tabIndex={tab}
-          className={`mt-4 inline-flex items-center gap-2 min-h-10 px-4 rounded-md text-sm font-medium transition-colors ${
-            dark ? 'bg-amber-300 text-stone-900 hover:bg-amber-200' : 'bg-gray-900 text-white hover:bg-gray-700'
-          }`}
+          className="mt-4 inline-flex items-center gap-2 min-h-11 px-5 rounded-full bg-gray-900 text-sm font-semibold text-white hover:bg-gray-700"
         >
-          เรียนรู้วิธีจัดงานแบบเรียบง่าย
-          <ArrowDown className="w-4 h-4" />
+          เริ่มวางแผนงานศพ
+          <ArrowRight className="w-4 h-4" />
         </a>
       )}
     </div>

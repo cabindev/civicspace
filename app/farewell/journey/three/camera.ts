@@ -58,7 +58,7 @@ export function getRig(width: number, height: number): ViewportRig {
     : Math.max(fitDistance(2.3, fovA, aspect, 0.5), fitHeight(1.7, fovA, 0.5));
 
   const targetA: Vec3 = [0, 0.66, 0];
-  const elevation = (portrait ? 24 : 21) * deg;
+  const elevation = (portrait ? 30 : 27) * deg;
   const a = (azimuth: number): CameraKey => ({
     pos: [
       targetA[0] + Math.sin(azimuth) * Math.cos(elevation) * distanceA,
@@ -72,13 +72,13 @@ export function getRig(width: number, height: number): ViewportRig {
   if (portrait) {
     return {
       kind,
-      shift: [0, 0.16],
+      shift: [0, 0.12],
       distanceA,
       a,
-      b: { pos: [-0.6, 2.8, 5.6], target: [0, 0.85, -4.3], fov: 44 },
-      b2: { pos: [-0.35, 1.9, 1.7], target: [0, 0.9, -4.6], fov: 44 },
-      c: { pos: [0, 1.35, 0.3], target: [0, 0.95, -4], fov: 44 },
-      c2: { pos: [0, 1.3, -0.2], target: [0, 0.95, -4], fov: 44 },
+      b: { pos: [-0.6, 2.8, 5.6], target: [0, 0.85, -4.3], fov: 52 },
+      b2: { pos: [-0.35, 1.9, 1.7], target: [0, 0.9, -4.6], fov: 50 },
+      c: { pos: [0, 1.35, 1.3], target: [0, 0.95, -4], fov: 44 },
+      c2: { pos: [0, 1.3, 1.1], target: [0, 0.95, -4], fov: 44 },
     };
   }
 
@@ -89,7 +89,7 @@ export function getRig(width: number, height: number): ViewportRig {
     a,
     b: { pos: [-0.9, 2.4, 4.4], target: [0, 0.85, -4.3], fov: 34 },
     b2: { pos: [-0.55, 1.6, 0.5], target: [0, 0.9, -4.6], fov: 34 },
-    c: { pos: [-0.1, 1.3, -0.6], target: [0, 0.9, -4], fov: 36 },
-    c2: { pos: [0, 1.25, -0.95], target: [0, 0.9, -4], fov: 36 },
+    c: { pos: [-0.1, 1.3, 0], target: [0, 0.9, -4], fov: 36 },
+    c2: { pos: [0, 1.25, -0.25], target: [0, 0.9, -4], fov: 36 },
   };
 }

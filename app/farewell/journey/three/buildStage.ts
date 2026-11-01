@@ -9,6 +9,7 @@ export interface StageParts {
   group: THREE.Group;
   hemi: THREE.HemisphereLight;
   key: THREE.DirectionalLight;
+  rim: THREE.DirectionalLight;
 }
 
 /** รางห่างกัน 0.62 ตรงกับล้อรถเข็น */
@@ -25,16 +26,8 @@ export function buildStage(tex: JourneyTextures): StageParts {
   );
   floor.rotation.x = -Math.PI / 2;
   floor.position.z = -4;
+  floor.receiveShadow = true;
   group.add(floor);
-
-  // แท่นหมุนที่หีบหันตัวในขั้นที่ 2
-  const turntable = new THREE.Mesh(
-    new THREE.CircleGeometry(1.2, 48),
-    new THREE.MeshStandardMaterial({ color: '#8f877a', roughness: 0.7, metalness: 0.1 }),
-  );
-  turntable.rotation.x = -Math.PI / 2;
-  turntable.position.y = 0.001;
-  group.add(turntable);
 
   // รางเหล็กฝังในร่องพื้นจากแท่นหมุนเข้าไปในเตา
   const start = -0.9;
@@ -57,10 +50,23 @@ export function buildStage(tex: JourneyTextures): StageParts {
   );
   group.add(groove, rails);
 
-  const hemi = new THREE.HemisphereLight('#fff7ea', '#3a3530', 1.1);
-  const key = new THREE.DirectionalLight('#ffffff', 2.2);
-  key.position.set(-2.5, 4, 3.5);
-  group.add(hemi, key);
+  const hemi = new THREE.HemisphereLight('#c4d5e3', '#302720', 0.45);
+  const key = new THREE.DirectionalLight('#ffe0ac', 3.5);
+  key.position.set(-3.5, 4.5, 2.5);
+  const rim = new THREE.DirectionalLight('#a6cce8', 2.4);
+  rim.position.set(3, 3, -5);
+  rim.target.position.set(0, 0.8, -1.5);
+  key.castShadow = true;
+  key.shadow.mapSize.set(1024, 1024);
+  key.shadow.camera.left = -4;
+  key.shadow.camera.right = 4;
+  key.shadow.camera.top = 4;
+  key.shadow.camera.bottom = -7;
+  key.shadow.camera.far = 20;
+  key.shadow.normalBias = 0.025;
+  key.shadow.bias = -0.0002;
+  key.shadow.radius = 4;
+  group.add(hemi, key, rim, rim.target);
 
-  return { group, hemi, key };
+  return { group, hemi, key, rim };
 }

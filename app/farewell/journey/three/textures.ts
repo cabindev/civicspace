@@ -1,10 +1,10 @@
 // app/farewell/journey/three/textures.ts
 // texture ทั้งหมดของฉาก
-// - ลายทองบนหีบมาจากรูปอ้างอิงของผู้ใช้ (public/last-journey/textures)
+// - ลายทองบนหีบมาจากรูปอ้างอิงของผู้ใช้ (public/farewell/textures)
 // - เหล็ก อิฐ ปูน กระเบื้อง วาดด้วย canvas เพื่อไม่ต้องโหลดไฟล์เพิ่ม (ใช้ seed คงที่ ภาพจึงเหมือนเดิมทุกครั้ง)
 import * as THREE from 'three';
 
-const BASE = '/last-journey/textures';
+const BASE = '/last-journey/textures'; // civicspace เก็บ texture ไว้ที่ public/last-journey (ไฟล์เดียวกับ stopdrinknetwork)
 
 function rng(seed: number) {
   return () => {

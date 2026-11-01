@@ -119,3 +119,21 @@
     @apply text-sm text-yellow-700;
   }
 }
+/* แถบวิดีโอเลื่อนวนบนหน้าแรก (app/components/home/LatestVideosSection.tsx)
+   รายการถูกวาง 2 ชุดต่อกัน เลื่อนไป 50% = ชุดที่สองมาแทนที่ชุดแรกพอดี จึงวนได้ไม่สะดุด */
+@keyframes reel-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.reel-track {
+  animation: reel-scroll var(--reel-duration, 70s) linear infinite;
+}
+.reel:hover .reel-track,
+.reel:focus-within .reel-track {
+  animation-play-state: paused;
+}
+@media (prefers-reduced-motion: reduce) {
+  .reel { overflow-x: auto; }
+  .reel-track { animation: none; }
+  .reel-track [data-reel-copy] { display: none; }
+}

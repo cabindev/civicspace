@@ -151,6 +151,7 @@ export default function LifeCycle() {
           <div className="flex-1 space-y-3 sm:space-y-4">
             {ageData.map((item, index) => {
               const widthPercent = (item.days / maxDays) * 100;
+              const labelInside = widthPercent > 60;
               const isHovered = hoveredIndex === index;
               const isDimmed = hoveredIndex !== null && hoveredIndex !== index;
 
@@ -207,18 +208,19 @@ export default function LifeCycle() {
                         backgroundColor: { duration: 0.3 },
                       }}
                     />
-                    {/* Days count - follows bar edge */}
+                    {/* Days count - follows bar edge
+                        แท่งยาว (> 60%) วางป้ายไว้ "ในแท่ง" ชิดขวา — ถ้าวางข้างนอกจะล้นจอมือถือ (หน้าเลื่อนซ้ายขวาได้) */}
                     <motion.div
-                      className="absolute inset-y-0 flex items-center whitespace-nowrap"
-                      style={{ left: `${widthPercent}%` }}
+                      className={`absolute inset-y-0 flex items-center whitespace-nowrap ${labelInside ? 'pr-3' : ''}`}
+                      style={labelInside ? { right: `${100 - widthPercent}%` } : { left: `${widthPercent}%` }}
                       initial={{ opacity: 0 }}
                       animate={isInView ? { opacity: 1 } : {}}
                       transition={{ duration: 0.4, delay: 1.2 + index * 0.15 }}
                     >
-                      <span className={`font-bold text-sm sm:text-base tabular-nums ml-3 transition-colors duration-300 ${isHovered ? 'text-yellow-700' : 'text-gray-800'} ${kanit.className}`}>
+                      <span className={`font-bold text-sm sm:text-base tabular-nums ${labelInside ? '' : 'ml-3'} transition-colors duration-300 ${labelInside ? 'text-white' : isHovered ? 'text-yellow-700' : 'text-gray-800'} ${kanit.className}`}>
                         ≈<AnimatedNumber value={item.days} inView={isInView} />
                       </span>
-                      <span className={`text-xs sm:text-sm ml-1 transition-colors duration-300 ${isHovered ? 'text-yellow-600' : 'text-gray-500'} ${kanit.className}`}>วัน / days</span>
+                      <span className={`text-xs sm:text-sm ml-1 transition-colors duration-300 ${labelInside ? 'text-white/80' : isHovered ? 'text-yellow-600' : 'text-gray-500'} ${kanit.className}`}>วัน / days</span>
                     </motion.div>
 
                     {/* Hover tooltip */}

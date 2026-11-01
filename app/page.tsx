@@ -5,7 +5,8 @@ import { Suspense } from 'react';
 import Navbar from './components/Navbar';
 import { Footer } from './components/Footer';
 import LifeCycle from './components/LifeCycle';
-import HeroStats, { HeroStatsSkeleton } from './components/home/HeroStats';
+import HomeHero from './components/home/HomeHero';
+import LifeJourney, { LifeJourneySkeleton } from './components/home/LifeJourney';
 import LatestPostsSection, { LatestPostsSkeleton } from './components/home/LatestPostsSection';
 import LatestVideosSection, { LatestVideosSkeleton } from './components/home/LatestVideosSection';
 import SurveysSection from './components/home/SurveysSection';
@@ -22,28 +23,13 @@ export default function HomePage() {
       {/* LifeCycle Section - renders immediately, no API dependency */}
       <LifeCycle />
 
-      {/* Hero Section */}
-      <section className="bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
-          <div className="text-center">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4 sm:mb-6">
-              CivicSpace
-            </h1>
-            <p className="text-base sm:text-lg md:text-xl text-gray-600 mb-8 sm:mb-12 max-w-3xl mx-auto leading-relaxed px-4">
-              Resource hub for articles and research
-              <br className="hidden sm:block" />
-              <span className="font-semibold">
-                Civic space for collaborative solutions to alcohol issues
-              </span>
-            </p>
+      {/* เปิดเรื่อง: จาก "เวลาที่เหลือ" สู่ "ทุกช่วงชีวิตมีทางออก" + ตัวเลขจริง */}
+      <HomeHero />
 
-            {/* Stats — สตรีมเข้ามาทีหลัง ไม่บล็อกส่วนอื่นของหน้า */}
-            <Suspense fallback={<HeroStatsSkeleton />}>
-              <HeroStats />
-            </Suspense>
-          </div>
-        </div>
-      </section>
+      {/* เส้นทางชีวิต 3 ช่วง — แก่นของเว็บ พาเข้าหน้าประเด็น */}
+      <Suspense fallback={<LifeJourneySkeleton />}>
+        <LifeJourney />
+      </Suspense>
 
       {/* แต่ละ section ดึงข้อมูลของตัวเองแบบขนาน ส่วนไหนพร้อมก่อนแสดงก่อน */}
       <Suspense fallback={<LatestPostsSkeleton />}>

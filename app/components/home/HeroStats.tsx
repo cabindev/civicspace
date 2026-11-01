@@ -1,45 +1,51 @@
-// app/components/home/HeroStats.tsx
-import { getPopularPosts, getSiteStats } from '@/app/lib/homeData';
+// app/components/home/HeroStats.tsx — ตัวเลขรวมจาก CivicSpace API (จาก /categories/ ที่นับให้แล้ว)
+// เดิมมี "Total Views" ที่รวมแค่ยอดอ่านของโพสต์ยอดนิยม 4 รายการ — ตัวเลขชวนเข้าใจผิด จึงเอาออก
+import { getSiteStats } from '@/app/lib/homeData';
+import { CountUp } from './Motion';
 
-function Stat({ value, label }: { value: number; label: string }) {
+const ITEMS = [
+  { key: 'posts', label: 'เรื่องเล่าและบทความ' },
+  { key: 'videos', label: 'วิดีโอจากพื้นที่' },
+  { key: 'surveys', label: 'แบบสำรวจ' },
+  { key: 'categories', label: 'ประเด็นที่ทำงาน' },
+] as const;
+
+function Shell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="p-4 sm:p-6">
-      <div className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-2 tabular-nums">
-        {value.toLocaleString()}
-      </div>
-      <div className="text-gray-600 text-xs sm:text-sm font-medium">{label}</div>
-    </div>
+    <dl className="grid grid-cols-2 lg:grid-cols-4 gap-px overflow-hidden rounded-2xl bg-white/10 ring-1 ring-white/10 max-w-4xl mx-auto">
+      {children}
+    </dl>
   );
 }
 
 export function HeroStatsSkeleton() {
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 sm:gap-6 max-w-6xl mx-auto">
-      {Array.from({ length: 5 }).map((_, i) => (
-        <div key={i} className="p-4 sm:p-6">
-          <div className="h-9 sm:h-11 md:h-12 mb-2 mx-auto w-24 rounded bg-gray-100 animate-pulse" />
-          <div className="h-4 mx-auto w-20 rounded bg-gray-100 animate-pulse" />
+    <Shell>
+      {ITEMS.map((item) => (
+        <div key={item.key} className="bg-stone-900/80 px-4 py-5 sm:py-6">
+          <div className="h-9 sm:h-10 w-20 mx-auto rounded bg-white/10 animate-pulse" />
+          <div className="h-3 w-24 mx-auto mt-3 rounded bg-white/10 animate-pulse" />
         </div>
       ))}
-    </div>
+    </Shell>
   );
 }
 
 export default async function HeroStats() {
-  const [stats, popularPosts] = await Promise.all([
-    getSiteStats(),
-    getPopularPosts(4),
-  ]);
-
-  const totalViews = popularPosts.reduce((sum, post) => sum + post.view_count, 0);
+  const stats = await getSiteStats();
+  // API ล่ม = getCategories() คืน [] → ทุกค่าเป็น 0 ซ่อนทั้งแถบดีกว่าโชว์เลข 0
+  if (ITEMS.every((item) => !stats[item.key])) return null;
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 sm:gap-6 max-w-6xl mx-auto">
-      <Stat value={stats.posts} label="Total Posts" />
-      <Stat value={stats.videos} label="Videos" />
-      <Stat value={stats.categories} label="Categories" />
-      <Stat value={stats.surveys} label="Surveys" />
-      <Stat value={totalViews} label="Total Views" />
-    </div>
+    <Shell>
+      {ITEMS.map((item) => (
+        <div key={item.key} className="flex flex-col-reverse bg-stone-900/80 px-4 py-5 sm:py-6 text-center">
+          <dt className="mt-1 text-xs sm:text-sm text-stone-400">{item.label}</dt>
+          <dd className="text-3xl sm:text-4xl font-bold text-white">
+            <CountUp value={stats[item.key]} />
+          </dd>
+        </div>
+      ))}
+    </Shell>
   );
 }

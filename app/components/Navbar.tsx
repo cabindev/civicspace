@@ -1,9 +1,64 @@
 'use client';
 
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useSession, signOut } from 'next-auth/react';
-import { BarChart3, LogIn, LogOut, Home, User } from 'lucide-react';
+import { BarChart3, LogIn, LogOut, Home, User, Layers, ChevronDown } from 'lucide-react';
+import { ISSUE_GROUPS } from '../lib/issues';
+
+function IssuesMenu() {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const close = (event: MouseEvent) => {
+      if (!ref.current?.contains(event.target as Node)) setOpen(false);
+    };
+    document.addEventListener('mousedown', close);
+    return () => document.removeEventListener('mousedown', close);
+  }, [open]);
+
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        aria-expanded={open}
+        className="inline-flex items-center px-2 sm:px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors"
+      >
+        <Layers className="w-4 h-4 sm:mr-2" />
+        <span className="hidden sm:inline">ประเด็น</span>
+        <ChevronDown className={`w-3 h-3 ml-1 transition-transform ${open ? 'rotate-180' : ''}`} />
+      </button>
+
+      {open && (
+        <div className="absolute right-0 sm:left-0 sm:right-auto mt-2 w-72 bg-white rounded-lg shadow-xl border border-gray-200 z-30 py-2">
+          {ISSUE_GROUPS.map((group, index) => (
+            <Link
+              key={group.key}
+              href={`/issues/${group.key}`}
+              onClick={() => setOpen(false)}
+              className="block px-4 py-2.5 hover:bg-yellow-50 transition-colors"
+            >
+              <span className="block text-[11px] text-yellow-700">{index + 1} · {group.stage}</span>
+              <span className="block text-sm font-medium text-gray-900">{group.title}</span>
+              <span className="block text-xs text-gray-500">{group.menuHint}</span>
+            </Link>
+          ))}
+          <Link
+            href="/issues"
+            onClick={() => setOpen(false)}
+            className="block px-4 pt-2 mt-1 border-t border-gray-100 text-xs font-medium text-gray-600 hover:text-gray-900"
+          >
+            ดูภาพรวมทุกประเด็น
+          </Link>
+        </div>
+      )}
+    </div>
+  );
+}
 
 interface NavbarProps {
   showDashboardLink?: boolean;
@@ -42,6 +97,8 @@ function Navbar({ showDashboardLink = true, showHomeLink = false }: NavbarProps)
           
           {/* Navigation Links */}
           <div className="flex items-center space-x-2 sm:space-x-4">
+            <IssuesMenu />
+
             {/* Home Link (for dashboard page) */}
             {showHomeLink && (
               <Link href="/" className="inline-flex items-center px-2 sm:px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors">

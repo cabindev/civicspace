@@ -40,3 +40,6 @@ next-env.d.ts
 !/public/uploads/.gitkeep
 /public/img/*
 !/public/img/.gitkeep
+
+# ไฟล์แนบของงาน (นำเข้า/อัปโหลด) — ไม่เก็บใน git และห้ามอยู่ใน public/
+/uploads

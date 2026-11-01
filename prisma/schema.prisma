@@ -31,3 +31,195 @@ enum Role {
   MEMBER
   PENDING
 }
+
+// ---------------------------------------------------------------------------
+// งานในพื้นที่ (Works) — โครงสร้างเดียวกับ Activity ของ stopdrinknetwork เพื่อยกโค้ดแผนที่/กรณีศึกษามาใช้ได้
+// ชุดแรกนำเข้าจากงานประเด็น "Civic Space" ที่ stopdrinknetwork ซ่อนไว้ (scripts/import-stopdrink-works.mjs)
+// ผู้เขียนเก็บเป็น snapshot ชื่อ/อีเมล ไม่ผูก User เพราะบัญชีของสองระบบเป็นคนละชุด
+// ---------------------------------------------------------------------------
+
+enum PolicyLevel {
+  VILLAGE
+  SUBDISTRICT
+  DISTRICT
+  PROVINCE
+  NATIONAL
+}
+
+enum DatePrecision {
+  DAY
+  YEAR
+}
+
+enum AreaScope {
+  VILLAGE
+  SUBDISTRICT
+  DISTRICT
+  PROVINCE
+}
+
+enum ActivityStatus {
+  PLANNING
+  ACTIVE
+  COMPLETED
+}
+
+enum LocationSource {
+  TAMBON
+  PIN
+  GPS
+  LINK
+  PLACE
+}
+
+enum LinkKind {
+  FACEBOOK
+  YOUTUBE
+  TIKTOK
+  DRIVE
+  WEB
+}
+
+enum AttachmentKind {
+  DOCUMENT
+  IMAGE
+}
+
+model Activity {
+  id          Int    @id @default(autoincrement())
+  title       String
+  description String @db.Text
+
+  // ที่มาของข้อมูล — นำเข้าซ้ำได้โดยไม่สร้างซ้ำ (sourceSystem + sourceId ไม่ซ้ำกัน)
+  sourceSystem String? @db.VarChar(50) // เช่น "stopdrinknetwork"
+  sourceId     Int?
+
+  category    String? @db.VarChar(100) // ประเด็นตามระบบต้นทาง เช่น "Civic Space"
+  subCategory String? @db.VarChar(100)
+
+  authorName  String? @db.VarChar(200)
+  authorEmail String? @db.VarChar(191)
+
+  areaName       String?
+  district       String // ตำบล
+  amphoe         String // อำเภอ
+  province       String // จังหวัด
+  areaScope      AreaScope      @default(SUBDISTRICT)
+  region         String // โซนพื้นที่ (HealthZone slug)
+  zipcode        String?
+  latitude       Float?
+  longitude      Float?
+  locationSource LocationSource @default(TAMBON)
+
+  participantCount   Int?
+  partners           Json?
+  hasSurvey          Boolean @default(false)
+  coverageVillages   Int?
+  coverageHouseholds Int?
+  coveragePopulation Int?
+
+  // ผู้ประสานงานในพื้นที่ — ห้ามขึ้นหน้าสาธารณะ (PDPA)
+  coordinatorName    String?
+  coordinatorRole    String?
+  coordinatorPhone   String?
+  coordinatorLine    String?
+  coordinatorConsent Boolean @default(false)
+
+  // เผยแพร่เป็นกรณีศึกษาสาธารณะ
+  isPublished  Boolean   @default(false)
+  publishedAt  DateTime?
+  storyLead    String?   @db.Text
+  storyProcess String?   @db.Text
+  storyLessons String?   @db.Text
+
+  status             ActivityStatus @default(ACTIVE)
+  startDate          DateTime?
+  startDatePrecision DatePrecision  @default(DAY)
+  endDate            DateTime?
+
+  attachments ActivityAttachment[]
+  links       ActivityLink[]
+  areas       ActivityArea[]
+  policies    ActivityPolicy[]
+
+  deletedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([sourceSystem, sourceId])
+  @@index([isPublished])
+  @@index([province])
+  @@index([province, amphoe, district])
+  @@index([region])
+  @@index([status])
+  @@index([deletedAt])
+}
+
+model ActivityPolicy {
+  id         Int         @id @default(autoincrement())
+  activityId Int
+  activity   Activity    @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  level      PolicyLevel
+  name       String?     @db.VarChar(300)
+  type       String?     @db.VarChar(100)
+  year       Int?
+  createdAt  DateTime    @default(now())
+
+  @@unique([activityId, level])
+  @@index([level])
+}
+
+model ActivityArea {
+  id             Int            @id @default(autoincrement())
+  activityId     Int
+  activity       Activity       @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  areaName       String?        @db.VarChar(200)
+  district       String
+  amphoe         String
+  province       String
+  region         String
+  zipcode        String?
+  latitude       Float?
+  longitude      Float?
+  locationSource LocationSource @default(TAMBON)
+  note           String?        @db.VarChar(200)
+  sortOrder      Int            @default(0)
+  createdAt      DateTime       @default(now())
+
+  @@index([activityId])
+  @@index([province, amphoe, district])
+}
+
+model ActivityLink {
+  id         Int      @id @default(autoincrement())
+  activityId Int
+  activity   Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  url        String   @db.VarChar(2000)
+  title      String?  @db.VarChar(200)
+  kind       LinkKind @default(WEB)
+  sortOrder  Int      @default(0)
+  isPublic   Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  @@index([activityId])
+}
+
+model ActivityAttachment {
+  id          Int            @id @default(autoincrement())
+  activityId  Int
+  activity    Activity       @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  kind        AttachmentKind
+  filePath    String // path ภายใต้ uploads/ — ห้ามเก็บไฟล์ผู้ใช้ใน public/
+  fileName    String
+  mimeType    String
+  size        Int
+  caption     String?
+  isCover     Boolean        @default(false)
+  policyLevel PolicyLevel?
+  isSurvey    Boolean        @default(false)
+  isPublic    Boolean        @default(false)
+  createdAt   DateTime       @default(now())
+
+  @@index([activityId])
+}

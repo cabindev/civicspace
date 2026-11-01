@@ -11,6 +11,7 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import authOptions from '@/app/lib/configs/auth/authOptions';
 import { isAdminRole } from '@/app/lib/roles';
+import { dedupeVideos } from '@/app/lib/dedupeVideos';
 
 const API_BASE = 'https://civicspace-gqdcg0dxgjbqe8as.southeastasia-01.azurewebsites.net/api/v1';
 const CACHE_SECONDS = 300;
@@ -52,7 +53,7 @@ export async function GET() {
       ]);
 
     const posts = listOf(postsData);
-    const videos = listOf(videosData);
+    const videos = dedupeVideos(listOf(videosData) as Array<Item & { id: number; video_url?: string }>);
     const surveys = listOf(surveysData);
     const categories = listOf(categoriesData);
 

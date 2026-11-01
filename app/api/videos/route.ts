@@ -1,5 +1,6 @@
 // app/api/videos/route.ts
 import { NextRequest, NextResponse } from 'next/server';
+import { dedupeVideos } from '@/app/lib/dedupeVideos';
 
 const API_BASE = 'https://civicspace-gqdcg0dxgjbqe8as.southeastasia-01.azurewebsites.net/api/v1';
 
@@ -38,6 +39,9 @@ export async function GET(request: NextRequest) {
 
     const data = await response.json();
     console.log(`Successfully fetched videos data, type: ${type}, count: ${data.length || data.results?.length || 0}`);
+    // ซ่อนวิดีโอที่ลงซ้ำ (ลิงก์คลิปเดียวกัน) — latest ตอบเป็น array, แบบแบ่งหน้าตอบ {count, results}
+    if (Array.isArray(data)) return NextResponse.json(dedupeVideos(data));
+    if (Array.isArray(data?.results)) return NextResponse.json({ ...data, results: dedupeVideos(data.results) });
     return NextResponse.json(data);
   } catch (error) {
     console.error('Error fetching videos from CivicSpace API:', error);

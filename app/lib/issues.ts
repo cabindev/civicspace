@@ -22,7 +22,7 @@ export interface IssueGroup {
 export const ISSUE_GROUPS: IssueGroup[] = [
   {
     key: 'youth',
-    stage: 'โต',
+    stage: 'เติบโตอย่างมีคุณภาพ',
     title: 'เยาวชนและพื้นที่ให้เติบโต',
     quote: 'เมื่อเด็กมีสนามให้วิ่ง เขาก็ไม่จำเป็นต้องวิ่งเข้าหาความเสี่ยง',
     question: 'เด็กจะโตมาโดยไม่ต้องวิ่งเข้าหาความเสี่ยงได้ไหม',

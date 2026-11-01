@@ -273,7 +273,7 @@ export default function LifeCycle() {
           </div>
           <div className="flex-shrink-0 ml-4">
             <Image
-              src="/img/civicspace.svg"
+              src="/civicspace.svg"
               alt="CivicSpace"
               width={100}
               height={40}

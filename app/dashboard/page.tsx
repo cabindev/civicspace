@@ -116,84 +116,11 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchAllStats = async () => {
       try {
-        // Fetch all data in parallel
-        const [postsRes, videosRes, surveysRes, categoriesRes, popularPostsRes, popularVideosRes, popularSurveysRes] = await Promise.all([
-          fetch(`/api/post?page=1&page_size=1000`),
-          fetch(`/api/videos?page=1&page_size=1000`),
-          fetch(`/api/surveys?type=latest&limit=1000`),
-          fetch(`/api/categories`),
-          fetch(`/api/post?type=popular&limit=10`),
-          fetch(`/api/videos?type=popular&limit=10`),
-          fetch(`/api/surveys?type=popular&limit=10`)
-        ]);
-
-        const [postsData, videosData, surveysData, categoriesData, popularPosts, popularVideos, popularSurveys] = await Promise.all([
-          postsRes.json(),
-          videosRes.json(),
-          surveysRes.json(),
-          categoriesRes.json(),
-          popularPostsRes.json(),
-          popularVideosRes.json(),
-          popularSurveysRes.json()
-        ]);
-
-        console.log('Dashboard Data:', { postsData, videosData, surveysData, categoriesData });
-
-        // Process posts
-        const allPosts = postsData.results || postsData || [];
-        const postsTotal = postsData.count || allPosts.length || 0;
-        const postsTotalViews = allPosts.reduce((sum: number, post: any) => sum + (post.view_count || 0), 0);
-
-        // Process videos
-        const allVideos = videosData.results || videosData || [];
-        const videosTotal = videosData.count || allVideos.length || 0;
-        const videosTotalViews = allVideos.reduce((sum: number, video: any) => sum + (video.view_count || 0), 0);
-
-        // Process surveys
-        const allSurveys = Array.isArray(surveysData) ? surveysData : (surveysData.results || []);
-        const surveysTotal = allSurveys.length;
-        const surveysTotalViews = allSurveys.reduce((sum: number, survey: any) => sum + (survey.view_count || 0), 0);
-        const surveysTotalResponses = allSurveys.reduce((sum: number, survey: any) => sum + (survey.response_count || 0), 0);
-
-        // Process categories
-        const allCategories = categoriesData.results || categoriesData || [];
-        const categoriesTotal = categoriesData.count || allCategories.length || 0;
-
-        // Log first category to check API response structure
-        if (allCategories.length > 0) {
-          console.log('📊 Sample category data:', allCategories[0]);
-        }
-
-        // Ensure arrays for popular content
-        const popularPostsArray = Array.isArray(popularPosts) ? popularPosts : [];
-        const popularVideosArray = Array.isArray(popularVideos) ? popularVideos : (popularVideos?.results || []);
-        const popularSurveysArray = Array.isArray(popularSurveys) ? popularSurveys : [];
-
-        setStats({
-          posts: {
-            total: postsTotal,
-            totalViews: postsTotalViews,
-            popular: popularPostsArray.slice(0, 10),
-            recent: allPosts.slice(0, 10)
-          },
-          videos: {
-            total: videosTotal,
-            totalViews: videosTotalViews,
-            popular: popularVideosArray.slice(0, 10),
-            recent: allVideos.slice(0, 10)
-          },
-          surveys: {
-            total: surveysTotal,
-            totalViews: surveysTotalViews,
-            totalResponses: surveysTotalResponses,
-            popular: popularSurveysArray.slice(0, 10),
-            recent: allSurveys.slice(0, 10)
-          },
-          categories: {
-            total: categoriesTotal,
-            list: allCategories.slice(0, 12)
-          }
-        });
+        // สรุปสถิติคำนวณฝั่ง server และ cache ไว้ 5 นาที (ดู app/api/dashboard/stats/route.ts)
+        // เดิมดึงข้อมูลดิบ 7 ตัวจากเบราว์เซอร์ (โพสต์ 1,000 รายการ) ทุกครั้งที่เปิดหน้า
+        const res = await fetch('/api/dashboard/stats');
+        if (!res.ok) throw new Error(`Dashboard stats error: ${res.status}`);
+        setStats(await res.json());
       } catch (error) {
         console.error('Error fetching dashboard stats:', error);
       } finally {

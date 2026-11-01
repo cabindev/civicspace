@@ -48,7 +48,7 @@ const EditUserPage: React.FC = () => {
     const { name, value, files } = event.target;
     if (name === 'image' && files) {
       const file = files[0];
-      const allowedExtensions = ['.jpg', '.jpeg', '.webp', '.svg', '.png'];
+      const allowedExtensions = ['.jpg', '.jpeg', '.webp', '.png'];
       const fileExtension = file.name.split('.').pop()?.toLowerCase();
 
       if (file && allowedExtensions.includes(`.${fileExtension}`)) {

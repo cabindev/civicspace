@@ -2,6 +2,7 @@
 // ดึงข้อมูลหน้าแรกฝั่งเซิร์ฟเวอร์ + แคชด้วย Data Cache ของ Next
 // (เดิมหน้าแรกยิง fetch จากเบราว์เซอร์ผ่าน /api/* ทำให้ผู้ใช้ต้องรอ waterfall ทุกครั้ง)
 import type { Survey } from '@/lib/api';
+import { dedupeVideos } from '@/app/lib/dedupeVideos';
 
 const API_BASE =
   'https://civicspace-gqdcg0dxgjbqe8as.southeastasia-01.azurewebsites.net/api/v1';
@@ -101,8 +102,9 @@ export function getPopularPosts(limit = 4) {
   return fetchList<Post>(`/posts/popular/?limit=${limit}`, 'posts');
 }
 
-export function getLatestVideos(limit = 12) {
-  return fetchList<Video>(`/videos/latest/?limit=${limit}`, 'videos');
+// วิดีโอผ่าน dedupeVideos เสมอ — API มีวิดีโอที่ลงซ้ำ (ลิงก์คลิปเดียวกัน) ดู app/lib/dedupeVideos.ts
+export async function getLatestVideos(limit = 12) {
+  return dedupeVideos(await fetchList<Video>(`/videos/latest/?limit=${limit}`, 'videos'));
 }
 
 export function getLatestSurveys(limit = 3) {
@@ -131,8 +133,8 @@ export function getCategoryPosts(slug: string) {
   return fetchCategoryList<Post>(slug, 'posts');
 }
 
-export function getCategoryVideos(slug: string) {
-  return fetchCategoryList<Video>(slug, 'videos');
+export async function getCategoryVideos(slug: string) {
+  return dedupeVideos(await fetchCategoryList<Video>(slug, 'videos'));
 }
 
 /**

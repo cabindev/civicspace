@@ -16,6 +16,8 @@ import {
   type Category,
 } from '@/app/lib/homeData';
 import { ISSUE_GROUPS, getIssueGroup } from '@/app/lib/issues';
+import ChanFlowerIcon from '@/app/farewell/components/ChanFlowerIcon';
+import { FUNERAL_CATEGORY_ID } from '@/app/farewell/journey/content';
 
 export const revalidate = 300;
 
@@ -233,6 +235,26 @@ export default async function IssueGroupPage({ params, searchParams }: PageProps
                   </Link>
                 )}
               </article>
+
+              {/* ประเด็นงานศพมีทางออกที่ใช้ได้ทันที: "ส่งด้วยใจ" */}
+              {category.id === FUNERAL_CATEGORY_ID && (
+                <Link
+                  href="/farewell"
+                  className="group mb-10 flex items-center gap-4 rounded-2xl bg-gray-900 p-5 sm:p-6 text-white transition hover:bg-gray-800"
+                >
+                  <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white text-gray-900">
+                    <ChanFlowerIcon className="h-7 w-7" />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-xs text-yellow-300">ทางออกที่ใช้ได้ทันที</span>
+                    <span className="mt-0.5 block text-lg sm:text-xl font-bold">ส่งด้วยใจ</span>
+                    <span className="mt-0.5 block text-sm text-gray-300">
+                      วางแผนงานศพด้วยตัวเอง เรียบง่าย สมเกียรติ ไม่เป็นหนี้ · พร้อมป้าย “ไม่เลี้ยงเหล้า” พิมพ์ได้
+                    </span>
+                  </span>
+                  <ArrowRight className="h-5 w-5 shrink-0 transition-transform group-hover:translate-x-1" />
+                </Link>
+              )}
 
               {bridge && (
                 <p className="max-w-3xl mx-auto mb-10 border-l-4 border-yellow-400 bg-yellow-50 px-4 py-3 text-sm text-gray-700 whitespace-pre-line">

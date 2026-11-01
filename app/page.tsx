@@ -7,6 +7,7 @@ import { Footer } from './components/Footer';
 import LifeCycle from './components/LifeCycle';
 import HomeHero from './components/home/HomeHero';
 import LifeJourney, { LifeJourneySkeleton } from './components/home/LifeJourney';
+import FarewellFeature from './components/home/FarewellFeature';
 import LatestPostsSection, { LatestPostsSkeleton } from './components/home/LatestPostsSection';
 import LatestVideosSection, { LatestVideosSkeleton } from './components/home/LatestVideosSection';
 import SurveysSection from './components/home/SurveysSection';
@@ -30,6 +31,9 @@ export default function HomePage() {
       <Suspense fallback={<LifeJourneySkeleton />}>
         <LifeJourney />
       </Suspense>
+
+      {/* ทางออกของช่วงชีวิตที่ 3 (งานศพ): ส่งด้วยใจ — พื้นสีเดียวกับเส้นทางชีวิต ต่อกันเป็นส่วนเดียว */}
+      <FarewellFeature />
 
       {/* แต่ละ section ดึงข้อมูลของตัวเองแบบขนาน ส่วนไหนพร้อมก่อนแสดงก่อน */}
       <Suspense fallback={<LatestPostsSkeleton />}>

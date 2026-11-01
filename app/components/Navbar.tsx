@@ -3,8 +3,10 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { usePathname } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
 import { BarChart3, LogIn, LogOut, Home, User, Layers, ChevronDown } from 'lucide-react';
+import ChanFlowerIcon from '../farewell/components/ChanFlowerIcon';
 import { ISSUE_GROUPS } from '../lib/issues';
 
 function IssuesMenu() {
@@ -36,16 +38,27 @@ function IssuesMenu() {
       {open && (
         <div className="absolute right-0 sm:left-0 sm:right-auto mt-2 w-72 bg-white rounded-lg shadow-xl border border-gray-200 z-30 py-2">
           {ISSUE_GROUPS.map((group, index) => (
-            <Link
-              key={group.key}
-              href={`/issues/${group.key}`}
-              onClick={() => setOpen(false)}
-              className="block px-4 py-2.5 hover:bg-yellow-50 transition-colors"
-            >
-              <span className="block text-[11px] text-yellow-700">{index + 1} · {group.stage}</span>
-              <span className="block text-sm font-medium text-gray-900">{group.title}</span>
-              <span className="block text-xs text-gray-500">{group.menuHint}</span>
-            </Link>
+            <div key={group.key}>
+              <Link
+                href={`/issues/${group.key}`}
+                onClick={() => setOpen(false)}
+                className="block px-4 py-2.5 hover:bg-yellow-50 transition-colors"
+              >
+                <span className="block text-[11px] text-yellow-700">{index + 1} · {group.stage}</span>
+                <span className="block text-sm font-medium text-gray-900">{group.title}</span>
+                <span className="block text-xs text-gray-500">{group.menuHint}</span>
+              </Link>
+              {group.key === 'life-rituals' && (
+                <Link
+                  href="/farewell"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center gap-1.5 px-4 pb-2.5 -mt-1 text-xs font-medium text-gray-700 hover:text-gray-900"
+                >
+                  <ChanFlowerIcon className="w-3.5 h-3.5" />
+                  ทางออกงานศพ: ส่งด้วยใจ →
+                </Link>
+              )}
+            </div>
           ))}
           <Link
             href="/issues"
@@ -67,6 +80,8 @@ interface NavbarProps {
 
 function Navbar({ showDashboardLink = true, showHomeLink = false }: NavbarProps) {
   const { data: session } = useSession();
+  const pathname = usePathname();
+  const isFarewell = pathname?.startsWith('/farewell');
 
   const handleSignOut = async () => {
     await signOut({ callbackUrl: '/' });
@@ -96,8 +111,21 @@ function Navbar({ showDashboardLink = true, showHomeLink = false }: NavbarProps)
           </div>
           
           {/* Navigation Links */}
-          <div className="flex items-center space-x-2 sm:space-x-4">
+          <div className="flex items-center space-x-1 sm:space-x-4">
             <IssuesMenu />
+
+            {/* ส่งด้วยใจ: ทางออกของประเด็นงานศพ (รวมหน้า 3D เส้นทางสุดท้ายไว้ข้างใน) */}
+            <Link
+              href="/farewell"
+              aria-label="ส่งด้วยใจ"
+              aria-current={isFarewell ? 'page' : undefined}
+              className={`inline-flex items-center min-h-10 px-2 sm:px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                isFarewell ? 'bg-yellow-50 text-gray-900' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'
+              }`}
+            >
+              <ChanFlowerIcon className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">ส่งด้วยใจ</span>
+            </Link>
 
             {/* Home Link (for dashboard page) */}
             {showHomeLink && (

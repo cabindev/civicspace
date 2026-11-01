@@ -14,6 +14,10 @@ const nextConfig = {
       { protocol: 'https', hostname: 'civicblogs12.blob.core.windows.net' },
     ],
   },
+  async redirects() {
+    // หน้า 3D ย้ายเข้าไปอยู่ใต้ "ส่งด้วยใจ" (1 พ.ย. 2569) — ลิงก์เก่าที่แชร์ไปแล้วยังเปิดได้
+    return [{ source: '/last-journey', destination: '/farewell/journey', permanent: true }];
+  },
 };
 
 export default nextConfig;

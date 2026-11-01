@@ -1,84 +1,137 @@
-// app/components/home/LatestPostsSection.tsx
+// app/components/home/LatestPostsSection.tsx — "เรื่องเล่าจากพื้นที่": เลย์เอาต์แบบนิตยสาร
+// เรื่องเด่น 1 + เรื่องรอง 4 (bento) แล้วตามด้วยรายการอ่านต่อ 6 เรื่อง
 import Link from 'next/link';
 import Image from 'next/image';
+import { ArrowRight, Clock, Eye } from 'lucide-react';
 import { formatThaiDate, getLatestPosts, type Post } from '@/app/lib/homeData';
+import { Reveal } from './Motion';
 
-// ความสูงแบบ Unsplash — ใช้เฉพาะคลาสที่มีจริงใน Tailwind
-// (ของเดิมมี h-88 กับ h-76 ซึ่งไม่มีในธีม การ์ดจึงสูง 0 และรูปหายไป)
-const HEIGHTS = ['h-56', 'h-64', 'h-80', 'h-72', 'h-60', 'h-96', 'h-52', 'h-44', 'h-48', 'h-40'];
+const BENTO = 5; // เรื่องเด่น + 4
+const MORE = 6;
 
 function SectionHeader() {
   return (
-    <div className="text-center mb-8 sm:mb-12">
-      <div className="inline-flex items-center justify-center w-12 h-12 bg-yellow-100 rounded-full mb-4">
-        <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
-        </svg>
+    <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between mb-10 sm:mb-12">
+      <div className="max-w-2xl">
+        <p className="text-xs sm:text-sm font-semibold tracking-wide text-yellow-700">เรื่องเล่าจากพื้นที่</p>
+        <h2 className="mt-2 text-2xl sm:text-4xl font-bold text-gray-900">บทความล่าสุด</h2>
+        <p className="mt-3 text-sm sm:text-base text-gray-600">
+          บันทึกจากคนทำงานในชุมชน — ทำอะไร เจออะไร และเปลี่ยนอะไรได้บ้าง
+        </p>
       </div>
-      <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2 sm:mb-4">บทความล่าสุด</h2>
-      <p className="text-sm sm:text-base text-gray-600 max-w-2xl mx-auto">
-        ติดตามข้อมูลและองค์ความรู้ใหม่ๆ จากทีมงาน CivicSpace
-      </p>
+      <Link
+        href="/post"
+        className="group inline-flex shrink-0 items-center gap-2 self-start rounded-full border border-stone-300 px-5 py-2.5 text-sm font-medium text-stone-800 transition hover:border-stone-900 hover:bg-stone-900 hover:text-white sm:self-auto"
+      >
+        ดูบทความทั้งหมด
+        <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+      </Link>
     </div>
   );
 }
 
-function FeaturedPost({ post }: { post: Post }) {
+function Meta({ post, light = false }: { post: Post; light?: boolean }) {
+  const tone = light ? 'text-white/75' : 'text-gray-500';
   return (
-    <Link href={`/post/${post.slug}`} className="block mb-8">
-      <div className="group relative rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500">
-        <div className="relative aspect-[21/9] overflow-hidden bg-gray-100">
+    <div className={`flex flex-wrap items-center gap-x-3 gap-y-1 text-xs ${tone}`}>
+      <span>{formatThaiDate(post.created_at)}</span>
+      {post.reading_time > 0 && (
+        <span className="inline-flex items-center gap-1">
+          <Clock className="h-3 w-3" />
+          {post.reading_time} นาที
+        </span>
+      )}
+      {post.view_count > 0 && (
+        <span className="inline-flex items-center gap-1">
+          <Eye className="h-3 w-3" />
+          {post.view_count.toLocaleString('th-TH')}
+        </span>
+      )}
+    </div>
+  );
+}
+
+function CategoryChip({ post, light = false }: { post: Post; light?: boolean }) {
+  if (!post.category) return null;
+  return (
+    <span
+      className={
+        light
+          ? 'inline-block max-w-full truncate rounded-full bg-yellow-400 px-2.5 py-0.5 text-[11px] font-semibold text-stone-950'
+          : 'inline-block max-w-full truncate rounded-full bg-yellow-100 px-2.5 py-0.5 text-[11px] font-semibold text-yellow-800'
+      }
+    >
+      {post.category.name}
+    </span>
+  );
+}
+
+/** การ์ดภาพเต็ม ตัวหนังสือทับภาพ — ใช้ทั้งเรื่องเด่นและเรื่องรอง */
+function OverlayCard({ post, featured = false }: { post: Post; featured?: boolean }) {
+  return (
+    <Link
+      href={`/post/${post.slug}`}
+      className={`group relative block h-full overflow-hidden rounded-3xl bg-stone-900 shadow-sm ring-1 ring-black/5 transition duration-500 hover:shadow-xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-400 ${
+        featured ? 'min-h-[22rem] sm:min-h-[28rem]' : 'min-h-[15rem]'
+      }`}
+    >
+      {post.featured_image_url && (
+        <Image
+          src={post.featured_image_url}
+          alt=""
+          fill
+          sizes={featured ? '(max-width: 1024px) 100vw, 640px' : '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 320px'}
+          className="object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-105"
+        />
+      )}
+      {/* ภาพปกบางรูปมีตัวหนังสืออยู่ในภาพ — ส่วนล่างต้องทึบพอให้อ่านชื่อเรื่องได้ */}
+      <div className="absolute inset-0 bg-gradient-to-t from-stone-950 from-25% via-stone-950/60 via-55% to-transparent" />
+
+      <div className={`absolute inset-x-0 bottom-0 ${featured ? 'p-6 sm:p-8' : 'p-5'}`}>
+        <CategoryChip post={post} light />
+        <h3
+          className={`mt-3 font-bold text-white leading-[1.5] transition-colors group-hover:text-yellow-300 ${
+            featured ? 'text-xl sm:text-3xl line-clamp-3' : 'text-sm sm:text-base line-clamp-2'
+          }`}
+        >
+          {post.title}
+        </h3>
+        {featured && post.excerpt && (
+          <p className="mt-3 hidden sm:block text-sm leading-relaxed text-stone-300 line-clamp-2 max-w-xl">{post.excerpt}</p>
+        )}
+        <div className="mt-3">
+          <Meta post={post} light />
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+/** รายการอ่านต่อ: ภาพเล็กซ้าย ตัวหนังสือขวา */
+function RowCard({ post }: { post: Post }) {
+  return (
+    <Link
+      href={`/post/${post.slug}`}
+      className="group flex gap-4 rounded-2xl p-2 -m-2 transition hover:bg-yellow-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-yellow-500"
+    >
+      <div className="relative h-24 w-28 sm:w-32 shrink-0 overflow-hidden rounded-xl bg-stone-100">
+        {post.featured_image_url && (
           <Image
-            src={post.featured_image_url!}
-            alt={post.title}
+            src={post.featured_image_url}
+            alt=""
             fill
-            sizes="(max-width: 1280px) 100vw, 1280px"
-            className="object-cover group-hover:scale-105 transition-transform duration-700"
+            sizes="128px"
+            className="object-cover transition-transform duration-700 group-hover:scale-110"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-
-          {/* Featured Badge */}
-          <div className="absolute top-4 left-4">
-            <span className="bg-yellow-500 text-white text-sm px-4 py-2 rounded-full font-semibold shadow-lg flex items-center space-x-2">
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-              </svg>
-              <span>บทความเด่น</span>
-            </span>
-          </div>
-
-          {/* Content Overlay */}
-          <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-8 lg:p-10">
-            <div className="max-w-4xl">
-              <div className="flex items-center space-x-3 mb-3">
-                {post.category && (
-                  <span className="bg-white/20 backdrop-blur-sm text-white text-xs px-3 py-1 rounded-full border border-white/30">
-                    {post.category.name}
-                  </span>
-                )}
-                <span className="text-white/80 text-xs">{formatThaiDate(post.created_at)}</span>
-              </div>
-              <h3 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-3 group-hover:text-yellow-300 transition-colors line-clamp-2">
-                {post.title}
-              </h3>
-              <div className="flex items-center space-x-4 text-white/80 text-sm">
-                <span className="flex items-center space-x-1">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                  </svg>
-                  <span>{post.view_count.toLocaleString()} ครั้ง</span>
-                </span>
-                <span>•</span>
-                <span className="flex items-center space-x-1">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <span>{post.reading_time} นาที</span>
-                </span>
-              </div>
-            </div>
-          </div>
+        )}
+      </div>
+      <div className="min-w-0 flex-1 py-0.5">
+        <CategoryChip post={post} />
+        <h3 className="mt-1.5 text-sm font-semibold leading-[1.6] text-gray-900 line-clamp-2 transition-colors group-hover:text-yellow-700">
+          {post.title}
+        </h3>
+        <div className="mt-1">
+          <Meta post={post} />
         </div>
       </div>
     </Link>
@@ -87,13 +140,13 @@ function FeaturedPost({ post }: { post: Post }) {
 
 export function LatestPostsSkeleton() {
   return (
-    <section className="py-8 sm:py-12 lg:py-16 bg-white">
+    <section className="bg-white py-16 sm:py-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <SectionHeader />
-        <div className="aspect-[21/9] rounded-2xl bg-gray-100 animate-pulse mb-8" />
-        <div className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4">
-          {HEIGHTS.slice(0, 8).map((h, i) => (
-            <div key={i} className={`${h} rounded-lg bg-gray-100 animate-pulse break-inside-avoid mb-4`} />
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:grid-rows-2">
+          <div className="min-h-[22rem] sm:col-span-2 lg:row-span-2 rounded-3xl bg-stone-100 animate-pulse" />
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="min-h-[15rem] rounded-3xl bg-stone-100 animate-pulse" />
           ))}
         </div>
       </div>
@@ -102,56 +155,46 @@ export function LatestPostsSkeleton() {
 }
 
 export default async function LatestPostsSection() {
-  const posts = await getLatestPosts(12);
-  const featured = posts[0]?.featured_image_url ? posts[0] : null;
+  const posts = await getLatestPosts(BENTO + MORE);
+  if (posts.length === 0) return null;
+
+  // เรื่องเด่นควรมีภาพ — เลือกเรื่องแรกที่มีภาพ ที่เหลือเรียงตามเดิม
+  const featuredIndex = Math.max(0, posts.findIndex((p) => p.featured_image_url));
+  const featured = posts[featuredIndex];
+  const rest = posts.filter((_, i) => i !== featuredIndex);
+  const side = rest.slice(0, BENTO - 1);
+  const more = rest.slice(BENTO - 1);
 
   return (
-    <section className="py-8 sm:py-12 lg:py-16 bg-white">
+    <section className="bg-white py-16 sm:py-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <SectionHeader />
+        <Reveal>
+          <SectionHeader />
+        </Reveal>
 
-        {featured && <FeaturedPost post={featured} />}
-
-        {/* Other Posts Grid */}
-        <div className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4">
-          {posts.slice(1).map((post, index) => (
-            <Link key={post.id} href={`/post/${post.slug}`} className="group">
-              <article className="rounded-lg overflow-hidden transition-all duration-300 group-hover:scale-105 hover:shadow-lg break-inside-avoid mb-4 bg-gray-100">
-                {post.featured_image_url && (
-                  <div className={`relative ${HEIGHTS[index % HEIGHTS.length]} overflow-hidden`}>
-                    <Image
-                      src={post.featured_image_url}
-                      alt={post.title}
-                      fill
-                      sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 320px"
-                      className="object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-                    <div className="absolute bottom-0 left-0 right-0 p-3">
-                      <h3 className="text-white text-xs font-medium line-clamp-2 leading-tight">
-                        {post.title}
-                      </h3>
-                    </div>
-                  </div>
-                )}
-              </article>
-            </Link>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:grid-rows-2">
+          <Reveal className="sm:col-span-2 lg:row-span-2">
+            <OverlayCard post={featured} featured />
+          </Reveal>
+          {side.map((post, i) => (
+            <Reveal key={post.id} delay={0.06 * (i + 1)}>
+              <OverlayCard post={post} />
+            </Reveal>
           ))}
         </div>
 
-        {/* Total Posts Info & View All Button */}
-        <div className="text-center mt-6 sm:mt-8 space-y-4">
-          <div className="text-xs sm:text-sm text-gray-500">แสดง {posts.length} บทความ</div>
-          <Link
-            href="/post"
-            className="inline-flex items-center space-x-2 px-6 py-3 bg-yellow-500 hover:bg-yellow-600 text-white font-medium rounded-lg transition-colors"
-          >
-            <span>ดูบทความทั้งหมด</span>
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </Link>
-        </div>
+        {more.length > 0 && (
+          <div className="mt-12 sm:mt-16 border-t border-stone-200 pt-10">
+            <p className="mb-6 text-sm font-semibold text-gray-900">อ่านต่อ</p>
+            <ul className="grid gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-3">
+              {more.map((post) => (
+                <li key={post.id}>
+                  <RowCard post={post} />
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
     </section>
   );

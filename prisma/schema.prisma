@@ -12,9 +12,9 @@ model User {
   firstName           String
   lastName            String
   email               String    @unique
-  password            String
+  password            String? // ว่างได้ — บัญชีที่เข้าด้วย Google ไม่มีรหัสผ่าน
   image               String?
-  role                Role      @default(MEMBER)
+  role                Role      @default(PENDING)
   emailVerified       DateTime?
   resetToken          String?   @unique
   resetTokenCreatedAt DateTime?
@@ -22,11 +22,12 @@ model User {
   lastPasswordReset   DateTime?
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
-
 }
 
+// PENDING = สมัครใหม่ (ฟอร์ม/Google) รอแอดมินอนุมัติ — อนุมัติแล้วเป็น MEMBER
 enum Role {
   SUPER_ADMIN
   ADMIN
   MEMBER
+  PENDING
 }

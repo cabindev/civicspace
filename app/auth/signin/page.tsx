@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, FormEvent, useEffect } from 'react';
+import { useState, FormEvent, useEffect, useSyncExternalStore } from 'react';
 import { signIn, useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { LogIn, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import Loading from '../../components/Loading';
+import GoogleSignInButton, { OrDivider } from '../../components/auth/GoogleSignInButton';
 
 // อ่านปลายทางหลังล็อกอินจาก ?callbackUrl= ที่ middleware แนบมาให้
 // รับเฉพาะ relative path เท่านั้น และกัน protocol-relative (//evil.com) เพื่อไม่ให้กลายเป็น open redirect
@@ -17,6 +18,20 @@ function getCallbackUrl(): string {
   return '/dashboard';
 }
 
+// ?error= ที่ NextAuth แนบกลับมา (pages.error ชี้มาหน้านี้) — แปลเป็นข้อความไทย
+function getAuthErrorMessage(): string | null {
+  if (typeof window === 'undefined') return null;
+  const code = new URLSearchParams(window.location.search).get('error');
+  if (!code) return null;
+  if (code === 'AccessDenied') return 'บัญชี Google นี้ยังไม่ได้ยืนยันอีเมล จึงเข้าสู่ระบบไม่ได้';
+  if (code === 'CredentialsSignin') return 'อีเมลหรือรหัสผ่านไม่ถูกต้อง';
+  return 'เข้าสู่ระบบไม่สำเร็จ โปรดลองอีกครั้ง';
+}
+
+// ค่าใน URL ไม่เปลี่ยนระหว่างอยู่หน้านี้ — ไม่ต้อง subscribe
+// ใช้ useSyncExternalStore เพื่อให้ฝั่ง server ได้ค่า default และฝั่ง client อ่าน URL จริงโดยไม่ hydration mismatch
+const noSubscribe = () => () => {};
+
 export default function SignIn() {
   const { data: session } = useSession();
   const [email, setEmail] = useState<string>('');
@@ -25,6 +40,10 @@ export default function SignIn() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const callbackUrl = useSyncExternalStore(noSubscribe, getCallbackUrl, () => '/dashboard');
+  const urlError = useSyncExternalStore(noSubscribe, getAuthErrorMessage, () => null);
+  const [urlErrorDismissed, setUrlErrorDismissed] = useState(false);
+  const shownError = error ?? (urlErrorDismissed ? null : urlError);
 
   useEffect(() => {
     if (session) {
@@ -35,6 +54,7 @@ export default function SignIn() {
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
+    setUrlErrorDismissed(true);
     setLoading(true);
 
     try {
@@ -88,6 +108,9 @@ export default function SignIn() {
               เข้าสู่ระบบเพื่อเข้าถึงแดชบอร์ด
             </p>
           </div>
+
+          <GoogleSignInButton callbackUrl={callbackUrl} />
+          <OrDivider />
 
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
@@ -166,9 +189,9 @@ export default function SignIn() {
               </Link>
             </div>
 
-            {error && (
+            {shownError && (
               <div className="bg-red-50 border border-red-200 rounded-md p-3">
-                <p className="text-sm text-red-600">{error}</p>
+                <p className="text-sm text-red-600">{shownError}</p>
               </div>
             )}
 

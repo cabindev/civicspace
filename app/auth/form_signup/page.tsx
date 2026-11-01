@@ -8,6 +8,7 @@ import toast, { Toaster } from 'react-hot-toast';
 import imageCompression from 'browser-image-compression';
 import { User, Mail, Lock, Upload, UserPlus, Eye, EyeOff } from 'lucide-react';
 import Loading from '../../components/Loading';
+import GoogleSignInButton, { OrDivider } from '../../components/auth/GoogleSignInButton';
 
 interface FormData {
   firstName: string;
@@ -81,10 +82,11 @@ export default function SignupPage() {
       const data = await response.json();
 
       if (response.status === 200) {
-        toast.success('ลงทะเบียนสำเร็จ กำลังนำคุณไปยังหน้าเข้าสู่ระบบ...', {
+        // บัญชีใหม่เป็น PENDING — เข้าสู่ระบบได้ แต่จะเห็นหน้ารออนุมัติจนกว่าแอดมินอนุมัติ
+        toast.success('สมัครสมาชิกสำเร็จ รอผู้ดูแลระบบอนุมัติ กำลังนำคุณไปยังหน้าเข้าสู่ระบบ...', {
           duration: 4000,
         });
-        setTimeout(() => router.push('/auth/signin'), 2000);
+        setTimeout(() => router.push('/auth/signin'), 2500);
       } else {
         toast.error(data.error || 'เกิดข้อผิดพลาด โปรดลองอีกครั้ง');
       }
@@ -125,9 +127,12 @@ export default function SignupPage() {
               สร้างบัญชีใหม่
             </h2>
             <p className="mt-2 text-sm text-gray-600 text-center">
-              สมัครสมาชิกเพื่อเข้าใช้งานระบบ
+              สมัครสมาชิกเพื่อเข้าใช้งานระบบ — บัญชีใหม่ต้องรอผู้ดูแลระบบอนุมัติก่อน
             </p>
           </div>
+
+          <GoogleSignInButton callbackUrl="/dashboard" />
+          <OrDivider />
 
           <form className="space-y-6" onSubmit={handleSubmit}>
             <Toaster />

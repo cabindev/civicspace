@@ -1,23 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
-import nodemailer from "nodemailer";
 import prisma from "@/app/lib/prisma";
+import { transporter } from "@/app/lib/mailer";
 
 // ตอบข้อความเดียวกันเสมอ ไม่ว่าอีเมลจะมีอยู่จริงหรือไม่
 // เพื่อไม่ให้ endpoint นี้ถูกใช้ไล่เดาว่าอีเมลไหนมีบัญชีในระบบ (user enumeration)
 const GENERIC_RESULT = {
   message: "หากอีเมลนี้มีอยู่ในระบบ เราได้ส่งลิงก์สำหรับรีเซ็ตรหัสผ่านไปให้แล้ว",
 };
-
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
 
 export async function POST(req: NextRequest) {
   try {

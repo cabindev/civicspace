@@ -38,6 +38,12 @@ const menuItems: MenuItem[] = [
     href: '/dashboard'
   },
   {
+    key: '/dashboard/users',
+    icon: Users,
+    label: 'ผู้ใช้',
+    href: '/dashboard/users'
+  },
+  {
     key: 'content',
     icon: FileText,
     label: 'เนื้อหา',

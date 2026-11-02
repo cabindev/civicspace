@@ -26,7 +26,7 @@ function Card({ w }: { w: WorkCard }) {
       href={`/works/${w.id}`}
       className="group flex h-full flex-col overflow-hidden rounded-3xl bg-white shadow-sm ring-1 ring-black/5 transition duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-yellow-900/10 focus-visible:outline focus-visible:outline-4 focus-visible:outline-yellow-400"
     >
-      <div className="relative aspect-[4/3] overflow-hidden bg-stone-200">
+      <div className="relative aspect-video overflow-hidden bg-stone-200">
         {w.coverId ? (
           <Image
             src={fileUrl(w.coverId)}

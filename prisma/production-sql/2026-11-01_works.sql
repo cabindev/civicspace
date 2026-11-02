@@ -141,3 +141,7 @@ ALTER TABLE `ActivityLink` ADD CONSTRAINT `ActivityLink_activityId_fkey` FOREIGN
 -- AddForeignKey
 ALTER TABLE `ActivityAttachment` ADD CONSTRAINT `ActivityAttachment_activityId_fkey` FOREIGN KEY (`activityId`) REFERENCES `Activity`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
+
+-- 2026-11-02: กลุ่มประเด็นตามช่วงชีวิต (youth / festivals / life-rituals) — migration 20261102100000_works_issue
+ALTER TABLE `Activity` ADD COLUMN `issueKey` VARCHAR(40) NULL;
+CREATE INDEX `Activity_issueKey_idx` ON `Activity`(`issueKey`);

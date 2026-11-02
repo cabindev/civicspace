@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
-import { BarChart3, LogIn, LogOut, Home, User, Layers, ChevronDown } from 'lucide-react';
+import { BarChart3, LogIn, LogOut, Home, User, Layers, ChevronDown, MapPin } from 'lucide-react';
 import ChanFlowerIcon from '../farewell/components/ChanFlowerIcon';
 import { ISSUE_GROUPS } from '../lib/issues';
 
@@ -82,6 +82,7 @@ function Navbar({ showDashboardLink = true, showHomeLink = false }: NavbarProps)
   const { data: session } = useSession();
   const pathname = usePathname();
   const isFarewell = pathname?.startsWith('/farewell');
+  const isWorks = pathname?.startsWith('/works');
 
   const handleSignOut = async () => {
     await signOut({ callbackUrl: '/' });
@@ -113,6 +114,19 @@ function Navbar({ showDashboardLink = true, showHomeLink = false }: NavbarProps)
           {/* Navigation Links */}
           <div className="flex items-center space-x-1 sm:space-x-4">
             <IssuesMenu />
+
+            {/* ผลงานในพื้นที่ */}
+            <Link
+              href="/works"
+              aria-label="ผลงาน"
+              aria-current={isWorks ? 'page' : undefined}
+              className={`inline-flex items-center min-h-10 px-2 sm:px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                isWorks ? 'bg-yellow-50 text-gray-900' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'
+              }`}
+            >
+              <MapPin className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">ผลงาน</span>
+            </Link>
 
             {/* ส่งด้วยใจ: ทางออกของประเด็นงานศพ (รวมหน้า 3D เส้นทางสุดท้ายไว้ข้างใน) */}
             <Link

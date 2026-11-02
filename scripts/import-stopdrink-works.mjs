@@ -6,6 +6,11 @@
 //   SDN_DATABASE_URL=... node scripts/import-stopdrink-works.mjs --commit --files-from ../stopdrinknetwork/uploads             # + คัดลอกไฟล์แนบ
 //   --category "ชื่อประเด็น"  เปลี่ยนประเด็นที่ดึง
 //
+//   node scripts/import-stopdrink-works.mjs --from-export <dir> [--commit]
+//     อ่านจากไฟล์ export แทนการต่อฐานข้อมูล: <dir>/export.json (JSON ของ phpMyAdmin รวมเป็น
+//     {works, areas, links, files, policies} — ดึงด้วย SELECT อย่างเดียวจากฐานข้อมูล stopdrinknetwork ตัวจริง)
+//     และไฟล์แนบที่ <dir>/uploads/<filePath> · ใช้ทางนี้เพราะฐานข้อมูลในเครื่องเป็นสำเนาเก่า
+//
 // รันซ้ำได้: จับคู่ด้วย sourceSystem + sourceId — งานที่เคยนำเข้าแล้วถูกอัปเดตและแทนที่พื้นที่/ลิงก์/ไฟล์/นโยบายทั้งชุด
 // ไม่แตะฐานข้อมูลของ stopdrinknetwork (อ่านอย่างเดียว) และไม่ยุ่งกับตาราง User ของ civicspace
 import { PrismaClient } from '@prisma/client';
@@ -20,10 +25,11 @@ const opt = (name) => {
   return i >= 0 ? args[i + 1] : undefined;
 };
 const categoryName = opt('--category') ?? 'Civic Space';
-const filesFrom = opt('--files-from');
+const fromExport = opt('--from-export');
+const filesFrom = opt('--files-from') ?? (fromExport ? path.join(fromExport, 'uploads') : undefined);
 const UPLOADS = path.join(process.cwd(), 'uploads');
 
-if (!process.env.SDN_DATABASE_URL) {
+if (!fromExport && !process.env.SDN_DATABASE_URL) {
   console.error('ต้องตั้ง SDN_DATABASE_URL ให้ชี้ไปฐานข้อมูล stopdrinknetwork');
   process.exit(1);
 }
@@ -32,13 +38,36 @@ if (filesFrom && !fs.existsSync(filesFrom)) {
   process.exit(1);
 }
 
-const src = new PrismaClient({ datasourceUrl: process.env.SDN_DATABASE_URL });
+const src = fromExport ? null : new PrismaClient({ datasourceUrl: process.env.SDN_DATABASE_URL });
 const dst = new PrismaClient();
 
 const bool = (v) => v === true || v === 1 || v === '1' || (typeof v === 'bigint' && v === 1n);
 const json = (v) => (v == null ? null : typeof v === 'string' ? JSON.parse(v) : v);
 
+// phpMyAdmin JSON ส่งทุกค่าเป็นข้อความ — แปลงกลับเป็นชนิดเดิมก่อนใช้
+const INT_KEYS = ['id', 'activityId', 'sourceId', 'participantCount', 'coverageVillages', 'coverageHouseholds', 'coveragePopulation', 'size', 'sortOrder', 'year'];
+const FLOAT_KEYS = ['latitude', 'longitude'];
+const DATE_KEYS = ['createdAt', 'updatedAt', 'publishedAt', 'startDate', 'endDate', 'deletedAt'];
+function normalize(row) {
+  const r = { ...row };
+  for (const k of INT_KEYS) if (r[k] != null) r[k] = Number(r[k]);
+  for (const k of FLOAT_KEYS) if (r[k] != null) r[k] = parseFloat(r[k]);
+  // Prisma เก็บ DATETIME เป็นเวลา UTC
+  for (const k of DATE_KEYS) if (r[k] != null) r[k] = new Date(String(r[k]).replace(' ', 'T') + 'Z');
+  return r;
+}
+
+function loadExport() {
+  const data = JSON.parse(fs.readFileSync(path.join(fromExport, 'export.json'), 'utf8'));
+  const all = Object.fromEntries(['works', 'areas', 'links', 'files', 'policies'].map((k) => [k, (data[k] ?? []).map(normalize)]));
+  all.works = all.works.filter((w) => w.categoryName === categoryName && w.deletedAt == null);
+  const ids = new Set(all.works.map((w) => w.id));
+  for (const k of ['areas', 'links', 'files', 'policies']) all[k] = all[k].filter((r) => ids.has(r.activityId));
+  return all;
+}
+
 async function load() {
+  if (fromExport) return loadExport();
   const works = await src.$queryRaw`
     SELECT a.*, c.name AS categoryName, s.name AS subCategoryName,
            u.firstName AS authorFirst, u.lastName AS authorLast, u.email AS authorEmail
@@ -55,6 +84,14 @@ async function load() {
     inIds('ActivityArea'), inIds('ActivityLink'), inIds('ActivityAttachment'), inIds('ActivityPolicy'),
   ]);
   return { works, areas, links, files, policies };
+}
+
+// เดากลุ่มประเด็น (ชุดเดียวกับ guessIssueKey ใน app/lib/works.ts) — ใส่เฉพาะงานที่ยังไม่มี issueKey
+function guessIssueKey(text) {
+  if (/ศพ|บวช|อุปสมบท/.test(text)) return 'life-rituals';
+  if (/เด็ก|เยาวชน|คนรุ่นใหม่|นักเรียน/.test(text)) return 'youth';
+  if (/สงกรานต์|ปี๋ใหม่|ลอยกระทง|ยี่เป็ง|เดือนสิบ|งานช้าง|บุญ|ประเพณี|เทศกาล/.test(text)) return 'festivals';
+  return null;
 }
 
 function toActivity(w) {
@@ -125,11 +162,11 @@ async function main() {
   for (const w of works) {
     const existing = await dst.activity.findUnique({
       where: { sourceSystem_sourceId: { sourceSystem: SOURCE, sourceId: w.id } },
-      select: { id: true },
+      select: { id: true, issueKey: true },
     });
     const mine = (rows) => rows.filter((r) => r.activityId === w.id);
     const fileRows = mine(files).map((f) => ({ f, ...copyFile(f) }));
-    console.log(`${existing ? 'อัปเดต' : 'สร้างใหม่'}  #${w.id} ${w.title} — ${w.province}${w.isPublished ? ' (เผยแพร่แล้ว)' : ''}`);
+    console.log(`${existing ? 'อัปเดต' : 'สร้างใหม่'}  #${w.id} ${w.title} — ${w.province}${bool(w.isPublished) ? " (เผยแพร่แล้ว)" : ""}`);
     for (const { f, note } of fileRows) console.log(`    ไฟล์ ${f.fileName}: ${note}`);
     if (existing) updated++;
     else created++;
@@ -168,9 +205,13 @@ async function main() {
           tx.activityAttachment.deleteMany({ where: { activityId: existing.id } }),
           tx.activityPolicy.deleteMany({ where: { activityId: existing.id } }),
         ]);
-        await tx.activity.update({ where: { id: existing.id }, data: { ...toActivity(w), ...children } });
+        // issueKey ที่แก้ในแดชบอร์ดแล้วต้องไม่ถูกทับตอนนำเข้าซ้ำ
+        await tx.activity.update({
+          where: { id: existing.id },
+          data: { ...toActivity(w), ...children, ...(existing.issueKey ? {} : { issueKey: guessIssueKey(w.title) }) },
+        });
       } else {
-        await tx.activity.create({ data: { ...toActivity(w), ...children } });
+        await tx.activity.create({ data: { ...toActivity(w), ...children, issueKey: guessIssueKey(w.title) } });
       }
     });
   }
@@ -183,4 +224,4 @@ main()
     console.error(e);
     process.exitCode = 1;
   })
-  .finally(() => Promise.all([src.$disconnect(), dst.$disconnect()]));
+  .finally(() => Promise.all([src?.$disconnect(), dst.$disconnect()]));

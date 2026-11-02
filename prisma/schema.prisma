@@ -95,6 +95,8 @@ model Activity {
   sourceId     Int?
 
   category    String? @db.VarChar(100) // ประเด็นตามระบบต้นทาง เช่น "Civic Space"
+  // กลุ่มประเด็นตามช่วงชีวิตของ civicspace (app/lib/issues.ts: youth / festivals / life-rituals)
+  issueKey    String? @db.VarChar(40)
   subCategory String? @db.VarChar(100)
 
   authorName  String? @db.VarChar(200)
@@ -149,6 +151,7 @@ model Activity {
 
   @@unique([sourceSystem, sourceId])
   @@index([isPublished])
+  @@index([issueKey])
   @@index([province])
   @@index([province, amphoe, district])
   @@index([region])

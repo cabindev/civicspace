@@ -7,6 +7,7 @@ import {
   FileText, 
   Users, 
   Globe,
+  MapPin,
   ChevronDown,
   ChevronRight,
   X
@@ -42,6 +43,12 @@ const menuItems: MenuItem[] = [
     icon: Users,
     label: 'ผู้ใช้',
     href: '/dashboard/users'
+  },
+  {
+    key: '/dashboard/works',
+    icon: MapPin,
+    label: 'ผลงานในพื้นที่',
+    href: '/dashboard/works'
   },
   {
     key: 'content',
@@ -116,6 +123,8 @@ export default function Sidebar() {
   }, [isMobile, isMobileSidebarOpen, setMobileSidebarOpen]);
 
   const isActive = (href: string) => {
+    // หน้าย่อยของผลงาน (/dashboard/works/12) ให้เมนูผลงานยังไฮไลต์อยู่
+    if (href === "/dashboard/works") return pathname?.startsWith(href) ?? false;
     return pathname === href;
   };
 

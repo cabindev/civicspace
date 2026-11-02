@@ -14,6 +14,8 @@ export default function HomeHero() {
         <div className="absolute -left-24 bottom-0 h-72 w-72 rounded-full bg-amber-600/20 blur-3xl" />
         <div className="absolute -right-24 bottom-10 h-72 w-72 rounded-full bg-yellow-400/10 blur-3xl" />
         <div className="absolute inset-0 bg-[radial-gradient(rgba(255,255,255,0.06)_1px,transparent_1px)] [background-size:22px_22px] [mask-image:linear-gradient(to_bottom,black,transparent)]" />
+        {/* โลโก้ CivicSpace จาง ๆ ด้านหลังพาดหัว — ใช้ไฟล์ svg สีเดียวเป็น mask จึงย้อมสีได้ตามธีม */}
+        <div className="absolute left-1/2 top-[42%] aspect-square w-[125vw] max-w-[1150px] -translate-x-1/2 -translate-y-1/2 bg-gradient-to-b from-yellow-200 to-amber-500 opacity-[0.06] [mask-image:url(/civicspace.svg)] [mask-position:center] [mask-repeat:no-repeat] [mask-size:contain] sm:w-[85vw]" />
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 text-center">

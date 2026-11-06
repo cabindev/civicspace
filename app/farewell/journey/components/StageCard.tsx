@@ -36,7 +36,7 @@ export default function StageCard({ copy, index, dark = false, overlay = false }
     >
       {overlay && <div className={styles.masthead}>
         <p>ส่งด้วยใจ · 0{index + 1} / 06</p>
-        <Image src="/farewell/logorip.png" alt="งานศพปลอดเหล้า" width={48} height={41} className="rounded bg-white p-1" />
+        <Image src="/farewell/logorip.png" alt="งานศพปลอดเหล้า" width={168} height={144} className="rounded bg-white p-1" />
       </div>}
       {copy.eyebrow && !overlay && (
         <p className={`text-xs font-medium mb-2 ${dark ? 'text-gray-400' : 'text-gray-900'}`}>{copy.eyebrow}</p>

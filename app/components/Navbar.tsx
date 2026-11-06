@@ -3,8 +3,9 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { usePathname } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
-import { BarChart3, LogIn, LogOut, Home, User, Layers, ChevronDown } from 'lucide-react';
+import { BarChart3, LogIn, LogOut, Home, User, Layers, ChevronDown, Flower2 } from 'lucide-react';
 import { ISSUE_GROUPS } from '../lib/issues';
 
 function IssuesMenu() {
@@ -67,6 +68,8 @@ interface NavbarProps {
 
 function Navbar({ showDashboardLink = true, showHomeLink = false }: NavbarProps) {
   const { data: session } = useSession();
+  const pathname = usePathname();
+  const isJourney = pathname?.startsWith('/last-journey');
 
   const handleSignOut = async () => {
     await signOut({ callbackUrl: '/' });
@@ -96,8 +99,21 @@ function Navbar({ showDashboardLink = true, showHomeLink = false }: NavbarProps)
           </div>
           
           {/* Navigation Links */}
-          <div className="flex items-center space-x-2 sm:space-x-4">
+          <div className="flex items-center space-x-1 sm:space-x-4">
             <IssuesMenu />
+
+            {/* หน้าเรียนรู้งานศพแบบ 3D */}
+            <Link
+              href="/last-journey"
+              aria-label="เส้นทางสุดท้าย"
+              aria-current={isJourney ? 'page' : undefined}
+              className={`inline-flex items-center min-h-10 px-2 sm:px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                isJourney ? 'bg-yellow-50 text-gray-900' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'
+              }`}
+            >
+              <Flower2 className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">เส้นทางสุดท้าย</span>
+            </Link>
 
             {/* Home Link (for dashboard page) */}
             {showHomeLink && (
